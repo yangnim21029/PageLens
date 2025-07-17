@@ -25,6 +25,7 @@ export class TechnicalSEOAssessor {
       assessments.push({
         id: 'canonical-missing',
         type: AssessmentType.SEO,
+        assessmentType: 'technical-seo',
         name: 'Missing Canonical URL',
         description: 'Page is missing a canonical URL',
         status: AssessmentStatus.BAD,
@@ -49,6 +50,7 @@ export class TechnicalSEOAssessor {
         assessments.push({
           id: 'canonical-good',
           type: AssessmentType.SEO,
+          assessmentType: 'technical-seo',
           name: 'Good Canonical URL',
           description: 'Canonical URL is properly set and self-referencing',
           status: AssessmentStatus.GOOD,
@@ -70,6 +72,7 @@ export class TechnicalSEOAssessor {
         assessments.push({
           id: 'canonical-issues',
           type: AssessmentType.SEO,
+          assessmentType: 'technical-seo',
           name: 'Canonical URL Issues',
           description: !isValid ? 'Canonical URL is not valid' : 'Canonical URL does not match current URL',
           status: AssessmentStatus.OK,
@@ -104,6 +107,7 @@ export class TechnicalSEOAssessor {
       assessments.push({
         id: 'robots-restrictive',
         type: AssessmentType.SEO,
+        assessmentType: 'technical-seo',
         name: 'Restrictive Robots Directives',
         description: `Robots meta tag contains: ${robots.meta}`,
         status: AssessmentStatus.OK,
@@ -125,6 +129,7 @@ export class TechnicalSEOAssessor {
       assessments.push({
         id: 'robots-good',
         type: AssessmentType.SEO,
+        assessmentType: 'technical-seo',
         name: 'Good Robots Configuration',
         description: 'Page is indexable and followable',
         status: AssessmentStatus.GOOD,
@@ -155,6 +160,7 @@ export class TechnicalSEOAssessor {
       assessments.push({
         id: 'hreflang-none',
         type: AssessmentType.SEO,
+        assessmentType: 'technical-seo',
         name: 'No Hreflang Tags',
         description: 'Page has no hreflang tags',
         status: AssessmentStatus.OK,
@@ -178,6 +184,7 @@ export class TechnicalSEOAssessor {
       assessments.push({
         id: hasErrors ? 'hreflang-errors' : 'hreflang-good',
         type: AssessmentType.SEO,
+        assessmentType: 'technical-seo',
         name: hasErrors ? 'Hreflang Tag Errors' : 'Good Hreflang Configuration',
         description: `Found ${hreflangs.length} hreflang tag(s)${hasErrors ? ' with errors' : ''}`,
         status: hasErrors ? AssessmentStatus.BAD : AssessmentStatus.GOOD,
@@ -208,6 +215,7 @@ export class TechnicalSEOAssessor {
       assessments.push({
         id: 'ssl-good',
         type: AssessmentType.SEO,
+        assessmentType: 'technical-seo',
         name: 'Secure HTTPS Connection',
         description: 'Page is served over HTTPS without mixed content',
         status: AssessmentStatus.GOOD,
@@ -228,6 +236,7 @@ export class TechnicalSEOAssessor {
       assessments.push({
         id: 'ssl-mixed-content',
         type: AssessmentType.SEO,
+        assessmentType: 'technical-seo',
         name: 'Mixed Content Issues',
         description: 'Page is HTTPS but has mixed content',
         status: AssessmentStatus.OK,
@@ -248,6 +257,7 @@ export class TechnicalSEOAssessor {
       assessments.push({
         id: 'ssl-insecure',
         type: AssessmentType.SEO,
+        assessmentType: 'technical-seo',
         name: 'Insecure HTTP Connection',
         description: 'Page is not served over HTTPS',
         status: AssessmentStatus.BAD,
@@ -279,6 +289,7 @@ export class TechnicalSEOAssessor {
       assessments.push({
         id: 'structured-data-missing',
         type: AssessmentType.SEO,
+        assessmentType: 'structured-data',
         name: 'No Structured Data',
         description: 'Page has no structured data markup',
         status: AssessmentStatus.OK,
@@ -312,6 +323,7 @@ export class TechnicalSEOAssessor {
       assessments.push({
         id: 'structured-data-present',
         type: AssessmentType.SEO,
+        assessmentType: 'structured-data',
         name: 'Structured Data Found',
         description: `Found ${totalSchemas} structured data schema(s), ${validSchemas} valid`,
         status: score >= 80 ? AssessmentStatus.GOOD : score >= 50 ? AssessmentStatus.OK : AssessmentStatus.BAD,

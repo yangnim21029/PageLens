@@ -1,4 +1,4 @@
-import { ExtendedAssessmentResult, AdvancedReadabilityMetrics, ContentStructure } from '../../types/extended-assessment.types';
+ import { ExtendedAssessmentResult, AdvancedReadabilityMetrics, ContentStructure } from '../../types/extended-assessment.types';
 import { ParsedContent } from '../../../understanding-the-page/types/parsed-content.types';
 import { AssessmentType, AssessmentStatus } from '../../types/assessment.types';
 
@@ -27,6 +27,7 @@ export class AdvancedReadabilityAssessor {
     assessments.push({
       id: 'gunning-fog-index',
       type: AssessmentType.READABILITY,
+      assessmentType: 'advanced-readability',
       name: 'Gunning Fog Index',
       description: `Reading level: ${metrics.gunningFog.interpretation}`,
       status: this.getReadabilityStatus(metrics.gunningFog.score, 12),
@@ -45,6 +46,7 @@ export class AdvancedReadabilityAssessor {
     assessments.push({
       id: 'smog-index',
       type: AssessmentType.READABILITY,
+      assessmentType: 'advanced-readability',
       name: 'SMOG Index',
       description: `Reading grade level: ${metrics.smog.score.toFixed(1)}`,
       status: this.getReadabilityStatus(metrics.smog.score, 13),
@@ -63,6 +65,7 @@ export class AdvancedReadabilityAssessor {
     assessments.push({
       id: 'coleman-liau-index',
       type: AssessmentType.READABILITY,
+      assessmentType: 'advanced-readability',
       name: 'Coleman-Liau Index',
       description: `Reading grade level: ${metrics.colemanLiau.score.toFixed(1)}`,
       status: this.getReadabilityStatus(metrics.colemanLiau.score, 12),
@@ -98,6 +101,7 @@ export class AdvancedReadabilityAssessor {
       assessments.push({
         id: 'content-lists-usage',
         type: AssessmentType.READABILITY,
+        assessmentType: 'content-structure',
         name: 'Lists Usage',
         description: `Found ${totalLists} lists with ${totalListItems} total items`,
         status: AssessmentStatus.GOOD,
@@ -117,9 +121,24 @@ export class AdvancedReadabilityAssessor {
                  structure.lists.unordered.reduce((sum, list) => sum + list.itemCount, 0)) /
                 (structure.lists.ordered.length + structure.lists.unordered.length) : 0
             },
-            tables: structure.tables,
-            blockquotes: structure.blockquotes,
-            codeBlocks: structure.codeBlocks
+            tables: {
+              count: structure.tables.length,
+              withHeaders: structure.tables.filter(table => table.hasHeader).length,
+              withCaption: structure.tables.filter(table => table.hasCaption).length,
+              accessibility: {
+                missingHeaders: structure.tables.filter(table => !table.hasHeader).length,
+                complexTables: structure.tables.filter(table => table.rows > 10 || table.columns > 5).length
+              }
+            },
+            blockquotes: {
+              count: structure.blockquotes.length,
+              withCitation: structure.blockquotes.filter(bq => bq.cite).length
+            },
+            codeBlocks: {
+              count: structure.codeBlocks.length,
+              withLanguage: structure.codeBlocks.filter(cb => cb.language).length,
+              languages: [...new Set(structure.codeBlocks.map(cb => cb.language).filter(Boolean))]
+            }
           } as ContentStructure
         }
       });
@@ -127,6 +146,7 @@ export class AdvancedReadabilityAssessor {
       assessments.push({
         id: 'content-lists-missing',
         type: AssessmentType.READABILITY,
+        assessmentType: 'content-structure',
         name: 'No Lists Found',
         description: 'Content could benefit from using lists',
         status: AssessmentStatus.OK,
@@ -146,9 +166,24 @@ export class AdvancedReadabilityAssessor {
                  structure.lists.unordered.reduce((sum, list) => sum + list.itemCount, 0)) /
                 (structure.lists.ordered.length + structure.lists.unordered.length) : 0
             },
-            tables: structure.tables,
-            blockquotes: structure.blockquotes,
-            codeBlocks: structure.codeBlocks
+            tables: {
+              count: structure.tables.length,
+              withHeaders: structure.tables.filter(table => table.hasHeader).length,
+              withCaption: structure.tables.filter(table => table.hasCaption).length,
+              accessibility: {
+                missingHeaders: structure.tables.filter(table => !table.hasHeader).length,
+                complexTables: structure.tables.filter(table => table.rows > 10 || table.columns > 5).length
+              }
+            },
+            blockquotes: {
+              count: structure.blockquotes.length,
+              withCitation: structure.blockquotes.filter(bq => bq.cite).length
+            },
+            codeBlocks: {
+              count: structure.codeBlocks.length,
+              withLanguage: structure.codeBlocks.filter(cb => cb.language).length,
+              languages: [...new Set(structure.codeBlocks.map(cb => cb.language).filter(Boolean))]
+            }
           } as ContentStructure
         }
       });
@@ -163,6 +198,7 @@ export class AdvancedReadabilityAssessor {
       assessments.push({
         id: 'tables-accessibility',
         type: AssessmentType.READABILITY,
+        assessmentType: 'content-structure',
         name: 'Table Accessibility',
         description: `${tablesWithHeaders}/${structure.tables.length} tables have headers, ${tablesWithCaptions}/${structure.tables.length} have captions`,
         status: accessibilityScore >= 80 ? AssessmentStatus.GOOD : 
@@ -185,9 +221,24 @@ export class AdvancedReadabilityAssessor {
                  structure.lists.unordered.reduce((sum, list) => sum + list.itemCount, 0)) /
                 (structure.lists.ordered.length + structure.lists.unordered.length) : 0
             },
-            tables: structure.tables,
-            blockquotes: structure.blockquotes,
-            codeBlocks: structure.codeBlocks
+            tables: {
+              count: structure.tables.length,
+              withHeaders: structure.tables.filter(table => table.hasHeader).length,
+              withCaption: structure.tables.filter(table => table.hasCaption).length,
+              accessibility: {
+                missingHeaders: structure.tables.filter(table => !table.hasHeader).length,
+                complexTables: structure.tables.filter(table => table.rows > 10 || table.columns > 5).length
+              }
+            },
+            blockquotes: {
+              count: structure.blockquotes.length,
+              withCitation: structure.blockquotes.filter(bq => bq.cite).length
+            },
+            codeBlocks: {
+              count: structure.codeBlocks.length,
+              withLanguage: structure.codeBlocks.filter(cb => cb.language).length,
+              languages: [...new Set(structure.codeBlocks.map(cb => cb.language).filter(Boolean))]
+            }
           } as ContentStructure
         }
       });
@@ -210,6 +261,7 @@ export class AdvancedReadabilityAssessor {
       assessments.push({
         id: 'font-variety-good',
         type: AssessmentType.READABILITY,
+        assessmentType: 'visual-design',
         name: 'Font Variety',
         description: `Uses ${typography.fonts.length} font families`,
         status: AssessmentStatus.GOOD,
@@ -233,6 +285,7 @@ export class AdvancedReadabilityAssessor {
       assessments.push({
         id: 'font-variety-excessive',
         type: AssessmentType.READABILITY,
+        assessmentType: 'visual-design',
         name: 'Too Many Fonts',
         description: `Uses ${typography.fonts.length} different font families`,
         status: AssessmentStatus.OK,
