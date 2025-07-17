@@ -153,8 +153,23 @@ app.post('/analyze-wp-url', async (req, res) => {
       synonyms
     };
 
+    // For WordPress sites, use default selectors if user didn't specify
+    const wordPressOptions = options || {};
+    if (!wordPressOptions.contentSelectors) {
+      wordPressOptions.contentSelectors = [
+        'main', 'article', '.content', '.post-content', '.entry-content',
+        '.article-content', '#content', '#main'
+      ];
+    }
+    if (!wordPressOptions.excludeSelectors) {
+      wordPressOptions.excludeSelectors = [
+        'script', 'style', 'nav', 'header', 'footer', 'aside', '.sidebar',
+        '.menu', '.navigation', '.comments', '.related-posts'
+      ];
+    }
+
     // Execute audit pipeline
-    const result = await orchestrator.executeAuditPipeline(input, options || {});
+    const result = await orchestrator.executeAuditPipeline(input, wordPressOptions);
 
     // Add WordPress-specific metadata to the response
     const enhancedResult = {

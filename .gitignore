@@ -113,3 +113,5 @@ build/
 
 # Local test files
 test_*.json
+test/
+test/*

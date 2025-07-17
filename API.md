@@ -40,9 +40,9 @@ Analyzes provided HTML content for SEO and readability metrics.
   "focusKeyword": "string",
   "synonyms": ["string"],
   "options": {
-    "contentSelectors": ["string"],     // CSS selectors for main content
-    "excludeSelectors": ["string"],     // CSS selectors to exclude
-    "extractMainContent": "boolean",    // Extract main content area only
+    "contentSelectors": ["string"], // CSS selectors for main content
+    "excludeSelectors": ["string"], // CSS selectors to exclude
+    "extractMainContent": "boolean", // Extract main content area only
     "assessmentConfig": {
       "enableAllSEO": "boolean",
       "enableAllReadability": "boolean",
@@ -102,9 +102,9 @@ Analyzes WordPress articles by URL (automatic content fetching).
 {
   "url": "string (required)",
   "options": {
-    "contentSelectors": ["string"],     // CSS selectors for main content
-    "excludeSelectors": ["string"],     // CSS selectors to exclude
-    "extractMainContent": "boolean",    // Extract main content area only
+    "contentSelectors": ["string"], // CSS selectors for main content
+    "excludeSelectors": ["string"], // CSS selectors to exclude
+    "extractMainContent": "boolean", // Extract main content area only
     "assessmentConfig": {
       "enableAllSEO": "boolean",
       "enableAllReadability": "boolean"
@@ -175,17 +175,20 @@ PageLens can analyze specific parts of a webpage using CSS selectors.
 
 ### Default Behavior
 
-**Automatically searches for main content in:**
-```
-main, article, .content, .post-content, .entry-content, 
-.article-content, #content, #main
-```
+**For external sites (non-WordPress):**
+- **No default content filtering** - Analyzes the entire page content
+- **No default exclusions** - Includes all elements unless explicitly excluded
+- **Requires manual selector specification** for targeted content analysis
 
-**Automatically excludes:**
-```
-script, style, nav, header, footer, aside, .sidebar, 
-.menu, .navigation, .comments, .related-posts
-```
+**For WordPress sites:**
+- **Automatic default selectors** - Uses predefined selectors if none specified
+- **Automatic exclusions** - Removes common non-content elements
+- **User selectors override defaults** - Custom selectors take precedence
+
+**Benefits:**
+- External sites: Complete content analysis without filtering
+- WordPress sites: Optimized content extraction with fallback to defaults
+- Consistent behavior across different site types
 
 ### Custom Content Selection
 
@@ -200,6 +203,7 @@ script, style, nav, header, footer, aside, .sidebar,
 ```
 
 **Options:**
+
 - `contentSelectors` - Array of CSS selectors to find main content (uses first match)
 - `excludeSelectors` - Array of CSS selectors to remove from analysis
 - `extractMainContent` - If true, only analyzes extracted content area
@@ -207,6 +211,7 @@ script, style, nav, header, footer, aside, .sidebar,
 ### Examples
 
 **Analyze only article body:**
+
 ```json
 {
   "options": {
@@ -217,10 +222,62 @@ script, style, nav, header, footer, aside, .sidebar,
 ```
 
 **Exclude advertisements and popups:**
+
 ```json
 {
   "options": {
     "excludeSelectors": [".ad", ".popup", ".banner", "[id*='ad-']"]
+  }
+}
+```
+
+**ELLE.com content selection:**
+
+```json
+{
+  "options": {
+    "contentSelectors": [
+      "article",
+      "main",
+      "[data-theme-key='content-header-title']",
+      ".listicle-container"
+    ],
+    "excludeSelectors": [
+      ".advertisement",
+      ".sidebar",
+      ".related-content",
+      ".newsletter-signup"
+    ]
+  }
+}
+```
+
+**CNN.com content selection:**
+
+```json
+{
+  "options": {
+    "contentSelectors": [
+      ".article__content",
+      ".article__header",
+      ".zn-body__paragraph"
+    ],
+    "excludeSelectors": [".ad", ".related-content", ".video-resource"]
+  }
+}
+```
+
+**Medium.com content selection:**
+
+```json
+{
+  "options": {
+    "contentSelectors": ["article", ".postArticle-content", ".section-content"],
+    "excludeSelectors": [
+      ".js-postMetaInline",
+      ".u-marginTop30",
+      ".postArticle-readNext"
+    ]
   }
 }
 ```

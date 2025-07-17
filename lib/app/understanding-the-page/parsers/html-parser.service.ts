@@ -66,22 +66,28 @@ export class HTMLParser {
   }
 
   private extractMainContent(document: Document, options: ContentSelectors): Element | null {
-    const contentSelectors = options.contentSelectors || this.defaultContentSelectors;
-    const excludeSelectors = options.excludeSelectors || this.defaultExcludeSelectors;
+    // Only use selectors if explicitly provided by user
+    const contentSelectors = options.contentSelectors;
+    const excludeSelectors = options.excludeSelectors;
 
-    // Remove excluded elements first
-    const elementsToRemove = document.querySelectorAll(excludeSelectors.join(', '));
-    elementsToRemove.forEach(el => el.remove());
+    // Remove excluded elements first (only if user specified)
+    if (excludeSelectors && excludeSelectors.length > 0) {
+      const elementsToRemove = document.querySelectorAll(excludeSelectors.join(', '));
+      elementsToRemove.forEach(el => el.remove());
+    }
 
-    // Find main content using selectors
-    for (const selector of contentSelectors) {
-      const element = document.querySelector(selector);
-      if (element) {
-        return element;
+    // Find main content using selectors (only if user specified)
+    if (contentSelectors && contentSelectors.length > 0) {
+      for (const selector of contentSelectors) {
+        const element = document.querySelector(selector);
+        if (element) {
+          return element;
+        }
       }
     }
 
-    // Fallback to body
+    // Return full document body if no selectors specified
+    // This allows complete content analysis without filtering
     return document.body;
   }
 
