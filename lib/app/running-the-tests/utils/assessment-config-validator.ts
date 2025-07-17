@@ -15,21 +15,58 @@ export interface ValidationResult {
 export class AssessmentConfigValidator {
   
   /**
+   * Convert enum names to enum values
+   */
+  static normalizeAssessmentId(assessmentId: string): string {
+    // Check if it's already an enum value
+    if (Object.values(AvailableAssessments).includes(assessmentId as AvailableAssessments)) {
+      return assessmentId;
+    }
+    
+    // Check if it's an enum name and convert to enum value
+    const enumKey = assessmentId as keyof typeof AvailableAssessments;
+    if (enumKey in AvailableAssessments) {
+      return AvailableAssessments[enumKey];
+    }
+    
+    // Return as is if not found (will be caught by validation)
+    return assessmentId;
+  }
+
+  /**
+   * Normalize assessment configuration
+   */
+  static normalizeConfig(config: AssessmentConfiguration): AssessmentConfiguration {
+    const normalized = { ...config };
+    
+    if (normalized.enabledAssessments) {
+      normalized.enabledAssessments = normalized.enabledAssessments.map(
+        assessment => this.normalizeAssessmentId(assessment)
+      );
+    }
+    
+    return normalized;
+  }
+
+  /**
    * Validate assessment configuration
    */
   static validateConfig(config: AssessmentConfiguration): ValidationResult {
     const errors: string[] = [];
     const warnings: string[] = [];
 
+    // Normalize the configuration first
+    const normalizedConfig = this.normalizeConfig(config);
+
     // Check for conflicting configurations
-    if (config.enableAll && (config.enabledAssessments || config.enableAllSEO || config.enableAllReadability)) {
+    if (normalizedConfig.enableAll && (normalizedConfig.enabledAssessments || normalizedConfig.enableAllSEO || normalizedConfig.enableAllReadability)) {
       warnings.push('enableAll is true, specific assessment configurations will be ignored');
     }
 
     // Validate specific assessments if provided
-    if (config.enabledAssessments) {
-      const invalidAssessments = config.enabledAssessments.filter(
-        assessment => !Object.values(AvailableAssessments).includes(assessment)
+    if (normalizedConfig.enabledAssessments) {
+      const invalidAssessments = normalizedConfig.enabledAssessments.filter(
+        assessment => !Object.values(AvailableAssessments).includes(assessment as AvailableAssessments)
       );
 
       if (invalidAssessments.length > 0) {
@@ -116,16 +153,16 @@ export class AssessmentConfigValidator {
       },
       specific: {
         enabledAssessments: [
-          AvailableAssessments.SINGLE_H1,
-          AvailableAssessments.ALT_ATTRIBUTE,
-          AvailableAssessments.FLESCH_READING_EASE
+          AvailableAssessments.SEO_SINGLE_H1_CHECK,
+          AvailableAssessments.SEO_ALT_ATTRIBUTE_CHECK,
+          AvailableAssessments.READABILITY_FLESCH_READING_EASE_CHECK
         ]
       },
       mixed: {
         enableAllSEO: true,
         enabledAssessments: [
-          AvailableAssessments.FLESCH_READING_EASE,
-          AvailableAssessments.PARAGRAPH_TOO_LONG
+          AvailableAssessments.READABILITY_FLESCH_READING_EASE_CHECK,
+          AvailableAssessments.READABILITY_PARAGRAPH_TOO_LONG_CHECK
         ]
       }
     };

@@ -1,134 +1,231 @@
 # PageLens API Documentation
 
-## Base URL
+簡單易用的網頁 SEO 和可讀性分析 API
 
-Production: `https://page-lens-zeta.vercel.app`  
-Local: `http://localhost:3000`
+## 🚀 快速開始
 
-## Endpoints
+**API 地址：** `https://page-lens-zeta.vercel.app`
 
-### 1. Health Check
+### 基本使用
 
+```javascript
+// 分析任何網頁內容
+const response = await fetch('https://page-lens-zeta.vercel.app/analyze', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    htmlContent: '<html>你的網頁內容...</html>',
+    pageDetails: {
+      url: 'https://example.com',
+      title: '網頁標題'
+    },
+    focusKeyword: '關鍵詞'
+  })
+});
+
+const result = await response.json();
+console.log('SEO 分數:', result.report.overallScores.seoScore);
 ```
+
+## 📋 API 端點
+
+### 1. 健康檢查
+
+```http
 GET /
 ```
 
-Returns: `Express on Vercel`
+回傳：`Express on Vercel`
 
-### 2. HTML Content Analysis
+### 2. HTML 內容分析
 
-```
+```http
 POST /analyze
 ```
 
-Analyzes provided HTML content for SEO and readability metrics.
+分析提供的 HTML 內容，回傳 SEO 和可讀性評分。
 
-**Note:** The response includes ALL assessment results (passed, warnings, and failures) in `detailedIssues`.
+**必要參數：**
 
-**Request:**
+- `htmlContent` - HTML 內容字串
+- `pageDetails.url` - 網頁 URL
+- `pageDetails.title` - 網頁標題
+- `focusKeyword` - 目標關鍵詞
 
-```json
+**可選參數：**
+
+- `options.contentSelectors` - CSS 選擇器（指定分析區域）
+- `options.excludeSelectors` - CSS 選擇器（排除區域）
+- `options.assessmentConfig.enabledAssessments` - 指定檢測項目（使用下方列表中的 ID）
+
+**完整請求範例：**
+```javascript
 {
-  "htmlContent": "string (required)",
+  "htmlContent": "<html>...</html>",
   "pageDetails": {
-    "url": "string (required)",
-    "title": "string (required)",
-    "description": "string",
-    "language": "string",
-    "author": "string"
+    "url": "https://example.com",
+    "title": "網頁標題"
   },
-  "focusKeyword": "string",
-  "synonyms": ["string"],
+  "focusKeyword": "關鍵詞",
   "options": {
-    "contentSelectors": ["string"], // CSS selectors for main content
-    "excludeSelectors": ["string"], // CSS selectors to exclude
-    "extractMainContent": "boolean", // Extract main content area only
+    "contentSelectors": ["article", "main"],
+    "excludeSelectors": [".ad", ".sidebar"],
     "assessmentConfig": {
-      "enableAllSEO": "boolean",
-      "enableAllReadability": "boolean",
-      "enabledAssessments": ["string"]
+      "enabledAssessments": [
+        "SEO_SINGLE_H1_CHECK",
+        "SEO_H1_KEYWORD_CHECK", 
+        "SEO_ALT_ATTRIBUTE_CHECK",
+        "SEO_KEYWORD_DENSITY_CHECK"
+      ]
     }
   }
 }
 ```
 
-**Response:**
+**回應格式：**
 
 ```json
 {
   "success": true,
   "report": {
     "overallScores": {
-      "seoScore": 0-100,
-      "readabilityScore": 0-100,
-      "overallScore": 0-100,
-      "seoGrade": "excellent|good|needs-improvement|poor",
-      "readabilityGrade": "excellent|good|needs-improvement|poor"
+      "seoScore": 85, // SEO 分數 (0-100)
+      "readabilityScore": 72, // 可讀性分數 (0-100)
+      "overallScore": 78, // 總分 (0-100)
+      "seoGrade": "good" // 等級：excellent/good/needs-improvement/poor
     },
-    "detailedIssues": [{
-      "id": "string",
-      "name": "string",
-      "description": "string",
-      "rating": "good|ok|bad",  // good = passed, ok = warning, bad = failed
-      "recommendation": "string",
-      "impact": "high|medium|low",
-      "assessmentType": "seo|readability",
-      "score": 0-100,
-      "details": "object (optional)"
-    }],
-    "summary": {
-      "totalIssues": "number",
-      "criticalIssues": ["array"],
-      "quickWins": ["array"]
-    }
-  },
-  "processingTime": "milliseconds"
+    "detailedIssues": [
+      {
+        "id": "h1-keyword-missing",
+        "name": "H1 標籤缺少關鍵詞",
+        "rating": "ok", // good=通過, ok=警告, bad=失敗
+        "recommendation": "建議在 H1 標籤中加入關鍵詞",
+        "score": 60
+      }
+    ]
+  }
 }
 ```
 
-### 3. WordPress URL Analysis
+### 3. WordPress 文章分析
 
-```
+```http
 POST /analyze-wp-url
 ```
 
-Analyzes WordPress articles by URL (automatic content fetching).
+直接分析 WordPress 文章 URL，自動抓取內容。
 
-**Note:** WordPress article titles are automatically added as H1 tags for SEO analysis.
+**使用範例：**
 
-**Request:**
-
-```json
-{
-  "url": "string (required)",
-  "options": {
-    "contentSelectors": ["string"], // CSS selectors for main content
-    "excludeSelectors": ["string"], // CSS selectors to exclude
-    "extractMainContent": "boolean", // Extract main content area only
-    "assessmentConfig": {
-      "enableAllSEO": "boolean",
-      "enableAllReadability": "boolean"
-    }
+```javascript
+const response = await fetch(
+  'https://page-lens-zeta.vercel.app/analyze-wp-url',
+  {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      url: 'https://holidaysmart.io/article/456984/九龍'
+    })
   }
-}
+);
 ```
 
-**Response:** Same as `/analyze` plus:
+**支援網站：**
 
-```json
-{
-  "wordpressData": {
-    "postId": "number",
-    "site": "string",
-    "extractedKeywords": ["string"],
-    "seoMetadata": {
-      "title": "string",
-      "description": "string",
-      "focusKeyphrase": "string"
+- pretty.presslogic.com
+- girlstyle.com
+- holidaysmart.io
+- urbanlifehk.com
+- poplady-mag.com
+- topbeautyhk.com
+- thekdaily.com
+- businessfocus.io
+- mamidaily.com
+- thepetcity.co
+
+## 🎯 外站分析重點
+
+### WordPress vs 外站差異
+
+- **WordPress 網站：** 自動處理，無需設定選擇器
+- **外站：** 需要手動指定 `contentSelectors` 才能正確分析
+
+### 為什麼要指定選擇器？
+
+- 確保分析到正確的內容區域
+- 避免分析到廣告、導航等無關內容
+- 提高 SEO 分析準確性
+
+### 外站分析範例
+
+```javascript
+// 分析外部網站
+const response = await fetch('https://page-lens-zeta.vercel.app/analyze', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    htmlContent: htmlContent,
+    pageDetails: {
+      url: 'https://www.example.com/article',
+      title: '文章標題'
+    },
+    focusKeyword: '關鍵詞',
+    options: {
+      contentSelectors: ['article', 'main', '.content'],
+      excludeSelectors: ['.ad', '.sidebar']
     }
-  }
-}
+  })
+});
 ```
+
+### 常見網站選擇器
+
+- **一般新聞網站：** `['article', 'main', '.content']`
+- **部落格：** `['.post-content', '.entry-content']`
+- **排除廣告：** `['.ad', '.advertisement', '.sidebar']`
+
+## ⚠️ 重要提醒
+
+### 檢測項目配置
+如果使用 `enabledAssessments`，請使用檢測 ID 而非名稱：
+
+**❌ 錯誤（使用舊名稱）：**
+```javascript
+"enabledAssessments": ["SINGLE_H1", "H1_KEYWORD"]
+```
+
+**✅ 正確（使用新名稱）：**
+```javascript
+"enabledAssessments": ["SEO_SINGLE_H1_CHECK", "SEO_H1_KEYWORD_CHECK"]
+```
+
+### 完整檢測項目列表
+```javascript
+// SEO 檢測項目
+"SEO_SINGLE_H1_CHECK"                    // H1 標籤檢測
+"SEO_MULTIPLE_H1_CHECK"                  // 多重 H1 檢測
+"SEO_H1_KEYWORD_CHECK"                   // H1 關鍵字檢測
+"SEO_ALT_ATTRIBUTE_CHECK"                // 圖片 Alt 檢測
+"SEO_INTRODUCTION_KEYWORD_CHECK"         // 首段關鍵字檢測
+"SEO_KEYWORD_DENSITY_CHECK"              // 關鍵字密度檢測
+"SEO_META_DESCRIPTION_KEYWORD_CHECK"     // Meta 描述檢測
+"SEO_META_DESCRIPTION_LENGTH_CHECK"      // Meta 描述長度檢測
+"SEO_PAGE_TITLE_WIDTH_CHECK"             // 標題優化檢測
+"SEO_TITLE_KEYWORD_CHECK"                // 標題關鍵字檢測
+"SEO_TEXT_LENGTH_CHECK"                  // 內容長度檢測
+
+// 可讀性檢測項目
+"READABILITY_FLESCH_READING_EASE_CHECK"     // 可讀性評分
+"READABILITY_PARAGRAPH_TOO_LONG_CHECK"      // 段落長度檢測
+"READABILITY_SENTENCE_LENGTH_IN_TEXT_CHECK" // 句子長度檢測
+"READABILITY_SUBHEADING_DISTRIBUTION_CHECK" // 子標題分佈檢測
+```
+
+## 🐛 錯誤處理
+
+**成功回應：** `{ "success": true, "report": {...} }`
+
+**失敗回應：** `{ "success": false, "error": "錯誤訊息" }`
 
 ## Supported Sites
 
@@ -176,16 +273,19 @@ PageLens can analyze specific parts of a webpage using CSS selectors.
 ### Default Behavior
 
 **For external sites (non-WordPress):**
+
 - **No default content filtering** - Analyzes the entire page content
 - **No default exclusions** - Includes all elements unless explicitly excluded
 - **Requires manual selector specification** for targeted content analysis
 
 **For WordPress sites:**
+
 - **Automatic default selectors** - Uses predefined selectors if none specified
 - **Automatic exclusions** - Removes common non-content elements
 - **User selectors override defaults** - Custom selectors take precedence
 
 **Benefits:**
+
 - External sites: Complete content analysis without filtering
 - WordPress sites: Optimized content extraction with fallback to defaults
 - Consistent behavior across different site types
@@ -282,46 +382,52 @@ PageLens can analyze specific parts of a webpage using CSS selectors.
 }
 ```
 
-## Assessment Types
+## 📊 檢測項目說明
 
-### SEO Assessments (11 available)
+**⚠️ 重要：在 `enabledAssessments` 中使用檢測 ID（不是名稱）**
 
-- `SINGLE_H1` - Checks for single H1 tag presence
-- `MULTIPLE_H1` - Detects multiple H1 tags
-- `H1_KEYWORD` - Verifies focus keyword in H1
-- `ALT_ATTRIBUTE` - Checks images for alt attributes
-- `INTRODUCTION_KEYWORD` - Keyword in first paragraph
-- `KEYWORD_DENSITY` - Monitors keyword density (0.5-2.5%)
-- `META_DESCRIPTION_KEYWORD` - Keyword in meta description
-- `META_DESCRIPTION_LENGTH` - Meta description length (150-160 chars)
-- `PAGE_TITLE_WIDTH` - Page title optimization
-- `TITLE_KEYWORD` - Keyword in page title
-- `TEXT_LENGTH` - Content length (min 300 words)
+### SEO 檢測項目 (11 available)
 
-### Readability Assessments (4 available)
+| 檢測 ID | 檢測名稱 | 說明 |
+|---------|---------|------|
+| `h1-missing` | H1 標籤檢測 | 檢查是否有 H1 標籤 |
+| `multiple-h1` | 多重 H1 檢測 | 檢測是否有多個 H1 標籤 |
+| `h1-keyword-missing` | H1 關鍵字檢測 | 檢查 H1 是否包含關鍵字 |
+| `images-missing-alt` | 圖片 Alt 檢測 | 檢查圖片是否有 alt 屬性 |
+| `keyword-missing-first-paragraph` | 首段關鍵字檢測 | 檢查首段是否包含關鍵字 |
+| `keyword-density-low` | 關鍵字密度檢測 | 檢查關鍵字密度 (0.5-2.5%) |
+| `meta-description-needs-improvement` | Meta 描述檢測 | 檢查 meta description 中的關鍵字 |
+| `meta-description-missing` | Meta 描述長度檢測 | 檢查 meta description 長度 (150-160 字) |
+| `title-needs-improvement` | 標題優化檢測 | 檢查頁面標題優化 |
+| `title-missing` | 標題關鍵字檢測 | 檢查標題是否包含關鍵字 |
+| `content-length-short` | 內容長度檢測 | 檢查內容長度 (最少 300 字) |
 
-- `FLESCH_READING_EASE` - Reading difficulty score
-- `PARAGRAPH_TOO_LONG` - Paragraph length check (max 150 words)
-- `SENTENCE_LENGTH_IN_TEXT` - Sentence length (max 20 words)
-- `SUBHEADING_DISTRIBUTION_TOO_LONG` - Subheading distribution
+### 可讀性檢測項目 (4 available)
 
-### Configuration Examples
+| 檢測 ID | 檢測名稱 | 說明 |
+|---------|---------|------|
+| `flesch-reading-ease` | 可讀性評分 | 閱讀難度評分 |
+| `paragraph-length-long` | 段落長度檢測 | 檢查段落長度 (最多 150 字) |
+| `sentence-length-long` | 句子長度檢測 | 檢查句子長度 (最多 20 字) |
+| `subheading-distribution-poor` | 子標題分佈檢測 | 檢查子標題分佈 |
 
-**Run specific assessments only:**
+### 配置範例
+
+**執行特定檢測項目：**
 
 ```json
 {
   "assessmentConfig": {
     "enabledAssessments": [
-      "H1_KEYWORD",
-      "KEYWORD_DENSITY",
-      "FLESCH_READING_EASE"
+      "h1-keyword-missing",
+      "keyword-density-low",
+      "flesch-reading-ease"
     ]
   }
 }
 ```
 
-**Run all SEO assessments only:**
+**只執行 SEO 檢測：**
 
 ```json
 {
@@ -332,7 +438,7 @@ PageLens can analyze specific parts of a webpage using CSS selectors.
 }
 ```
 
-**Run all assessments (default):**
+**執行所有檢測（預設）：**
 
 ```json
 {
@@ -371,6 +477,91 @@ curl -X POST https://page-lens-zeta.vercel.app/analyze-wp-url \
   -d '{"url": "https://holidaysmart.io/hk/article/456984/九龍"}'
 ```
 
+## API Testing Examples
+
+### External Site Analysis (ELLE.com)
+
+**Request:**
+
+```bash
+curl -X POST "https://page-lens-zeta.vercel.app/analyze" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "htmlContent": "<html>...</html>",
+    "pageDetails": {
+      "url": "https://www.elle.com/tw/entertainment/gossip/g64833506/zootopia-2/",
+      "title": "ELLE Test Article"
+    },
+    "focusKeyword": "動物方城市"
+  }'
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "report": {
+    "overallScores": {
+      "seoScore": 81,
+      "readabilityScore": 61,
+      "overallScore": 73,
+      "seoGrade": "good",
+      "readabilityGrade": "needs-improvement",
+      "overallGrade": "needs-improvement"
+    },
+    "detailedIssues": [
+      {
+        "id": "h1-keyword-missing",
+        "name": "H1 Missing Focus Keyword",
+        "description": "H1 heading does not contain the focus keyword",
+        "rating": "ok",
+        "recommendation": "Consider including your focus keyword \"動物方城市\" in the H1 heading.",
+        "impact": "medium",
+        "assessmentType": "seo",
+        "score": 60,
+        "details": {
+          "h1Text": "",
+          "focusKeyword": "動物方城市"
+        }
+      },
+      {
+        "id": "images-alt-good",
+        "name": "All Images Have Alt Text",
+        "description": "All images have descriptive alt text",
+        "rating": "good",
+        "recommendation": "Excellent! All your images have alt text.",
+        "impact": "medium",
+        "assessmentType": "seo",
+        "score": 100,
+        "details": {
+          "imageCount": 31,
+          "imagesWithoutAlt": 0
+        }
+      },
+      {
+        "id": "keyword-first-paragraph",
+        "name": "Keyword in First Paragraph",
+        "description": "Focus keyword appears in the first paragraph",
+        "rating": "good",
+        "recommendation": "Great! Your focus keyword appears in the first paragraph.",
+        "impact": "high",
+        "assessmentType": "seo",
+        "score": 100
+      }
+    ]
+  },
+  "processingTime": 2368
+}
+```
+
+### Key Benefits for External Sites
+
+- **Complete Content Analysis**: Analyzes full page content (31 images detected vs 9 with filtering)
+- **H1 Detection**: Properly detects H1 tags without missing content in headers
+- **Higher SEO Scores**: Comprehensive analysis leads to better scoring (81 vs lower scores with filtering)
+- **Keyword Detection**: Successfully finds keywords in first paragraphs and throughout content
+
 ## Error Handling
 
 - `400` - Invalid request data
@@ -386,6 +577,13 @@ curl -X POST https://page-lens-zeta.vercel.app/analyze-wp-url \
 ```
 
 ## Changelog
+
+**v1.2.0** (2025-07-17)
+
+- Improved content selection for external sites: removed default selectors to ensure complete content analysis
+- Added comprehensive external site selector examples (ELLE, CNN, Medium)
+- Enhanced H1 detection for external sites without content filtering
+- WordPress sites retain optimized default selectors with user override capability
 
 **v1.1.1** (2025-07-17)
 

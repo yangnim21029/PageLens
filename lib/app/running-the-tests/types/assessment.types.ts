@@ -1,4 +1,4 @@
-export enum AssessmentType {
+export enum AssessmentCategory {
   SEO = 'seo',
   READABILITY = 'readability'
 }
@@ -11,7 +11,7 @@ export enum AssessmentStatus {
 
 export interface AssessmentResult {
   id: string;
-  type: AssessmentType;
+  type: AssessmentCategory;
   name: string;
   description: string;
   status: AssessmentStatus;
@@ -36,46 +36,49 @@ export interface TestRunResult {
   error?: string;
 }
 
-// Assessment Configuration Types
-export enum AvailableAssessments {
+// Assessment Configuration Types - Internal enum names for code organization
+export enum AssessmentType {
   // SEO Assessments
-  SINGLE_H1 = 'h1-missing',
-  MULTIPLE_H1 = 'multiple-h1',
-  H1_KEYWORD = 'h1-keyword-missing',
-  ALT_ATTRIBUTE = 'images-missing-alt',
-  INTRODUCTION_KEYWORD = 'keyword-missing-first-paragraph',
-  KEYWORD_DENSITY = 'keyword-density-low',
-  META_DESCRIPTION_KEYWORD = 'meta-description-needs-improvement',
-  META_DESCRIPTION_LENGTH = 'meta-description-missing',
-  PAGE_TITLE_WIDTH = 'title-needs-improvement',
-  TITLE_KEYWORD = 'title-missing',
-  TEXT_LENGTH = 'content-length-short',
+  SEO_SINGLE_H1_CHECK = 'h1-missing',
+  SEO_MULTIPLE_H1_CHECK = 'multiple-h1',
+  SEO_H1_KEYWORD_CHECK = 'h1-keyword-missing',
+  SEO_ALT_ATTRIBUTE_CHECK = 'images-missing-alt',
+  SEO_INTRODUCTION_KEYWORD_CHECK = 'keyword-missing-first-paragraph',
+  SEO_KEYWORD_DENSITY_CHECK = 'keyword-density-low',
+  SEO_META_DESCRIPTION_KEYWORD_CHECK = 'meta-description-needs-improvement',
+  SEO_META_DESCRIPTION_LENGTH_CHECK = 'meta-description-missing',
+  SEO_PAGE_TITLE_WIDTH_CHECK = 'title-needs-improvement',
+  SEO_TITLE_KEYWORD_CHECK = 'title-missing',
+  SEO_TEXT_LENGTH_CHECK = 'content-length-short',
   
   // Readability Assessments
-  FLESCH_READING_EASE = 'flesch-reading-ease',
-  PARAGRAPH_TOO_LONG = 'paragraph-length-long',
-  SENTENCE_LENGTH_IN_TEXT = 'sentence-length-long',
-  SUBHEADING_DISTRIBUTION_TOO_LONG = 'subheading-distribution-poor',
+  READABILITY_FLESCH_READING_EASE_CHECK = 'flesch-reading-ease',
+  READABILITY_PARAGRAPH_TOO_LONG_CHECK = 'paragraph-length-long',
+  READABILITY_SENTENCE_LENGTH_IN_TEXT_CHECK = 'sentence-length-long',
+  READABILITY_SUBHEADING_DISTRIBUTION_CHECK = 'subheading-distribution-poor',
   
   // Future Extended Assessments (for framework expansion)
-  HEADING_STRUCTURE_ORDER = 'heading-structure-order',
-  PASSIVE_VOICE = 'passive-voice',
-  SENTENCE_BEGINNINGS = 'sentence-beginnings',
-  SENTENCE_LENGTH_IN_DESCRIPTION = 'sentence-length-in-description',
-  TEXT_PRESENCE = 'text-presence',
-  TRANSITION_WORDS = 'transition-words',
-  WORD_COMPLEXITY = 'word-complexity',
-  FUNCTION_WORDS_IN_KEYPHRASE = 'function-words-in-keyphrase',
-  INTERNAL_LINKS = 'internal-links',
-  KEYPHRASE_LENGTH = 'keyphrase-length',
-  KEYWORD_STOP_WORDS = 'keyword-stop-words',
-  KEYPHRASE_DISTRIBUTION = 'keyphrase-distribution',
-  OUTBOUND_LINKS = 'outbound-links',
-  SUBHEADINGS_KEYWORD = 'subheadings-keyword',
-  TEXT_COMPETING_LINKS = 'text-competing-links',
-  TEXT_IMAGES = 'text-images',
-  URL_KEYWORD = 'url-keyword'
+  EXTENDED_HEADING_STRUCTURE_ORDER_CHECK = 'heading-structure-order',
+  EXTENDED_PASSIVE_VOICE_CHECK = 'passive-voice',
+  EXTENDED_SENTENCE_BEGINNINGS_CHECK = 'sentence-beginnings',
+  EXTENDED_SENTENCE_LENGTH_IN_DESCRIPTION_CHECK = 'sentence-length-in-description',
+  EXTENDED_TEXT_PRESENCE_CHECK = 'text-presence',
+  EXTENDED_TRANSITION_WORDS_CHECK = 'transition-words',
+  EXTENDED_WORD_COMPLEXITY_CHECK = 'word-complexity',
+  EXTENDED_FUNCTION_WORDS_IN_KEYPHRASE_CHECK = 'function-words-in-keyphrase',
+  EXTENDED_INTERNAL_LINKS_CHECK = 'internal-links',
+  EXTENDED_KEYPHRASE_LENGTH_CHECK = 'keyphrase-length',
+  EXTENDED_KEYWORD_STOP_WORDS_CHECK = 'keyword-stop-words',
+  EXTENDED_KEYPHRASE_DISTRIBUTION_CHECK = 'keyphrase-distribution',
+  EXTENDED_OUTBOUND_LINKS_CHECK = 'outbound-links',
+  EXTENDED_SUBHEADINGS_KEYWORD_CHECK = 'subheadings-keyword',
+  EXTENDED_TEXT_COMPETING_LINKS_CHECK = 'text-competing-links',
+  EXTENDED_TEXT_IMAGES_CHECK = 'text-images',
+  EXTENDED_URL_KEYWORD_CHECK = 'url-keyword'
 }
+
+// Keep backward compatibility
+export const AvailableAssessments = AssessmentType;
 
 export interface AssessmentConfiguration {
   enabledAssessments?: AvailableAssessments[];
@@ -89,24 +92,24 @@ export const DEFAULT_ASSESSMENT_CONFIG: AssessmentConfiguration = {
 };
 
 export const SEO_ASSESSMENTS = [
-  AvailableAssessments.SINGLE_H1,
-  AvailableAssessments.MULTIPLE_H1,
-  AvailableAssessments.H1_KEYWORD,
-  AvailableAssessments.ALT_ATTRIBUTE,
-  AvailableAssessments.INTRODUCTION_KEYWORD,
-  AvailableAssessments.KEYWORD_DENSITY,
-  AvailableAssessments.META_DESCRIPTION_KEYWORD,
-  AvailableAssessments.META_DESCRIPTION_LENGTH,
-  AvailableAssessments.PAGE_TITLE_WIDTH,
-  AvailableAssessments.TITLE_KEYWORD,
-  AvailableAssessments.TEXT_LENGTH
+  AvailableAssessments.SEO_SINGLE_H1_CHECK,
+  AvailableAssessments.SEO_MULTIPLE_H1_CHECK,
+  AvailableAssessments.SEO_H1_KEYWORD_CHECK,
+  AvailableAssessments.SEO_ALT_ATTRIBUTE_CHECK,
+  AvailableAssessments.SEO_INTRODUCTION_KEYWORD_CHECK,
+  AvailableAssessments.SEO_KEYWORD_DENSITY_CHECK,
+  AvailableAssessments.SEO_META_DESCRIPTION_KEYWORD_CHECK,
+  AvailableAssessments.SEO_META_DESCRIPTION_LENGTH_CHECK,
+  AvailableAssessments.SEO_PAGE_TITLE_WIDTH_CHECK,
+  AvailableAssessments.SEO_TITLE_KEYWORD_CHECK,
+  AvailableAssessments.SEO_TEXT_LENGTH_CHECK
 ];
 
 export const READABILITY_ASSESSMENTS = [
-  AvailableAssessments.FLESCH_READING_EASE,
-  AvailableAssessments.PARAGRAPH_TOO_LONG,
-  AvailableAssessments.SENTENCE_LENGTH_IN_TEXT,
-  AvailableAssessments.SUBHEADING_DISTRIBUTION_TOO_LONG
+  AvailableAssessments.READABILITY_FLESCH_READING_EASE_CHECK,
+  AvailableAssessments.READABILITY_PARAGRAPH_TOO_LONG_CHECK,
+  AvailableAssessments.READABILITY_SENTENCE_LENGTH_IN_TEXT_CHECK,
+  AvailableAssessments.READABILITY_SUBHEADING_DISTRIBUTION_CHECK
 ];
 
 export const ALL_CURRENT_ASSESSMENTS = [
@@ -115,21 +118,21 @@ export const ALL_CURRENT_ASSESSMENTS = [
 ];
 
 export const EXTENDED_ASSESSMENTS = [
-  AvailableAssessments.HEADING_STRUCTURE_ORDER,
-  AvailableAssessments.PASSIVE_VOICE,
-  AvailableAssessments.SENTENCE_BEGINNINGS,
-  AvailableAssessments.SENTENCE_LENGTH_IN_DESCRIPTION,
-  AvailableAssessments.TEXT_PRESENCE,
-  AvailableAssessments.TRANSITION_WORDS,
-  AvailableAssessments.WORD_COMPLEXITY,
-  AvailableAssessments.FUNCTION_WORDS_IN_KEYPHRASE,
-  AvailableAssessments.INTERNAL_LINKS,
-  AvailableAssessments.KEYPHRASE_LENGTH,
-  AvailableAssessments.KEYWORD_STOP_WORDS,
-  AvailableAssessments.KEYPHRASE_DISTRIBUTION,
-  AvailableAssessments.OUTBOUND_LINKS,
-  AvailableAssessments.SUBHEADINGS_KEYWORD,
-  AvailableAssessments.TEXT_COMPETING_LINKS,
-  AvailableAssessments.TEXT_IMAGES,
-  AvailableAssessments.URL_KEYWORD
+  AvailableAssessments.EXTENDED_HEADING_STRUCTURE_ORDER_CHECK,
+  AvailableAssessments.EXTENDED_PASSIVE_VOICE_CHECK,
+  AvailableAssessments.EXTENDED_SENTENCE_BEGINNINGS_CHECK,
+  AvailableAssessments.EXTENDED_SENTENCE_LENGTH_IN_DESCRIPTION_CHECK,
+  AvailableAssessments.EXTENDED_TEXT_PRESENCE_CHECK,
+  AvailableAssessments.EXTENDED_TRANSITION_WORDS_CHECK,
+  AvailableAssessments.EXTENDED_WORD_COMPLEXITY_CHECK,
+  AvailableAssessments.EXTENDED_FUNCTION_WORDS_IN_KEYPHRASE_CHECK,
+  AvailableAssessments.EXTENDED_INTERNAL_LINKS_CHECK,
+  AvailableAssessments.EXTENDED_KEYPHRASE_LENGTH_CHECK,
+  AvailableAssessments.EXTENDED_KEYWORD_STOP_WORDS_CHECK,
+  AvailableAssessments.EXTENDED_KEYPHRASE_DISTRIBUTION_CHECK,
+  AvailableAssessments.EXTENDED_OUTBOUND_LINKS_CHECK,
+  AvailableAssessments.EXTENDED_SUBHEADINGS_KEYWORD_CHECK,
+  AvailableAssessments.EXTENDED_TEXT_COMPETING_LINKS_CHECK,
+  AvailableAssessments.EXTENDED_TEXT_IMAGES_CHECK,
+  AvailableAssessments.EXTENDED_URL_KEYWORD_CHECK
 ];
