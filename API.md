@@ -1,364 +1,592 @@
-# PageLens API 文檔
+# PageLens API Documentation
 
-## 概述
+PageLens is a web page analysis tool that evaluates SEO and readability metrics through a comprehensive audit pipeline.
 
-PageLens 是一個 SEO 和可讀性分析服務，可以分析網頁內容並提供詳細的優化建議。
+## Features
 
-## 基本信息
+✅ **SEO Analysis**: H1 tags, meta descriptions, keyword optimization, alt text validation  
+✅ **Readability Analysis**: Sentence length, paragraph structure, Flesch reading ease  
+✅ **WordPress Integration**: Direct analysis of WordPress/PressLogic articles by URL  
+✅ **Automatic Keyword Extraction**: Integrated with WordPress SEO data  
+✅ **Comprehensive Reporting**: Detailed scores, grades, and actionable recommendations  
+✅ **Multi-language Support**: Optimized for English and Chinese content
 
-- **Base URL**: `http://localhost:3000`
-- **Content-Type**: `application/json`
+## Base URL
 
-## API 端點
+```
+https://page-lens-zeta.vercel.app
+```
 
-### 1. 分析網頁
+For local development:
 
-**POST** `/api/v1/pagelens`
+```
+http://localhost:3000
+```
 
-#### 請求參數
+## Endpoints
+
+### Health Check
+
+#### GET /
+
+Returns a simple health check response.
+
+**Response:**
+
+```
+Express on Vercel
+```
+
+### Page Analysis
+
+#### POST /analyze
+
+Analyzes a web page for SEO and readability metrics using provided HTML content.
+
+#### POST /analyze-wp-url
+
+🚀 **NEW**: Analyzes a WordPress/PressLogic article by URL using integrated WordPress API. Automatically fetches content, SEO data, and keywords.
+
+**Request Body:**
 
 ```json
 {
-  "html": "網頁的完整 HTML 內容",
-  "url": "網頁的 URL",
-  "focusKeyword": "要優化的關鍵字 (可選，空白時跳過關鍵字相關分析)",
-  "synonyms": ["同義詞陣列 (可選)"],
+  "htmlContent": "string",
+  "pageDetails": {
+    "url": "string",
+    "title": "string",
+    "description": "string (optional)",
+    "language": "string (optional)",
+    "publishedDate": "ISO 8601 date (optional)",
+    "modifiedDate": "ISO 8601 date (optional)",
+    "author": "string (optional)",
+    "category": "string (optional)",
+    "tags": ["string"] "(optional)"
+  },
+  "focusKeyword": "string",
+  "synonyms": ["string"] "(optional)",
   "options": {
+    "contentSelectors": ["string"] "(optional)",
+    "excludeSelectors": ["string"] "(optional)",
+    "extractMainContent": "boolean (optional)",
+    "baseUrl": "string (optional)",
     "assessmentConfig": {
-      "enableAll": true,
-      "enableAllSEO": true,
-      "enableAllReadability": true,
-      "enabledAssessments": ["特定檢測項目陣列"]
+      "enableAll": "boolean (optional)",
+      "enableAllSEO": "boolean (optional)",
+      "enableAllReadability": "boolean (optional)",
+      "enabledAssessments": ["string"] "(optional)"
     }
   }
 }
 ```
 
-#### 請求範例
-
-```json
-{
-  "html": "<html><head><title>我的網頁</title></head><body><h1>Hello World</h1><p>這是內容</p></body></html>",
-  "url": "https://example.com/my-page",
-  "focusKeyword": "網頁優化",
-  "synonyms": ["SEO", "搜尋引擎優化"],
-  "options": {
-    "assessmentConfig": {
-      "enableAllSEO": true
-    }
-  }
-}
-```
-
-#### 回應格式
+**Response:**
 
 ```json
 {
   "success": true,
   "report": {
-    "url": "https://example.com/my-page",
-    "timestamp": "2025-07-17T05:40:31.607Z",
+    "url": "string",
+    "timestamp": "ISO 8601 date",
     "overallScores": {
-      "seoScore": 58,
-      "readabilityScore": 72,
-      "overallScore": 64,
-      "seoGrade": "needs-improvement",
-      "readabilityGrade": "needs-improvement",
-      "overallGrade": "needs-improvement"
+      "seoScore": "number (0-100)",
+      "readabilityScore": "number (0-100)",
+      "overallScore": "number (0-100)",
+      "seoGrade": "excellent|good|needs-improvement|poor",
+      "readabilityGrade": "excellent|good|needs-improvement|poor",
+      "overallGrade": "excellent|good|needs-improvement|poor"
     },
     "detailedIssues": [
       {
-        "id": "h1-keyword-missing",
-        "name": "H1 Missing Focus Keyword",
-        "description": "H1 heading does not contain the focus keyword",
-        "rating": "ok",
-        "recommendation": "Consider including your focus keyword in the H1 heading.",
-        "impact": "medium",
-        "assessmentType": "seo",
-        "score": 60,
-        "details": {
-          "h1Text": "Hello World",
-          "focusKeyword": "網頁優化"
-        }
+        "id": "string",
+        "name": "string",
+        "description": "string",
+        "rating": "good|ok|bad",
+        "recommendation": "string",
+        "impact": "high|medium|low",
+        "assessmentType": "seo|readability",
+        "score": "number (0-100)",
+        "details": "object (optional)"
       }
     ],
     "summary": {
-      "totalIssues": 10,
-      "goodIssues": 2,
-      "okIssues": 7,
-      "badIssues": 1,
-      "criticalIssues": [...],
-      "quickWins": [...]
+      "totalIssues": "number",
+      "goodIssues": "number",
+      "okIssues": "number",
+      "badIssues": "number",
+      "criticalIssues": [
+        {
+          "id": "string",
+          "name": "string",
+          "impact": "high"
+        }
+      ],
+      "quickWins": [
+        {
+          "id": "string",
+          "name": "string",
+          "rating": "ok"
+        }
+      ]
     }
   },
-  "processingTime": 144
+  "processingTime": "number (milliseconds)"
 }
 ```
 
-### 2. 取得可用檢測項目
-
-**GET** `/api/v1/pagelens/assessments`
-
-#### 回應範例
-
-```json
-{
-  "success": true,
-  "assessments": {
-    "currentlyImplemented": [
-      "h1-missing",
-      "title-needs-improvement",
-      "meta-description-needs-improvement",
-      "images-missing-alt",
-      "keyword-density-low",
-      "content-length-short",
-      "flesch-reading-ease",
-      "sentence-length-long",
-      "paragraph-length-long"
-    ],
-    "seo": ["h1-missing", "title-needs-improvement", "meta-description-needs-improvement", ...],
-    "readability": ["flesch-reading-ease", "sentence-length-long", "paragraph-length-long", ...]
-  },
-  "configurationExamples": {
-    "enableAll": { "enableAll": true },
-    "onlySEO": { "enableAllSEO": true },
-    "onlyReadability": { "enableAllReadability": true },
-    "specific": { "enabledAssessments": ["h1-missing", "images-missing-alt"] }
-  }
-}
-```
-
-### 3. 健康檢查
-
-**GET** `/api/v1/pagelens/health`
-
-### 4. 批量分析
-
-**POST** `/api/v1/pagelens/batch`
-
-#### 請求參數
-
-```json
-{
-  "audits": [
-    {
-      "htmlContent": "HTML 內容",
-      "pageDetails": { "url": "網頁 URL" },
-      "focusKeyword": "關鍵字",
-      "options": {...}
-    }
-  ]
-}
-```
-
-## 檢測項目說明
-
-### SEO 檢測
-
-- `h1-missing`: 檢查是否有 H1 標題
-- `title-needs-improvement`: 檢查頁面標題優化
-- `meta-description-needs-improvement`: 檢查 Meta 描述
-- `images-missing-alt`: 檢查圖片 Alt 文字
-- `keyword-density-low`: 檢查關鍵字密度
-- `content-length-short`: 檢查內容長度
-
-### 可讀性檢測
-
-- `flesch-reading-ease`: Flesch 可讀性評分
-- `sentence-length-long`: 句子長度檢查
-- `paragraph-length-long`: 段落長度檢查
-
-## 錯誤處理
-
-### 錯誤回應格式
+**Error Response:**
 
 ```json
 {
   "success": false,
-  "error": "錯誤訊息",
-  "timestamp": "2025-07-17T05:40:31.607Z"
+  "error": "string",
+  "processingTime": "number (milliseconds)"
 }
 ```
 
-### 常見錯誤
+### WordPress URL Analysis
 
-- `400`: 缺少必要參數 (html 或 url)
-- `500`: 伺服器內部錯誤
+#### POST /analyze-wp-url
 
-## 前端整合範例
+Analyzes a WordPress/PressLogic article by URL using integrated WordPress API. Automatically fetches content, SEO data, and keywords.
 
-### JavaScript/TypeScript
-
-```javascript
-async function analyzePageSEO(htmlContent, pageUrl, focusKeyword = '') {
-  try {
-    const response = await fetch('/api/v1/pagelens', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        html: htmlContent,
-        url: pageUrl,
-        focusKeyword: focusKeyword,
-        options: {
-          assessmentConfig: {
-            enableAll: true
-          }
-        }
-      })
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-      console.log('SEO 分數:', result.report.overallScores.seoScore);
-      console.log('可讀性分數:', result.report.overallScores.readabilityScore);
-      console.log('問題列表:', result.report.detailedIssues);
-      return result.report;
-    } else {
-      console.error('分析失敗:', result.error);
-      return null;
-    }
-  } catch (error) {
-    console.error('請求失敗:', error);
-    return null;
-  }
-}
-
-// 使用範例
-const report = await analyzePageSEO(
-  document.documentElement.outerHTML,
-  window.location.href,
-  '我的關鍵字'
-);
-```
-
-### React 範例
-
-```jsx
-import { useState, useEffect } from 'react';
-
-function SEOAnalyzer() {
-  const [report, setReport] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  const analyzeCurrentPage = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch('/api/v1/pagelens', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          html: document.documentElement.outerHTML,
-          url: window.location.href,
-          focusKeyword: 'SEO優化' // 留空則跳過關鍵字分析
-        })
-      });
-
-      const result = await response.json();
-      if (result.success) {
-        setReport(result.report);
-      }
-    } catch (error) {
-      console.error('分析失敗:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div>
-      <button onClick={analyzeCurrentPage} disabled={loading}>
-        {loading ? '分析中...' : '開始 SEO 分析'}
-      </button>
-
-      {report && (
-        <div>
-          <h2>分析結果</h2>
-          <p>SEO 分數: {report.overallScores.seoScore}</p>
-          <p>可讀性分數: {report.overallScores.readabilityScore}</p>
-          <p>總評分: {report.overallScores.overallScore}</p>
-
-          <h3>問題列表</h3>
-          {report.detailedIssues.map((issue, index) => (
-            <div key={index}>
-              <h4>{issue.name}</h4>
-              <p>{issue.description}</p>
-              <p>建議: {issue.recommendation}</p>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-```
-
-## 特色功能
-
-### 中文支援
-
-- 自動檢測中文內容
-- 針對中文調整字數統計方式
-- 中文標題和描述長度標準
-- 中文句子長度閾值優化
-
-### 語言感知
-
-- 自動識別內容語言 (中文/英文/混合)
-- 根據語言調整分析標準
-- 支援中英文混合內容分析
-
-## 空關鍵字處理
-
-### 當沒有提供 focusKeyword 時
-
-如果 `focusKeyword` 為空或未提供，系統會：
-
-1. **跳過關鍵字相關分析**：
-
-   - 不分析關鍵字密度
-   - 不檢查關鍵字在首段的出現
-   - 不檢查 H1 標題是否包含關鍵字
-
-2. **保持其他分析**：
-
-   - 仍然分析標題和描述的長度
-   - 仍然進行可讀性分析
-   - 仍然檢查圖片 alt 文字等技術性 SEO
-
-3. **WordPress 整合**：
-   - 如果 WordPress 頁面沒有設定 focus keyphrase，系統會自動跳過關鍵字分析
-   - 不會使用預設關鍵字，確保分析結果的準確性
-
-### 範例：無關鍵字分析
+**Request Body:**
 
 ```json
 {
-  "html": "<html>...</html>",
-  "url": "https://example.com",
-  "focusKeyword": ""
+  "url": "string (WordPress/PressLogic article URL)",
+  "options": {
+    "contentSelectors": ["string"] "(optional)",
+    "excludeSelectors": ["string"] "(optional)",
+    "extractMainContent": "boolean (optional)",
+    "assessmentConfig": {
+      "enableAll": "boolean (optional)",
+      "enableAllSEO": "boolean (optional)",
+      "enableAllReadability": "boolean (optional)",
+      "enabledAssessments": ["string"] "(optional)"
+    }
+  }
 }
 ```
 
-此時回應將不包含：
+**Response:**
 
-- `keyword-density-low`
-- `keyword-missing-first-paragraph`
-- `h1-keyword-missing`
+```json
+{
+  "success": true,
+  "report": {
+    "url": "string",
+    "timestamp": "ISO 8601 date",
+    "overallScores": {
+      "seoScore": "number (0-100)",
+      "readabilityScore": "number (0-100)",
+      "overallScore": "number (0-100)",
+      "seoGrade": "excellent|good|needs-improvement|poor",
+      "readabilityGrade": "excellent|good|needs-improvement|poor",
+      "overallGrade": "excellent|good|needs-improvement|poor"
+    },
+    "detailedIssues": ["...same as /analyze endpoint"],
+    "summary": {
+      "totalIssues": "number",
+      "goodIssues": "number",
+      "okIssues": "number",
+      "badIssues": "number",
+      "criticalIssues": ["array"],
+      "quickWins": ["array"]
+    }
+  },
+  "wordpressData": {
+    "postId": "number",
+    "site": "string (site code)",
+    "extractedKeywords": ["string"],
+    "seoMetadata": {
+      "title": "string",
+      "description": "string",
+      "focusKeyphrase": "string"
+    }
+  },
+  "processingTime": "number (milliseconds)"
+}
+```
 
-但仍包含：
+**Supported WordPress Sites:**
 
-- `title-needs-improvement`
-- `meta-description-needs-improvement`
-- `content-length-good`
-- 所有可讀性相關檢測
+- pretty.presslogic.com (GS_HK)
+- girlstyle.com (GS_TW)
+- holidaysmart.io (HS_HK)
+- urbanlifehk.com (UL_HK)
+- poplady-mag.com (POP_HK)
+- topbeautyhk.com (TOP_HK)
+- thekdaily.com (KD_HK)
+- businessfocus.io (BF_HK)
+- mamidaily.com (MD_HK)
+- thepetcity.co (PET_HK)
 
-## 注意事項
+**Error Response:**
 
-1. **HTML 內容**: 請提供完整的 HTML 內容，包含 `<head>` 和 `<body>`
-2. **URL 格式**: URL 需要包含協議 (http:// 或 https://)
-3. **關鍵字**: 建議提供具體的關鍵字以獲得更精確的分析；留空則跳過關鍵字分析
-4. **批量限制**: 批量分析最多支援 10 個頁面
-5. **請求大小**: HTML 內容限制在 10MB 以內
+```json
+{
+  "success": false,
+  "error": "string",
+  "processingTime": "number (milliseconds)"
+}
+```
+
+## Request Examples
+
+### Basic Analysis
+
+```json
+{
+  "htmlContent": "<!DOCTYPE html><html><head><title>Example Page</title></head><body><h1>Welcome</h1><p>This is a sample page.</p></body></html>",
+  "pageDetails": {
+    "url": "https://example.com",
+    "title": "Example Page",
+    "description": "A sample webpage for testing"
+  },
+  "focusKeyword": "example",
+  "synonyms": ["sample", "demo"]
+}
+```
+
+### Advanced Analysis with Custom Configuration
+
+```json
+{
+  "htmlContent": "<!DOCTYPE html><html>...</html>",
+  "pageDetails": {
+    "url": "https://example.com/blog/post",
+    "title": "How to Use PageLens",
+    "description": "Complete guide to PageLens analysis",
+    "language": "en",
+    "author": "John Doe",
+    "category": "Technology",
+    "tags": ["SEO", "Analysis", "Web Development"]
+  },
+  "focusKeyword": "PageLens",
+  "synonyms": ["page analysis", "SEO tool"],
+  "options": {
+    "contentSelectors": ["main", ".content"],
+    "excludeSelectors": [".sidebar", ".footer"],
+    "extractMainContent": true,
+    "assessmentConfig": {
+      "enableAllSEO": true,
+      "enabledAssessments": ["SENTENCE_LENGTH_IN_TEXT", "PARAGRAPH_TOO_LONG"]
+    }
+  }
+}
+```
+
+### WordPress URL Analysis
+
+```json
+{
+  "url": "https://holidaysmart.io/hk/article/454588/vlt兩大活動登場-「澀出真我角度」大型裝置登陸商",
+  "options": {
+    "assessmentConfig": {
+      "enableAllSEO": true,
+      "enableAllReadability": true
+    }
+  }
+}
+```
+
+### WordPress URL Analysis with Custom Configuration
+
+```json
+{
+  "url": "https://pretty.presslogic.com/article/123456/beauty-tips",
+  "options": {
+    "contentSelectors": [".post-content", ".article-body"],
+    "excludeSelectors": [".advertisement", ".related-posts"],
+    "extractMainContent": true,
+    "assessmentConfig": {
+      "enableAllSEO": true,
+      "enabledAssessments": [
+        "FLESCH_READING_EASE",
+        "PARAGRAPH_TOO_LONG",
+        "H1_KEYWORD"
+      ]
+    }
+  }
+}
+```
+
+## Assessment Types
+
+### SEO Assessments
+
+- **H1_KEYWORD** - H1 tag keyword optimization
+- **ALT_ATTRIBUTE** - Image alt text validation
+- **INTRODUCTION_KEYWORD** - Keyword in first paragraph
+- **KEYWORD_DENSITY** - Focus keyword density analysis
+- **META_DESCRIPTION_KEYWORD** - Meta description keyword usage
+- **PAGE_TITLE_WIDTH** - Page title length validation
+- **TEXT_LENGTH** - Content length analysis
+
+### Readability Assessments
+
+- **SENTENCE_LENGTH_IN_TEXT** - Average sentence length
+- **PARAGRAPH_TOO_LONG** - Paragraph length validation
+- **SUBHEADING_DISTRIBUTION_TOO_LONG** - Subheading distribution
+- **FLESCH_READING_EASE** - Flesch reading ease score
+
+## Score Grading
+
+| Score Range | Grade             | Description                              |
+| ----------- | ----------------- | ---------------------------------------- |
+| 90-100      | excellent         | Outstanding performance                  |
+| 70-89       | good              | Good performance with minor improvements |
+| 50-69       | needs-improvement | Requires significant improvements        |
+| 0-49        | poor              | Critical issues need immediate attention |
+
+## Impact Levels
+
+- **high** - Critical issues that significantly affect SEO/readability
+- **medium** - Important issues that should be addressed
+- **low** - Minor improvements that can enhance performance
+
+## Error Codes
+
+| Error | Description                                       |
+| ----- | ------------------------------------------------- |
+| 400   | Bad Request - Invalid input data                  |
+| 500   | Internal Server Error - Analysis pipeline failure |
+
+## Rate Limits
+
+Currently no rate limits are implemented, but usage should be reasonable to ensure service availability.
+
+## Integration Example
+
+### JavaScript/Node.js
+
+```javascript
+const response = await fetch('https://page-lens-zeta.vercel.app/analyze', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    htmlContent: htmlString,
+    pageDetails: {
+      url: 'https://example.com',
+      title: 'Page Title'
+    },
+    focusKeyword: 'target keyword'
+  })
+});
+
+const result = await response.json();
+if (result.success) {
+  console.log('Overall Score:', result.report.overallScores.overallScore);
+  console.log('Issues Found:', result.report.detailedIssues.length);
+  console.log('Critical Issues:', result.report.summary.criticalIssues.length);
+  console.log('Quick Wins:', result.report.summary.quickWins.length);
+} else {
+  console.error('Analysis failed:', result.error);
+}
+```
+
+### cURL
+
+```bash
+curl -X POST https://page-lens-zeta.vercel.app/analyze \
+  -H "Content-Type: application/json" \
+  -d '{
+    "htmlContent": "<!DOCTYPE html>...",
+    "pageDetails": {
+      "url": "https://example.com",
+      "title": "Example"
+    },
+    "focusKeyword": "example"
+  }'
+```
+
+### WordPress URL Analysis with JavaScript
+
+```javascript
+const response = await fetch(
+  'https://page-lens-zeta.vercel.app/analyze-wp-url',
+  {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      url: 'https://holidaysmart.io/hk/article/454588/vlt兩大活動登場',
+      options: {
+        assessmentConfig: {
+          enableAllSEO: true,
+          enableAllReadability: true
+        }
+      }
+    })
+  }
+);
+
+const result = await response.json();
+if (result.success) {
+  console.log('Overall Score:', result.report.overallScores.overallScore);
+  console.log('WordPress Data:', result.wordpressData);
+  console.log('Extracted Keywords:', result.wordpressData.extractedKeywords);
+  console.log('Site Code:', result.wordpressData.site);
+} else {
+  console.error('Analysis failed:', result.error);
+}
+```
+
+### WordPress URL Analysis with cURL
+
+```bash
+curl -X POST https://page-lens-zeta.vercel.app/analyze-wp-url \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://holidaysmart.io/hk/article/454588/vlt兩大活動登場-「澀出真我角度」大型裝置登陸商",
+    "options": {
+      "assessmentConfig": {
+        "enableAllSEO": true,
+        "enableAllReadability": true
+      }
+    }
+  }'
+```
+
+## Real-world Example
+
+Here's a real test result from analyzing a HolidaySmart article:
+
+### Request
+
+```bash
+curl -X POST https://page-lens-zeta.vercel.app/analyze \
+  -H "Content-Type: application/json" \
+  -d '{
+    "htmlContent": "<!DOCTYPE html><html><head><title>VLT兩大活動登場 「澀出真我角度」大型裝置登陸商場</title>...</head><body>...</body></html>",
+    "pageDetails": {
+      "url": "https://holidaysmart.io/hk/article/454588/vlt兩大活動登場",
+      "title": "VLT兩大活動登場 「澀出真我角度」大型裝置登陸商場 巨型VLT特色郵箱成打卡熱點",
+      "description": "踏入初夏，VLT最新推出嘅「澀出真我角度」活動正式揭幕",
+      "language": "zh-Hant-HK"
+    },
+    "focusKeyword": "VLT",
+    "synonyms": ["維他", "檸檬茶"],
+    "options": {
+      "assessmentConfig": {
+        "enableAllSEO": true,
+        "enableAllReadability": true
+      }
+    }
+  }'
+```
+
+### Response Summary
+
+```json
+{
+  "success": true,
+  "report": {
+    "overallScores": {
+      "seoScore": 68,
+      "readabilityScore": 53,
+      "overallScore": 62,
+      "seoGrade": "needs-improvement",
+      "readabilityGrade": "needs-improvement",
+      "overallGrade": "needs-improvement"
+    },
+    "summary": {
+      "totalIssues": 11,
+      "goodIssues": 6,
+      "okIssues": 1,
+      "badIssues": 4,
+      "criticalIssues": [
+        {
+          "id": "h1-missing",
+          "name": "H1 Tag Missing",
+          "impact": "high"
+        },
+        {
+          "id": "keyword-density-high",
+          "name": "High Keyword Density",
+          "impact": "high"
+        },
+        {
+          "id": "flesch-reading-ease",
+          "name": "Flesch Reading Ease",
+          "impact": "high"
+        }
+      ],
+      "quickWins": [
+        {
+          "id": "meta-description-needs-improvement",
+          "name": "Meta Description Needs Improvement",
+          "rating": "ok"
+        }
+      ]
+    }
+  },
+  "processingTime": 49
+}
+```
+
+### Key Issues Found
+
+- **Missing H1 Tag**: Critical SEO issue
+- **High Keyword Density**: 2.6% (should be 0.5-2.5%)
+- **Poor Readability**: Flesch score of 24.4 (very difficult to read)
+- **Meta Description**: Needs to be longer (70-80 characters)
+
+### Positive Findings
+
+- All images have alt text
+- Focus keyword appears in first paragraph
+- Good title tag optimization
+- Sufficient content length (352 words)
+- Well-structured with subheadings
+
+## WordPress URL Analysis Example
+
+For WordPress/PressLogic sites, you can use the simpler `/analyze-wp-url` endpoint:
+
+### Request
+
+```bash
+curl -X POST https://page-lens-zeta.vercel.app/analyze-wp-url \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://holidaysmart.io/hk/article/454588/vlt兩大活動登場-「澀出真我角度」大型裝置登陸商"
+  }'
+```
+
+### Benefits
+
+- **Automatic data fetching**: No need to manually extract HTML content
+- **SEO metadata integration**: Automatically uses WordPress SEO settings
+- **Keyword extraction**: Focus keywords and synonyms extracted from WordPress
+- **Author and date information**: Automatically populated from WordPress data
+- **Site-specific optimization**: Optimized for PressLogic network sites
+
+## Support
+
+For issues and questions:
+
+- Check the logs in Vercel dashboard for deployment issues
+- Review the CLAUDE.md file for development guidance
+- Ensure all required fields are provided in requests
+
+## Changelog
+
+### Version 1.1.0
+
+- Added WordPress URL analysis endpoint (`/analyze-wp-url`)
+- Automatic content fetching from WordPress/PressLogic sites
+- Integrated keyword extraction from WordPress SEO data
+- Support for 10+ PressLogic network sites
+- Enhanced response with WordPress-specific metadata
+
+### Version 1.0.0
+
+- Initial API release with basic page analysis
+- SEO and readability assessment pipeline
+- Configurable assessment selection
+- Comprehensive reporting with scores and recommendations

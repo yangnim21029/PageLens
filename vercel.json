@@ -1,17 +1,1 @@
-{
-  "functions": {
-    "src/app/api/v1/pagelens/route.ts": {
-      "maxDuration": 30
-    },
-    "src/app/api/v1/pagelens/health/route.ts": {
-      "maxDuration": 10
-    },
-    "src/app/api/v1/pagelens/batch/route.ts": {
-      "maxDuration": 60
-    },
-    "src/app/api/v1/pagelens/assessments/route.ts": {
-      "maxDuration": 10
-    }
-  },
-  "buildCommand": "npm run build"
-}
+{ "version": 2, "rewrites": [{ "source": "/(.*)", "destination": "/api" }] }
