@@ -81,3 +81,9 @@ export class ContentExtractor {
     }
   }
 }
+
+// Export convenience function for backward compatibility
+export async function htmlToTextByMozReadability(html: string): Promise<string | null> {
+  const extractor = new ContentExtractor();
+  return await extractor.htmlToTextByMozReadability(html);
+}

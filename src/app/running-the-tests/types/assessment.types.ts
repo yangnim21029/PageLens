@@ -19,6 +19,7 @@ export interface AssessmentResult {
   impact: 'high' | 'medium' | 'low';
   recommendation: string;
   details?: any;
+  rating?: 'good' | 'ok' | 'bad';
 }
 
 export interface TestResults {

@@ -19,6 +19,8 @@ export interface DetailedIssue {
   assessmentType: 'seo' | 'readability';
   score: number;
   details?: any;
+  category?: 'seo' | 'readability' | 'technical' | 'performance' | 'technical-seo' | 'social-media' | 'structured-data' | 'links' | 'advanced-readability' | 'content-structure' | 'visual-design';
+  status?: 'good' | 'ok' | 'bad';
 }
 
 export enum ScoreGrade {

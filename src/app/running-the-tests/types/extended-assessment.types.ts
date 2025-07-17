@@ -45,20 +45,20 @@ export interface TechnicalSEOChecks {
   hreflang?: {
     tags: Array<{
       lang: string;
-      url: string;
+      href: string;
     }>;
     hasErrors: boolean;
   };
-  ssl: {
+  ssl?: {
     isSecure: boolean;
     hasMixedContent: boolean;
   };
-  robots: {
+  robots?: {
     metaRobots?: string;
     hasRobotsTxt: boolean;
     isIndexable: boolean;
   };
-  sitemap: {
+  sitemap?: {
     isReferencedInRobots: boolean;
     xmlSitemapUrl?: string;
   };
@@ -190,6 +190,7 @@ export interface VisualDesignChecks {
 // Extended assessment result
 export interface ExtendedAssessmentResult extends AssessmentResult {
   assessmentType: AssessmentType | 'technical-seo' | 'social-media' | 'structured-data' | 'links' | 'performance' | 'advanced-readability' | 'content-structure' | 'visual-design';
+  category?: 'seo' | 'readability' | 'technical' | 'performance' | 'technical-seo' | 'social-media' | 'structured-data' | 'links' | 'advanced-readability' | 'content-structure' | 'visual-design';
   data?: {
     structuredData?: StructuredDataCheck[];
     socialMedia?: SocialMediaTags;
