@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/audit-pipeline/**/*",
+    "src/__tests__/audit-pipeline/**/*"
+  ],
+  "exclude": [
+    "src/legacy/**/*",
+    "src/server.ts",
+    "src/index.ts",
+    "src/controllers/**/*",
+    "src/services/**/*",
+    "src/routes/**/*"
+  ]
+}
