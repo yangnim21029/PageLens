@@ -365,7 +365,15 @@ export async function getSeoPageByWordPress(
     }
 
     // 解析關鍵字
-    const keywords = _parseFocusKeyphrase(seoData.focusKeyphrase).keywords;
+    const keywords = _parseFocusKeyphrase(seoData?.focusKeyphrase || '').keywords;
+    
+    // 如果沒有關鍵字，記錄警告但不使用預設值
+    if (keywords.length === 0) {
+      console.warn(
+        `[WordPress Client - getSeoPageByWordPress] No focus keyphrase found for ${url}, returning empty keywords array`
+      );
+      // 不使用預設值，讓系統知道確實沒有設定關鍵字
+    }
     // 如果有文章數據，使用文章數據；否則拋出錯誤讓 scrapeWithFallback 回退到 Moz
     let seoPage: NewSeoPage;
     if (articleResult.success && articleResult.data) {

@@ -45,11 +45,24 @@ export class SEOAssessor {
         details: { h1Count: h1Tags.length, h1Texts: h1Tags.map(h => h.text) }
       });
     } else {
-      // Check if H1 contains focus keyword
+      // Check if H1 contains focus keyword (only if focus keyword is provided)
       const h1Text = h1Tags[0].text.toLowerCase();
-      const focusKeyword = ingredients.focusKeyword.toLowerCase();
+      const focusKeyword = ingredients.focusKeyword?.toLowerCase() || '';
       
-      if (h1Text.includes(focusKeyword)) {
+      if (!focusKeyword || focusKeyword.trim() === '') {
+        // No focus keyword provided, skip keyword analysis
+        assessments.push({
+          id: 'h1-no-keyword-analysis',
+          type: AssessmentType.SEO,
+          name: 'H1 Present (No Keyword Analysis)',
+          description: 'H1 heading exists but no focus keyword provided for analysis',
+          status: AssessmentStatus.OK,
+          score: 75,
+          impact: 'low',
+          recommendation: 'H1 heading is present. Consider setting a focus keyword to analyze keyword optimization.',
+          details: { h1Text, reason: 'No focus keyword provided' }
+        });
+      } else if (h1Text.includes(focusKeyword)) {
         assessments.push({
           id: 'h1-keyword-good',
           type: AssessmentType.SEO,
@@ -135,7 +148,23 @@ export class SEOAssessor {
   private async checkKeywordOptimization(parsedContent: ParsedContent, ingredients: PageIngredients): Promise<AssessmentResult[]> {
     const assessments: AssessmentResult[] = [];
     const textContent = parsedContent.textContent.toLowerCase();
-    const focusKeyword = ingredients.focusKeyword.toLowerCase();
+    const focusKeyword = ingredients.focusKeyword?.toLowerCase() || '';
+    
+    // Skip keyword analysis if no focus keyword is provided
+    if (!focusKeyword || focusKeyword.trim() === '') {
+      assessments.push({
+        id: 'no-keyword-analysis',
+        type: AssessmentType.SEO,
+        name: 'No Keyword Analysis',
+        description: 'No focus keyword provided for keyword optimization analysis',
+        status: AssessmentStatus.OK,
+        score: 75,
+        impact: 'low',
+        recommendation: 'Consider setting a focus keyword to analyze keyword optimization.',
+        details: { reason: 'No focus keyword provided' }
+      });
+      return assessments;
+    }
     
     // Check keyword in first paragraph
     const firstParagraph = parsedContent.paragraphs[0]?.toLowerCase() || '';
@@ -160,7 +189,7 @@ export class SEOAssessor {
         status: AssessmentStatus.OK,
         score: 60,
         impact: 'medium',
-        recommendation: `Consider including your focus keyword "${ingredients.focusKeyword}" in the first paragraph.`,
+        recommendation: `Consider including your focus keyword "${focusKeyword}" in the first paragraph.`,
         details: { focusKeyword }
       });
     }
@@ -215,7 +244,8 @@ export class SEOAssessor {
     const assessments: AssessmentResult[] = [];
     const title = parsedContent.title;
     const metaDescription = parsedContent.metaDescription;
-    const focusKeyword = ingredients.focusKeyword.toLowerCase();
+    const focusKeyword = ingredients.focusKeyword?.toLowerCase() || '';
+    const hasKeyword = focusKeyword && focusKeyword.trim() !== '';
 
     // Check title
     if (!title) {
@@ -232,12 +262,12 @@ export class SEOAssessor {
       });
     } else {
       const titleLength = title.length;
-      const hasKeyword = title.toLowerCase().includes(focusKeyword);
+      const titleHasKeyword = hasKeyword ? title.toLowerCase().includes(focusKeyword) : false;
       
       // 語言感知的標題長度標準
       const { minLength, maxLength } = this.getTitleLengthStandards(title);
       
-      if (titleLength >= minLength && titleLength <= maxLength && hasKeyword) {
+      if (titleLength >= minLength && titleLength <= maxLength && titleHasKeyword) {
         assessments.push({
           id: 'title-good',
           type: AssessmentType.SEO,
@@ -247,13 +277,13 @@ export class SEOAssessor {
           score: 100,
           impact: 'high',
           recommendation: 'Perfect! Your title tag is the right length and contains the focus keyword.',
-          details: { title, length: titleLength, hasKeyword }
+          details: { title, length: titleLength, hasKeyword: titleHasKeyword }
         });
       } else {
         let recommendation = 'Improve your title tag: ';
         if (titleLength < minLength) recommendation += `make it longer (${minLength}-${maxLength} characters), `;
         if (titleLength > maxLength) recommendation += `make it shorter (${minLength}-${maxLength} characters), `;
-        if (!hasKeyword) recommendation += 'include your focus keyword, ';
+        if (hasKeyword && !titleHasKeyword) recommendation += 'include your focus keyword, ';
         recommendation = recommendation.slice(0, -2) + '.';
         
         assessments.push({
@@ -265,7 +295,7 @@ export class SEOAssessor {
           score: 60,
           impact: 'high',
           recommendation,
-          details: { title, length: titleLength, hasKeyword }
+          details: { title, length: titleLength, hasKeyword: titleHasKeyword }
         });
       }
     }
@@ -285,12 +315,12 @@ export class SEOAssessor {
       });
     } else {
       const descLength = metaDescription.length;
-      const hasKeyword = metaDescription.toLowerCase().includes(focusKeyword);
+      const descHasKeyword = hasKeyword ? metaDescription.toLowerCase().includes(focusKeyword) : false;
       
       // 語言感知的 meta description 長度標準
       const { minLength, maxLength } = this.getMetaDescriptionLengthStandards(metaDescription);
       
-      if (descLength >= minLength && descLength <= maxLength && hasKeyword) {
+      if (descLength >= minLength && descLength <= maxLength && descHasKeyword) {
         assessments.push({
           id: 'meta-description-good',
           type: AssessmentType.SEO,
@@ -300,13 +330,13 @@ export class SEOAssessor {
           score: 100,
           impact: 'high',
           recommendation: 'Excellent! Your meta description is the right length and contains the focus keyword.',
-          details: { metaDescription, length: descLength, hasKeyword }
+          details: { metaDescription, length: descLength, hasKeyword: descHasKeyword }
         });
       } else {
         let recommendation = 'Improve your meta description: ';
         if (descLength < minLength) recommendation += `make it longer (${minLength}-${maxLength} characters), `;
         if (descLength > maxLength) recommendation += `make it shorter (${minLength}-${maxLength} characters), `;
-        if (!hasKeyword) recommendation += 'include your focus keyword, ';
+        if (hasKeyword && !descHasKeyword) recommendation += 'include your focus keyword, ';
         recommendation = recommendation.slice(0, -2) + '.';
         
         assessments.push({
@@ -318,7 +348,7 @@ export class SEOAssessor {
           score: 60,
           impact: 'high',
           recommendation,
-          details: { metaDescription, length: descLength, hasKeyword }
+          details: { metaDescription, length: descLength, hasKeyword: descHasKeyword }
         });
       }
     }

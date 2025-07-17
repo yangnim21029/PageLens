@@ -1,7 +1,7 @@
 export interface PageIngredients {
   htmlContent: string;
   pageDetails: PageDetails;
-  focusKeyword: string;
+  focusKeyword: string;  // 可以是空字串，但仍需提供
   synonyms: string[];
 }
 
