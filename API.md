@@ -134,16 +134,16 @@ Analyzes WordPress articles by URL (automatic content fetching).
 
 | Domain                | Site Code |
 | --------------------- | --------- |
-| holidaysmart.io       | HS_HK     |
 | pretty.presslogic.com | GS_HK     |
 | girlstyle.com         | GS_TW     |
+| holidaysmart.io       | HS_HK     |
 | urbanlifehk.com       | UL_HK     |
-| weekendhk.com         | WH_HK     |
-| gotrip.hk             | GT_HK     |
-| nmplus.hk             | NM_HK     |
-| sundaymore.com        | SM_HK     |
-| weekendsg.com         | WH_SG     |
-| gotrip.my             | GT_MY     |
+| poplady-mag.com       | POP_HK    |
+| topbeautyhk.com       | TOP_HK    |
+| thekdaily.com         | KD_HK     |
+| businessfocus.io      | BF_HK     |
+| mamidaily.com         | MD_HK     |
+| thepetcity.co         | PET_HK    |
 
 ## Response Example
 
