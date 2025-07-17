@@ -40,6 +40,9 @@ Analyzes provided HTML content for SEO and readability metrics.
   "focusKeyword": "string",
   "synonyms": ["string"],
   "options": {
+    "contentSelectors": ["string"],     // CSS selectors for main content
+    "excludeSelectors": ["string"],     // CSS selectors to exclude
+    "extractMainContent": "boolean",    // Extract main content area only
     "assessmentConfig": {
       "enableAllSEO": "boolean",
       "enableAllReadability": "boolean",
@@ -99,6 +102,9 @@ Analyzes WordPress articles by URL (automatic content fetching).
 {
   "url": "string (required)",
   "options": {
+    "contentSelectors": ["string"],     // CSS selectors for main content
+    "excludeSelectors": ["string"],     // CSS selectors to exclude
+    "extractMainContent": "boolean",    // Extract main content area only
     "assessmentConfig": {
       "enableAllSEO": "boolean",
       "enableAllReadability": "boolean"
@@ -163,6 +169,62 @@ Analyzes WordPress articles by URL (automatic content fetching).
 }
 ```
 
+## Content Selection
+
+PageLens can analyze specific parts of a webpage using CSS selectors.
+
+### Default Behavior
+
+**Automatically searches for main content in:**
+```
+main, article, .content, .post-content, .entry-content, 
+.article-content, #content, #main
+```
+
+**Automatically excludes:**
+```
+script, style, nav, header, footer, aside, .sidebar, 
+.menu, .navigation, .comments, .related-posts
+```
+
+### Custom Content Selection
+
+```json
+{
+  "options": {
+    "contentSelectors": [".custom-article", "#blog-content"],
+    "excludeSelectors": [".ads", ".newsletter-signup", ".social-share"],
+    "extractMainContent": true
+  }
+}
+```
+
+**Options:**
+- `contentSelectors` - Array of CSS selectors to find main content (uses first match)
+- `excludeSelectors` - Array of CSS selectors to remove from analysis
+- `extractMainContent` - If true, only analyzes extracted content area
+
+### Examples
+
+**Analyze only article body:**
+```json
+{
+  "options": {
+    "contentSelectors": [".article-body"],
+    "excludeSelectors": [".author-bio", ".related-articles"]
+  }
+}
+```
+
+**Exclude advertisements and popups:**
+```json
+{
+  "options": {
+    "excludeSelectors": [".ad", ".popup", ".banner", "[id*='ad-']"]
+  }
+}
+```
+
 ## Assessment Types
 
 ### SEO Assessments (11 available)
@@ -189,15 +251,21 @@ Analyzes WordPress articles by URL (automatic content fetching).
 ### Configuration Examples
 
 **Run specific assessments only:**
+
 ```json
 {
   "assessmentConfig": {
-    "enabledAssessments": ["H1_KEYWORD", "KEYWORD_DENSITY", "FLESCH_READING_EASE"]
+    "enabledAssessments": [
+      "H1_KEYWORD",
+      "KEYWORD_DENSITY",
+      "FLESCH_READING_EASE"
+    ]
   }
 }
 ```
 
 **Run all SEO assessments only:**
+
 ```json
 {
   "assessmentConfig": {
@@ -208,6 +276,7 @@ Analyzes WordPress articles by URL (automatic content fetching).
 ```
 
 **Run all assessments (default):**
+
 ```json
 {
   "assessmentConfig": {
