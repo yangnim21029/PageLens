@@ -36,26 +36,26 @@ export interface TestRunResult {
   error?: string;
 }
 
-// Assessment Configuration Types - Internal enum names for code organization
+// Assessment Configuration Types - Unified enum names and values
 export enum AssessmentType {
   // SEO Assessments
-  SEO_SINGLE_H1_CHECK = 'h1-missing',
-  SEO_MULTIPLE_H1_CHECK = 'multiple-h1',
-  SEO_H1_KEYWORD_CHECK = 'h1-keyword-missing',
-  SEO_ALT_ATTRIBUTE_CHECK = 'images-missing-alt',
-  SEO_INTRODUCTION_KEYWORD_CHECK = 'keyword-missing-first-paragraph',
-  SEO_KEYWORD_DENSITY_CHECK = 'keyword-density-low',
-  SEO_META_DESCRIPTION_KEYWORD_CHECK = 'meta-description-needs-improvement',
-  SEO_META_DESCRIPTION_LENGTH_CHECK = 'meta-description-missing',
-  SEO_PAGE_TITLE_WIDTH_CHECK = 'title-needs-improvement',
-  SEO_TITLE_KEYWORD_CHECK = 'title-missing',
-  SEO_TEXT_LENGTH_CHECK = 'content-length-short',
+  H1_MISSING = 'H1_MISSING',
+  MULTIPLE_H1 = 'MULTIPLE_H1',
+  H1_KEYWORD_MISSING = 'H1_KEYWORD_MISSING',
+  IMAGES_MISSING_ALT = 'IMAGES_MISSING_ALT',
+  KEYWORD_MISSING_FIRST_PARAGRAPH = 'KEYWORD_MISSING_FIRST_PARAGRAPH',
+  KEYWORD_DENSITY_LOW = 'KEYWORD_DENSITY_LOW',
+  META_DESCRIPTION_NEEDS_IMPROVEMENT = 'META_DESCRIPTION_NEEDS_IMPROVEMENT',
+  META_DESCRIPTION_MISSING = 'META_DESCRIPTION_MISSING',
+  TITLE_NEEDS_IMPROVEMENT = 'TITLE_NEEDS_IMPROVEMENT',
+  TITLE_MISSING = 'TITLE_MISSING',
+  CONTENT_LENGTH_SHORT = 'CONTENT_LENGTH_SHORT',
   
   // Readability Assessments
-  READABILITY_FLESCH_READING_EASE_CHECK = 'flesch-reading-ease',
-  READABILITY_PARAGRAPH_TOO_LONG_CHECK = 'paragraph-length-long',
-  READABILITY_SENTENCE_LENGTH_IN_TEXT_CHECK = 'sentence-length-long',
-  READABILITY_SUBHEADING_DISTRIBUTION_CHECK = 'subheading-distribution-poor',
+  FLESCH_READING_EASE = 'FLESCH_READING_EASE',
+  PARAGRAPH_LENGTH_LONG = 'PARAGRAPH_LENGTH_LONG',
+  SENTENCE_LENGTH_LONG = 'SENTENCE_LENGTH_LONG',
+  SUBHEADING_DISTRIBUTION_POOR = 'SUBHEADING_DISTRIBUTION_POOR',
   
   // Future Extended Assessments (for framework expansion)
   EXTENDED_HEADING_STRUCTURE_ORDER_CHECK = 'heading-structure-order',
@@ -92,24 +92,24 @@ export const DEFAULT_ASSESSMENT_CONFIG: AssessmentConfiguration = {
 };
 
 export const SEO_ASSESSMENTS = [
-  AvailableAssessments.SEO_SINGLE_H1_CHECK,
-  AvailableAssessments.SEO_MULTIPLE_H1_CHECK,
-  AvailableAssessments.SEO_H1_KEYWORD_CHECK,
-  AvailableAssessments.SEO_ALT_ATTRIBUTE_CHECK,
-  AvailableAssessments.SEO_INTRODUCTION_KEYWORD_CHECK,
-  AvailableAssessments.SEO_KEYWORD_DENSITY_CHECK,
-  AvailableAssessments.SEO_META_DESCRIPTION_KEYWORD_CHECK,
-  AvailableAssessments.SEO_META_DESCRIPTION_LENGTH_CHECK,
-  AvailableAssessments.SEO_PAGE_TITLE_WIDTH_CHECK,
-  AvailableAssessments.SEO_TITLE_KEYWORD_CHECK,
-  AvailableAssessments.SEO_TEXT_LENGTH_CHECK
+  AvailableAssessments.H1_MISSING,
+  AvailableAssessments.MULTIPLE_H1,
+  AvailableAssessments.H1_KEYWORD_MISSING,
+  AvailableAssessments.IMAGES_MISSING_ALT,
+  AvailableAssessments.KEYWORD_MISSING_FIRST_PARAGRAPH,
+  AvailableAssessments.KEYWORD_DENSITY_LOW,
+  AvailableAssessments.META_DESCRIPTION_NEEDS_IMPROVEMENT,
+  AvailableAssessments.META_DESCRIPTION_MISSING,
+  AvailableAssessments.TITLE_NEEDS_IMPROVEMENT,
+  AvailableAssessments.TITLE_MISSING,
+  AvailableAssessments.CONTENT_LENGTH_SHORT
 ];
 
 export const READABILITY_ASSESSMENTS = [
-  AvailableAssessments.READABILITY_FLESCH_READING_EASE_CHECK,
-  AvailableAssessments.READABILITY_PARAGRAPH_TOO_LONG_CHECK,
-  AvailableAssessments.READABILITY_SENTENCE_LENGTH_IN_TEXT_CHECK,
-  AvailableAssessments.READABILITY_SUBHEADING_DISTRIBUTION_CHECK
+  AvailableAssessments.FLESCH_READING_EASE,
+  AvailableAssessments.PARAGRAPH_LENGTH_LONG,
+  AvailableAssessments.SENTENCE_LENGTH_LONG,
+  AvailableAssessments.SUBHEADING_DISTRIBUTION_POOR
 ];
 
 export const ALL_CURRENT_ASSESSMENTS = [

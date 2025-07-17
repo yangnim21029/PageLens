@@ -72,10 +72,10 @@ POST /analyze
     "excludeSelectors": [".ad", ".sidebar"],
     "assessmentConfig": {
       "enabledAssessments": [
-        "h1-missing",
-        "h1-keyword-missing",
-        "images-missing-alt",
-        "keyword-density-low"
+        "H1_MISSING",
+        "H1_KEYWORD_MISSING",
+        "IMAGES_MISSING_ALT",
+        "KEYWORD_DENSITY_LOW"
       ]
     }
   }
@@ -189,36 +189,40 @@ const response = await fetch('https://page-lens-zeta.vercel.app/analyze', {
 ### 檢測項目配置
 如果使用 `enabledAssessments`，請使用檢測 ID 而非名稱：
 
-**❌ 錯誤（使用枚舉名稱）：**
+**✅ 現在 key 和 value 統一了：**
 ```javascript
-"enabledAssessments": ["SEO_SINGLE_H1_CHECK", "SEO_H1_KEYWORD_CHECK"]
+"enabledAssessments": ["H1_MISSING", "H1_KEYWORD_MISSING"]
 ```
 
-**✅ 正確（使用枚舉值）：**
+**兩種方式都可以：**
 ```javascript
-"enabledAssessments": ["h1-missing", "h1-keyword-missing"]
+// 直接使用字串
+"enabledAssessments": ["H1_MISSING", "H1_KEYWORD_MISSING"]
+
+// 或使用枚舉（如果有 TypeScript 支援）
+"enabledAssessments": [AssessmentType.H1_MISSING, AssessmentType.H1_KEYWORD_MISSING]
 ```
 
 ### 完整檢測項目列表
 ```javascript
-// SEO 檢測項目 (使用這些 ID 值)
-"h1-missing"                        // H1 標籤檢測
-"multiple-h1"                       // 多重 H1 檢測
-"h1-keyword-missing"                // H1 關鍵字檢測
-"images-missing-alt"                // 圖片 Alt 檢測
-"keyword-missing-first-paragraph"   // 首段關鍵字檢測
-"keyword-density-low"               // 關鍵字密度檢測
-"meta-description-needs-improvement" // Meta 描述檢測
-"meta-description-missing"          // Meta 描述長度檢測
-"title-needs-improvement"           // 標題優化檢測
-"title-missing"                     // 標題關鍵字檢測
-"content-length-short"              // 內容長度檢測
+// SEO 檢測項目
+"H1_MISSING"                        // H1 標籤檢測
+"MULTIPLE_H1"                       // 多重 H1 檢測
+"H1_KEYWORD_MISSING"                // H1 關鍵字檢測
+"IMAGES_MISSING_ALT"                // 圖片 Alt 檢測
+"KEYWORD_MISSING_FIRST_PARAGRAPH"   // 首段關鍵字檢測
+"KEYWORD_DENSITY_LOW"               // 關鍵字密度檢測
+"META_DESCRIPTION_NEEDS_IMPROVEMENT" // Meta 描述檢測
+"META_DESCRIPTION_MISSING"          // Meta 描述長度檢測
+"TITLE_NEEDS_IMPROVEMENT"           // 標題優化檢測
+"TITLE_MISSING"                     // 標題關鍵字檢測
+"CONTENT_LENGTH_SHORT"              // 內容長度檢測
 
-// 可讀性檢測項目 (使用這些 ID 值)
-"flesch-reading-ease"               // 可讀性評分
-"paragraph-length-long"             // 段落長度檢測
-"sentence-length-long"              // 句子長度檢測
-"subheading-distribution-poor"      // 子標題分佈檢測
+// 可讀性檢測項目
+"FLESCH_READING_EASE"               // 可讀性評分
+"PARAGRAPH_LENGTH_LONG"             // 段落長度檢測
+"SENTENCE_LENGTH_LONG"              // 句子長度檢測
+"SUBHEADING_DISTRIBUTION_POOR"      // 子標題分佈檢測
 ```
 
 ## 🐛 錯誤處理
@@ -419,9 +423,9 @@ PageLens can analyze specific parts of a webpage using CSS selectors.
 {
   "assessmentConfig": {
     "enabledAssessments": [
-      "h1-keyword-missing",
-      "keyword-density-low",
-      "flesch-reading-ease"
+      "H1_KEYWORD_MISSING",
+      "KEYWORD_DENSITY_LOW",
+      "FLESCH_READING_EASE"
     ]
   }
 }
