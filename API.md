@@ -17,7 +17,7 @@ PageLens 是一個 SEO 和可讀性分析服務，可以分析網頁內容並提
 {
   "html": "網頁的完整 HTML 內容",
   "url": "網頁的 URL",
-  "focusKeyword": "要優化的關鍵字 (可選，預設: SEO)",
+  "focusKeyword": "要優化的關鍵字 (可選，空白時跳過關鍵字相關分析)",
   "synonyms": ["同義詞陣列 (可選)"],
   "options": {
     "assessmentConfig": {
@@ -174,7 +174,7 @@ PageLens 是一個 SEO 和可讀性分析服務，可以分析網頁內容並提
 
 ### JavaScript/TypeScript
 ```javascript
-async function analyzePageSEO(htmlContent, pageUrl, focusKeyword = 'SEO') {
+async function analyzePageSEO(htmlContent, pageUrl, focusKeyword = '') {
   try {
     const response = await fetch('/api/v1/pagelens', {
       method: 'POST',
@@ -235,7 +235,7 @@ function SEOAnalyzer() {
         body: JSON.stringify({
           html: document.documentElement.outerHTML,
           url: window.location.href,
-          focusKeyword: 'SEO優化'
+          focusKeyword: 'SEO優化' // 留空則跳過關鍵字分析
         })
       });
       
@@ -291,10 +291,51 @@ function SEOAnalyzer() {
 - 根據語言調整分析標準
 - 支援中英文混合內容分析
 
+## 空關鍵字處理
+
+### 當沒有提供 focusKeyword 時
+
+如果 `focusKeyword` 為空或未提供，系統會：
+
+1. **跳過關鍵字相關分析**：
+   - 不分析關鍵字密度
+   - 不檢查關鍵字在首段的出現
+   - 不檢查 H1 標題是否包含關鍵字
+
+2. **保持其他分析**：
+   - 仍然分析標題和描述的長度
+   - 仍然進行可讀性分析
+   - 仍然檢查圖片 alt 文字等技術性 SEO
+
+3. **WordPress 整合**：
+   - 如果 WordPress 頁面沒有設定 focus keyphrase，系統會自動跳過關鍵字分析
+   - 不會使用預設關鍵字，確保分析結果的準確性
+
+### 範例：無關鍵字分析
+
+```json
+{
+  "html": "<html>...</html>",
+  "url": "https://example.com",
+  "focusKeyword": ""
+}
+```
+
+此時回應將不包含：
+- `keyword-density-low`
+- `keyword-missing-first-paragraph` 
+- `h1-keyword-missing`
+
+但仍包含：
+- `title-needs-improvement`
+- `meta-description-needs-improvement`
+- `content-length-good`
+- 所有可讀性相關檢測
+
 ## 注意事項
 
 1. **HTML 內容**: 請提供完整的 HTML 內容，包含 `<head>` 和 `<body>`
 2. **URL 格式**: URL 需要包含協議 (http:// 或 https://)
-3. **關鍵字**: 建議提供具體的關鍵字以獲得更精確的分析
+3. **關鍵字**: 建議提供具體的關鍵字以獲得更精確的分析；留空則跳過關鍵字分析
 4. **批量限制**: 批量分析最多支援 10 個頁面
 5. **請求大小**: HTML 內容限制在 10MB 以內
