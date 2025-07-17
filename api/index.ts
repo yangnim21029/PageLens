@@ -15,6 +15,38 @@ app.use(express.json({ limit: '10mb' }));
 // Health check endpoint
 app.get('/', (req, res) => res.send('Express on Vercel'));
 
+// Debug endpoint for WordPress API
+app.post('/debug-wp-api', async (req, res) => {
+  const { url } = req.body;
+  if (!url) {
+    return res.status(400).json({ error: 'URL is required' });
+  }
+
+  try {
+    // Extract post ID and site info
+    const postId = url.match(/\/article\/(\d+)/)?.[1];
+    const hostname = new URL(url).hostname;
+    const siteCode = wordPressSiteMap[hostname];
+
+    if (!postId || !siteCode) {
+      return res.status(400).json({ error: 'Invalid URL or unsupported site' });
+    }
+
+    const wpApiUrl = `https://article-api.presslogic.com/v1/articles/${postId}?site=${siteCode}`;
+    
+    const response = await fetch(wpApiUrl);
+    const data = await response.json();
+    
+    res.json({
+      url: wpApiUrl,
+      status: response.status,
+      data: data
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Page analysis endpoint
 app.post('/analyze', async (req, res) => {
   try {

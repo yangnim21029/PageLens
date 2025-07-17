@@ -576,6 +576,13 @@ For issues and questions:
 
 ## Changelog
 
+### Version 1.1.1 (2025-07-17)
+
+- Fixed WordPress API integration issue with URL parsing
+- Improved URL extraction from WordPress post data using proper Cheerio syntax
+- Enhanced error handling for malformed WordPress responses
+- Fixed issue where article URLs were not being properly extracted from API responses
+
 ### Version 1.1.0
 
 - Added WordPress URL analysis endpoint (`/analyze-wp-url`)

@@ -24,10 +24,20 @@ type wpSeoData = z.infer<typeof wpSeoDataSchema>;
 const wpArticleDataSchema = z.object({
   title: z.string(),
   post_content: z.string(),
-  post_date: z.string(),
+  post_date: z.string().or(z.string().datetime()), // Can be ISO datetime format
+  post_author: z.string().optional(), // Author ID as string
   author: z.object({
-    display_name: z.string()
-  })
+    display_name: z.string(),
+    user_nicename: z.string().optional(),
+    email: z.string().optional(),
+    id: z.string().optional()
+  }).optional() // Author object might not always be present
+});
+
+// The API response wrapper
+const wpArticleApiResponseSchema = z.object({
+  status: z.number(),
+  data: wpArticleDataSchema
 });
 
 type wpArticleData = z.infer<typeof wpArticleDataSchema>;
@@ -248,17 +258,19 @@ export async function callWordPressArticleApi(
     }
 
     const rawData = await response.json();
-    const validationResult = wpArticleDataSchema.safeParse(rawData);
+    
+    const validationResult = wpArticleApiResponseSchema.safeParse(rawData);
 
     if (!validationResult.success) {
       console.error(
         `[WordPress Client - callWordPressArticleApi] Zod validation failed for ${url}:`,
-        validationResult.error.flatten()
+        validationResult.error.format()
       );
       return { success: false, error: 'Response validation failed' };
     }
 
-    return { success: true, data: validationResult.data };
+    // Extract the actual article data from the response wrapper
+    return { success: true, data: validationResult.data.data };
   } catch (error: any) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.warn(
