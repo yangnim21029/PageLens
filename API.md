@@ -83,6 +83,8 @@ POST /analyze-wp-url
 
 Analyzes WordPress articles by URL (automatic content fetching).
 
+**Note:** WordPress article titles are automatically added as H1 tags for SEO analysis.
+
 **Request:**
 ```json
 {
@@ -182,6 +184,7 @@ curl -X POST https://page-lens-zeta.vercel.app/analyze-wp-url \
 
 **v1.1.1** (2025-07-17)
 - Fixed WordPress API response validation
+- Added automatic H1 tag insertion for WordPress titles
 
 **v1.1.0**
 - Added WordPress URL analysis endpoint
