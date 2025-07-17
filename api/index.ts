@@ -7,8 +7,40 @@ import express from 'express';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import path from 'path';
 
-// 動態導入中間件
-const middlewarePath = path.join(__dirname, '..', 'dist', 'middleware');
+// 動態導入中間件 - Debug paths
+console.log('__dirname:', __dirname);
+console.log('process.cwd():', process.cwd());
+
+let middlewareModule;
+try {
+  // Try multiple possible paths
+  const possiblePaths = [
+    path.join(__dirname, '..', 'dist', 'middleware'),
+    path.join(__dirname, 'dist', 'middleware'),
+    path.join(process.cwd(), 'dist', 'middleware'),
+    './dist/middleware',
+    '../dist/middleware'
+  ];
+  
+  for (const tryPath of possiblePaths) {
+    try {
+      console.log('Trying path:', tryPath);
+      middlewareModule = require(tryPath);
+      console.log('Successfully loaded middleware from:', tryPath);
+      break;
+    } catch (err) {
+      console.log('Failed to load from:', tryPath, err.message);
+    }
+  }
+  
+  if (!middlewareModule) {
+    throw new Error('Could not find middleware module');
+  }
+} catch (err) {
+  console.error('Error loading middleware:', err);
+  throw err;
+}
+
 const {
   addTimestamp,
   createCompressionMiddleware,
@@ -19,7 +51,7 @@ const {
   notFoundHandler,
   responseTime,
   validateContentType
-} = require(middlewarePath);
+} = middlewareModule;
 
 // 創建 Express 應用
 const app = express();
@@ -39,8 +71,53 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(validateContentType);
 
 // 引入路由和核心服務
-const { createAppRoutes } = require(path.join(__dirname, '..', 'dist', 'routes', 'appRoutes'));
-const { AuditPipelineOrchestrator } = require(path.join(__dirname, '..', 'dist', 'app', 'audit-pipeline.orchestrator'));
+let appRoutesModule, orchestratorModule;
+
+try {
+  const routesPaths = [
+    path.join(__dirname, '..', 'dist', 'routes', 'appRoutes'),
+    path.join(__dirname, 'dist', 'routes', 'appRoutes'),
+    path.join(process.cwd(), 'dist', 'routes', 'appRoutes')
+  ];
+  
+  for (const tryPath of routesPaths) {
+    try {
+      console.log('Trying routes path:', tryPath);
+      appRoutesModule = require(tryPath);
+      console.log('Successfully loaded routes from:', tryPath);
+      break;
+    } catch (err) {
+      console.log('Failed to load routes from:', tryPath, err.message);
+    }
+  }
+  
+  const orchestratorPaths = [
+    path.join(__dirname, '..', 'dist', 'app', 'audit-pipeline.orchestrator'),
+    path.join(__dirname, 'dist', 'app', 'audit-pipeline.orchestrator'),
+    path.join(process.cwd(), 'dist', 'app', 'audit-pipeline.orchestrator')
+  ];
+  
+  for (const tryPath of orchestratorPaths) {
+    try {
+      console.log('Trying orchestrator path:', tryPath);
+      orchestratorModule = require(tryPath);
+      console.log('Successfully loaded orchestrator from:', tryPath);
+      break;
+    } catch (err) {
+      console.log('Failed to load orchestrator from:', tryPath, err.message);
+    }
+  }
+  
+  if (!appRoutesModule) throw new Error('Could not find appRoutes module');
+  if (!orchestratorModule) throw new Error('Could not find orchestrator module');
+  
+} catch (err) {
+  console.error('Error loading modules:', err);
+  throw err;
+}
+
+const { createAppRoutes } = appRoutesModule;
+const { AuditPipelineOrchestrator } = orchestratorModule;
 
 // 實例化審核管道
 const auditOrchestrator = new AuditPipelineOrchestrator();
