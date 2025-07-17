@@ -59,6 +59,7 @@ POST /analyze
 - `options.assessmentConfig.enabledAssessments` - 指定檢測項目（使用下方列表中的 ID）
 
 **完整請求範例：**
+
 ```javascript
 {
   "htmlContent": "<html>...</html>",
@@ -96,7 +97,7 @@ POST /analyze
     },
     "detailedIssues": [
       {
-        "id": "h1-keyword-missing",
+        "id": "H1_KEYWORD_MISSING",
         "name": "H1 標籤缺少關鍵詞",
         "rating": "ok", // good=通過, ok=警告, bad=失敗
         "recommendation": "建議在 H1 標籤中加入關鍵詞",
@@ -187,14 +188,17 @@ const response = await fetch('https://page-lens-zeta.vercel.app/analyze', {
 ## ⚠️ 重要提醒
 
 ### 檢測項目配置
+
 如果使用 `enabledAssessments`，請使用檢測 ID 而非名稱：
 
 **✅ 現在 key 和 value 統一了：**
+
 ```javascript
 "enabledAssessments": ["H1_MISSING", "H1_KEYWORD_MISSING"]
 ```
 
 **兩種方式都可以：**
+
 ```javascript
 // 直接使用字串
 "enabledAssessments": ["H1_MISSING", "H1_KEYWORD_MISSING"]
@@ -204,25 +208,26 @@ const response = await fetch('https://page-lens-zeta.vercel.app/analyze', {
 ```
 
 ### 完整檢測項目列表
+
 ```javascript
 // SEO 檢測項目
-"H1_MISSING"                        // H1 標籤檢測
-"MULTIPLE_H1"                       // 多重 H1 檢測
-"H1_KEYWORD_MISSING"                // H1 關鍵字檢測
-"IMAGES_MISSING_ALT"                // 圖片 Alt 檢測
-"KEYWORD_MISSING_FIRST_PARAGRAPH"   // 首段關鍵字檢測
-"KEYWORD_DENSITY_LOW"               // 關鍵字密度檢測
-"META_DESCRIPTION_NEEDS_IMPROVEMENT" // Meta 描述檢測
-"META_DESCRIPTION_MISSING"          // Meta 描述長度檢測
-"TITLE_NEEDS_IMPROVEMENT"           // 標題優化檢測
-"TITLE_MISSING"                     // 標題關鍵字檢測
-"CONTENT_LENGTH_SHORT"              // 內容長度檢測
+'H1_MISSING'; // H1 標籤檢測
+'MULTIPLE_H1'; // 多重 H1 檢測
+'H1_KEYWORD_MISSING'; // H1 關鍵字檢測
+'IMAGES_MISSING_ALT'; // 圖片 Alt 檢測
+'KEYWORD_MISSING_FIRST_PARAGRAPH'; // 首段關鍵字檢測
+'KEYWORD_DENSITY_LOW'; // 關鍵字密度檢測
+'META_DESCRIPTION_NEEDS_IMPROVEMENT'; // Meta 描述檢測
+'META_DESCRIPTION_MISSING'; // Meta 描述長度檢測
+'TITLE_NEEDS_IMPROVEMENT'; // 標題優化檢測
+'TITLE_MISSING'; // 標題關鍵字檢測
+'CONTENT_LENGTH_SHORT'; // 內容長度檢測
 
 // 可讀性檢測項目
-"FLESCH_READING_EASE"               // 可讀性評分
-"PARAGRAPH_LENGTH_LONG"             // 段落長度檢測
-"SENTENCE_LENGTH_LONG"              // 句子長度檢測
-"SUBHEADING_DISTRIBUTION_POOR"      // 子標題分佈檢測
+'FLESCH_READING_EASE'; // 可讀性評分
+'PARAGRAPH_LENGTH_LONG'; // 段落長度檢測
+'SENTENCE_LENGTH_LONG'; // 句子長度檢測
+'SUBHEADING_DISTRIBUTION_POOR'; // 子標題分佈檢測
 ```
 
 ## 🐛 錯誤處理
@@ -260,7 +265,7 @@ const response = await fetch('https://page-lens-zeta.vercel.app/analyze', {
         "score": 100
       },
       {
-        "id": "keyword-density-low",
+        "id": "KEYWORD_DENSITY_LOW",
         "name": "Low Keyword Density",
         "rating": "bad",
         "score": 0
@@ -388,32 +393,32 @@ PageLens can analyze specific parts of a webpage using CSS selectors.
 
 ## 📊 檢測項目說明
 
-**⚠️ 重要：在 `enabledAssessments` 中使用檢測 ID（不是名稱）**
+**⚠️ 重要：枚舉名稱和值現在統一了**
 
 ### SEO 檢測項目 (11 available)
 
-| 檢測 ID | 檢測名稱 | 說明 |
-|---------|---------|------|
-| `h1-missing` | H1 標籤檢測 | 檢查是否有 H1 標籤 |
-| `multiple-h1` | 多重 H1 檢測 | 檢測是否有多個 H1 標籤 |
-| `h1-keyword-missing` | H1 關鍵字檢測 | 檢查 H1 是否包含關鍵字 |
-| `images-missing-alt` | 圖片 Alt 檢測 | 檢查圖片是否有 alt 屬性 |
-| `keyword-missing-first-paragraph` | 首段關鍵字檢測 | 檢查首段是否包含關鍵字 |
-| `keyword-density-low` | 關鍵字密度檢測 | 檢查關鍵字密度 (0.5-2.5%) |
-| `meta-description-needs-improvement` | Meta 描述檢測 | 檢查 meta description 中的關鍵字 |
-| `meta-description-missing` | Meta 描述長度檢測 | 檢查 meta description 長度 (150-160 字) |
-| `title-needs-improvement` | 標題優化檢測 | 檢查頁面標題優化 |
-| `title-missing` | 標題關鍵字檢測 | 檢查標題是否包含關鍵字 |
-| `content-length-short` | 內容長度檢測 | 檢查內容長度 (最少 300 字) |
+| 檢測 ID                              | 檢測名稱          | 說明                                    |
+| ------------------------------------ | ----------------- | --------------------------------------- |
+| `H1_MISSING`                         | H1 標籤檢測       | 檢查是否有 H1 標籤                      |
+| `MULTIPLE_H1`                        | 多重 H1 檢測      | 檢測是否有多個 H1 標籤                  |
+| `H1_KEYWORD_MISSING`                 | H1 關鍵字檢測     | 檢查 H1 是否包含關鍵字                  |
+| `IMAGES_MISSING_ALT`                 | 圖片 Alt 檢測     | 檢查圖片是否有 alt 屬性                 |
+| `KEYWORD_MISSING_FIRST_PARAGRAPH`    | 首段關鍵字檢測    | 檢查首段是否包含關鍵字                  |
+| `KEYWORD_DENSITY_LOW`                | 關鍵字密度檢測    | 檢查關鍵字密度 (0.5-2.5%)               |
+| `META_DESCRIPTION_NEEDS_IMPROVEMENT` | Meta 描述檢測     | 檢查 meta description 中的關鍵字        |
+| `META_DESCRIPTION_MISSING`           | Meta 描述長度檢測 | 檢查 meta description 長度 (150-160 字) |
+| `TITLE_NEEDS_IMPROVEMENT`            | 標題優化檢測      | 檢查頁面標題優化                        |
+| `TITLE_MISSING`                      | 標題關鍵字檢測    | 檢查標題是否包含關鍵字                  |
+| `CONTENT_LENGTH_SHORT`               | 內容長度檢測      | 檢查內容長度 (最少 300 字)              |
 
 ### 可讀性檢測項目 (4 available)
 
-| 檢測 ID | 檢測名稱 | 說明 |
-|---------|---------|------|
-| `flesch-reading-ease` | 可讀性評分 | 閱讀難度評分 |
-| `paragraph-length-long` | 段落長度檢測 | 檢查段落長度 (最多 150 字) |
-| `sentence-length-long` | 句子長度檢測 | 檢查句子長度 (最多 20 字) |
-| `subheading-distribution-poor` | 子標題分佈檢測 | 檢查子標題分佈 |
+| 檢測 ID                        | 檢測名稱       | 說明                       |
+| ------------------------------ | -------------- | -------------------------- |
+| `FLESCH_READING_EASE`          | 可讀性評分     | 閱讀難度評分               |
+| `PARAGRAPH_LENGTH_LONG`        | 段落長度檢測   | 檢查段落長度 (最多 150 字) |
+| `SENTENCE_LENGTH_LONG`         | 句子長度檢測   | 檢查句子長度 (最多 20 字)  |
+| `SUBHEADING_DISTRIBUTION_POOR` | 子標題分佈檢測 | 檢查子標題分佈             |
 
 ### 配置範例
 
@@ -516,7 +521,7 @@ curl -X POST "https://page-lens-zeta.vercel.app/analyze" \
     },
     "detailedIssues": [
       {
-        "id": "h1-keyword-missing",
+        "id": "H1_KEYWORD_MISSING",
         "name": "H1 Missing Focus Keyword",
         "description": "H1 heading does not contain the focus keyword",
         "rating": "ok",
@@ -530,7 +535,7 @@ curl -X POST "https://page-lens-zeta.vercel.app/analyze" \
         }
       },
       {
-        "id": "images-alt-good",
+        "id": "IMAGES_ALT_GOOD",
         "name": "All Images Have Alt Text",
         "description": "All images have descriptive alt text",
         "rating": "good",
@@ -544,7 +549,7 @@ curl -X POST "https://page-lens-zeta.vercel.app/analyze" \
         }
       },
       {
-        "id": "keyword-first-paragraph",
+        "id": "KEYWORD_FIRST_PARAGRAPH",
         "name": "Keyword in First Paragraph",
         "description": "Focus keyword appears in the first paragraph",
         "rating": "good",
