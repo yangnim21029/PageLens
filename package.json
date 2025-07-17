@@ -1,5 +1,5 @@
 {
-  "name": "data-scraping-audit-service",
+  "name": "pagelens",
   "version": "1.0.0",
   "description": "Isolated data scraping and SEO audit service for handling I/O intensive operations",
   "main": "dist/index.js",
