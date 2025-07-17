@@ -17,7 +17,15 @@
     "noEmitOnError": false
   },
   "include": [
-    "src/audit-pipeline/**/*"
+    "src/app/**/*",
+    "src/routes/**/*",
+    "src/middleware/**/*",
+    "src/services/**/*",
+    "src/config/**/*",
+    "src/utils/**/*",
+    "src/types/**/*",
+    "src/index.ts",
+    "src/server.ts"
   ],
   "exclude": [
     "node_modules",

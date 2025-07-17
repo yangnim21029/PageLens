@@ -5,6 +5,7 @@ import {
   ContentExtractionOptions,
   ContentExtractor
 } from './understanding-the-page/extractors/content-extractor.service';
+import { AssessmentConfiguration } from './running-the-tests/types/assessment.types';
 
 import { PageDetails } from './gathering-ingredients/types/ingredients.types';
 import { AuditReport } from './presenting-the-report/types/report.types';
@@ -21,6 +22,7 @@ export interface AuditPipelineOptions {
   excludeSelectors?: string[];
   extractMainContent?: boolean;
   baseUrl?: string;
+  assessmentConfig?: AssessmentConfiguration;
 }
 
 export interface AuditPipelineResult {
@@ -84,7 +86,8 @@ export class AuditPipelineOrchestrator {
       // Step 3: Running the Tests
       const testResult = await this.testRunner.runTests(
         extractionResult.parsedContent,
-        ingredientsResult.ingredients
+        ingredientsResult.ingredients,
+        options.assessmentConfig
       );
       if (!testResult.success || !testResult.results) {
         return {

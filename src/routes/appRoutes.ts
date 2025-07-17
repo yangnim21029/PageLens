@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { AuditPipelineOrchestrator, AuditPipelineInput, AuditPipelineOptions } from '../app/audit-pipeline.orchestrator';
+import { AssessmentConfigValidator } from '../app/running-the-tests/utils/assessment-config-validator';
 
 /**
  * 創建應用程式路由
@@ -28,13 +29,35 @@ export function createAppRoutes(
         return;
       }
 
+      const auditOptions: AuditPipelineOptions = options || {};
+      
+      // Validate assessment configuration if provided
+      if (auditOptions.assessmentConfig) {
+        const validation = AssessmentConfigValidator.validateConfig(auditOptions.assessmentConfig);
+        if (!validation.isValid) {
+          res.status(400).json({
+            success: false,
+            error: 'Invalid assessment configuration',
+            details: validation.errors
+          });
+          return;
+        }
+        
+        // Include warnings in response if any
+        if (validation.warnings.length > 0) {
+          console.warn('[Assessment Config] Warnings:', validation.warnings);
+        }
+        
+        // Sanitize configuration
+        auditOptions.assessmentConfig = AssessmentConfigValidator.sanitizeConfig(auditOptions.assessmentConfig);
+      }
+
       const input: AuditPipelineInput = { 
         htmlContent: finalHtmlContent, 
         pageDetails: finalPageDetails, 
         focusKeyword: finalFocusKeyword, 
         synonyms 
       };
-      const auditOptions: AuditPipelineOptions = options || {};
 
       const result = await orchestrator.executeAuditPipeline(input, auditOptions);
 
@@ -77,13 +100,29 @@ export function createAppRoutes(
       console.log(`[Batch Audit Route] 處理 ${audits.length} 個審核請求`);
 
       const results = await Promise.all(
-        audits.map(async (audit: any) => {
+        audits.map(async (audit: any, index: number) => {
           const { htmlContent, pageDetails, focusKeyword, synonyms, options } = audit;
           if (!htmlContent || !pageDetails || !focusKeyword) {
             return { success: false, error: 'Missing required fields in one or more audit inputs' };
           }
-          const input: AuditPipelineInput = { htmlContent, pageDetails, focusKeyword, synonyms };
+          
           const auditOptions: AuditPipelineOptions = options || {};
+          
+          // Validate assessment configuration if provided
+          if (auditOptions.assessmentConfig) {
+            const validation = AssessmentConfigValidator.validateConfig(auditOptions.assessmentConfig);
+            if (!validation.isValid) {
+              return { 
+                success: false, 
+                error: `Invalid assessment configuration for audit ${index + 1}: ${validation.errors.join(', ')}` 
+              };
+            }
+            
+            // Sanitize configuration
+            auditOptions.assessmentConfig = AssessmentConfigValidator.sanitizeConfig(auditOptions.assessmentConfig);
+          }
+          
+          const input: AuditPipelineInput = { htmlContent, pageDetails, focusKeyword, synonyms };
           return await orchestrator.executeAuditPipeline(input, auditOptions);
         })
       );
@@ -114,6 +153,18 @@ export function createAppRoutes(
   router.get('/pagelens/health', (req, res) => {
     const stats = orchestrator.getProcessingStats();
     res.json({ success: true, stats });
+  });
+
+  // GET /api/v1/pagelens/assessments - 獲取可用的檢測項目
+  router.get('/pagelens/assessments', (req, res) => {
+    const assessments = AssessmentConfigValidator.getAvailableAssessments();
+    const examples = AssessmentConfigValidator.getConfigurationExamples();
+    
+    res.json({ 
+      success: true, 
+      assessments,
+      configurationExamples: examples
+    });
   });
 
   return router;

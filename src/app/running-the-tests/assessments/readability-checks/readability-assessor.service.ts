@@ -22,11 +22,11 @@ export class ReadabilityAssessor {
     }
 
     const averageWordsPerSentence = sentences.reduce((sum, sentence) => {
-      return sum + sentence.split(/\s+/).length;
+      return sum + this.countWordsInSentence(sentence);
     }, 0) / sentences.length;
 
     const longSentences = sentences.filter(sentence => {
-      return sentence.split(/\s+/).length > 20;
+      return this.countWordsInSentence(sentence) > this.getLongSentenceThreshold(sentence);
     });
 
     if (averageWordsPerSentence <= 20 && longSentences.length <= sentences.length * 0.25) {
@@ -235,5 +235,52 @@ export class ReadabilityAssessor {
     
     const matches = word.match(/[aeiouy]{1,2}/g);
     return matches ? matches.length : 1;
+  }
+
+  /**
+   * 語言感知的句子單詞計算
+   */
+  private countWordsInSentence(sentence: string): number {
+    if (!sentence || sentence.trim().length === 0) return 0;
+    
+    // 檢測中文字符
+    const chineseCharRegex = /[\u4e00-\u9fff]/g;
+    const englishWordRegex = /[a-zA-Z]+/g;
+    
+    const chineseChars = sentence.match(chineseCharRegex) || [];
+    const englishWords = sentence.match(englishWordRegex) || [];
+    
+    const totalChars = sentence.replace(/\s+/g, '').length;
+    const chineseRatio = chineseChars.length / totalChars;
+    
+    // 根據語言類型計算
+    if (chineseRatio > 0.7) {
+      // 中文為主：中文字符 + 英文單詞
+      return chineseChars.length + englishWords.length;
+    } else if (chineseRatio < 0.1) {
+      // 英文為主：傳統空格分隔
+      return sentence.split(/\s+/).filter(word => word.length > 0).length;
+    } else {
+      // 混合語言：中文字符 + 英文單詞
+      return chineseChars.length + englishWords.length;
+    }
+  }
+
+  /**
+   * 取得長句子閾值（根據語言調整）
+   */
+  private getLongSentenceThreshold(sentence: string): number {
+    const chineseCharRegex = /[\u4e00-\u9fff]/g;
+    const chineseChars = sentence.match(chineseCharRegex) || [];
+    const totalChars = sentence.replace(/\s+/g, '').length;
+    const chineseRatio = chineseChars.length / totalChars;
+
+    if (chineseRatio > 0.5) {
+      // 中文為主：閾值調整為30字符
+      return 30;
+    } else {
+      // 英文為主：使用標準20單詞
+      return 20;
+    }
   }
 }

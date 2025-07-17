@@ -1,4 +1,8 @@
-import { PageIngredients, PageDetails, IngredientsGatheringResult } from '../types/ingredients.types';
+import {
+  IngredientsGatheringResult,
+  PageDetails,
+  PageIngredients
+} from '../types/ingredients.types';
 
 export class IngredientsGatherer {
   async gatherIngredients(input: {
@@ -25,14 +29,18 @@ export class IngredientsGatherer {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        error:
+          error instanceof Error ? error.message : 'Unknown error occurred',
         timestamp: new Date()
       };
     }
   }
 
   private validateIngredients(ingredients: PageIngredients): void {
-    if (!ingredients.htmlContent || ingredients.htmlContent.trim().length === 0) {
+    if (
+      !ingredients.htmlContent ||
+      ingredients.htmlContent.trim().length === 0
+    ) {
       throw new Error('HTML content is required');
     }
 
@@ -40,7 +48,10 @@ export class IngredientsGatherer {
       throw new Error('Page URL is required');
     }
 
-    if (!ingredients.focusKeyword || ingredients.focusKeyword.trim().length === 0) {
+    if (
+      !ingredients.focusKeyword ||
+      ingredients.focusKeyword.trim().length === 0
+    ) {
       throw new Error('Focus keyword is required');
     }
 
