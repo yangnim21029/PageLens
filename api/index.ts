@@ -5,7 +5,11 @@
 import { config } from 'dotenv';
 import express from 'express';
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import {
+import path from 'path';
+
+// 動態導入中間件
+const middlewarePath = path.join(__dirname, '..', 'dist', 'middleware');
+const {
   addTimestamp,
   createCompressionMiddleware,
   createCorsMiddleware,
@@ -15,10 +19,7 @@ import {
   notFoundHandler,
   responseTime,
   validateContentType
-} from '../dist/middleware';
-
-// 載入環境變量
-config();
+} = require(middlewarePath);
 
 // 創建 Express 應用
 const app = express();
@@ -38,8 +39,8 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(validateContentType);
 
 // 引入路由和核心服務
-const { createAppRoutes } = require('../dist/routes/appRoutes');
-const { AuditPipelineOrchestrator } = require('../dist/app/audit-pipeline.orchestrator');
+const { createAppRoutes } = require(path.join(__dirname, '..', 'dist', 'routes', 'appRoutes'));
+const { AuditPipelineOrchestrator } = require(path.join(__dirname, '..', 'dist', 'app', 'audit-pipeline.orchestrator'));
 
 // 實例化審核管道
 const auditOrchestrator = new AuditPipelineOrchestrator();
