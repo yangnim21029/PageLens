@@ -143,8 +143,11 @@ app.post('/analyze-wp-url', async (req, res) => {
     const orchestrator = new AuditPipelineOrchestrator();
 
     // Prepare input for analysis
+    // Add H1 tag with title to the content since WordPress stores title separately
+    const htmlWithH1 = `<h1>${wpData.title}</h1>\n${wpData.post_content}`;
+    
     const input = {
-      htmlContent: wpData.post_content,
+      htmlContent: htmlWithH1,
       pageDetails,
       focusKeyword,
       synonyms
