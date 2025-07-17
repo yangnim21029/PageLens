@@ -19,7 +19,7 @@ export function createAppRoutes(
       // 支援新的簡化格式和舊格式
       const finalHtmlContent = htmlContent || html;
       const finalPageDetails = pageDetails || { url: url || 'unknown' };
-      const finalFocusKeyword = focusKeyword || 'SEO';
+      const finalFocusKeyword = focusKeyword; // Allow empty/undefined for proper empty keyphrase handling
 
       if (!finalHtmlContent) {
         res.status(400).json({
