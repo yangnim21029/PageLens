@@ -165,19 +165,56 @@ Analyzes WordPress articles by URL (automatic content fetching).
 
 ## Assessment Types
 
-**SEO:**
+### SEO Assessments (11 available)
 
-- `H1_KEYWORD` - H1 keyword optimization
-- `ALT_ATTRIBUTE` - Image alt text
-- `KEYWORD_DENSITY` - Keyword density
-- `META_DESCRIPTION_KEYWORD` - Meta description keywords
-- `TEXT_LENGTH` - Content length
+- `SINGLE_H1` - Checks for single H1 tag presence
+- `MULTIPLE_H1` - Detects multiple H1 tags
+- `H1_KEYWORD` - Verifies focus keyword in H1
+- `ALT_ATTRIBUTE` - Checks images for alt attributes
+- `INTRODUCTION_KEYWORD` - Keyword in first paragraph
+- `KEYWORD_DENSITY` - Monitors keyword density (0.5-2.5%)
+- `META_DESCRIPTION_KEYWORD` - Keyword in meta description
+- `META_DESCRIPTION_LENGTH` - Meta description length (150-160 chars)
+- `PAGE_TITLE_WIDTH` - Page title optimization
+- `TITLE_KEYWORD` - Keyword in page title
+- `TEXT_LENGTH` - Content length (min 300 words)
 
-**Readability:**
+### Readability Assessments (4 available)
 
-- `SENTENCE_LENGTH_IN_TEXT` - Sentence length
-- `PARAGRAPH_TOO_LONG` - Paragraph length
-- `FLESCH_READING_EASE` - Reading ease score
+- `FLESCH_READING_EASE` - Reading difficulty score
+- `PARAGRAPH_TOO_LONG` - Paragraph length check (max 150 words)
+- `SENTENCE_LENGTH_IN_TEXT` - Sentence length (max 20 words)
+- `SUBHEADING_DISTRIBUTION_TOO_LONG` - Subheading distribution
+
+### Configuration Examples
+
+**Run specific assessments only:**
+```json
+{
+  "assessmentConfig": {
+    "enabledAssessments": ["H1_KEYWORD", "KEYWORD_DENSITY", "FLESCH_READING_EASE"]
+  }
+}
+```
+
+**Run all SEO assessments only:**
+```json
+{
+  "assessmentConfig": {
+    "enableAllSEO": true,
+    "enableAllReadability": false
+  }
+}
+```
+
+**Run all assessments (default):**
+```json
+{
+  "assessmentConfig": {
+    "enableAll": true
+  }
+}
+```
 
 ## Quick Start
 
