@@ -1,18 +1,22 @@
 # PageLens API 文檔
 
 ## 概述
+
 PageLens 是一個 SEO 和可讀性分析服務，可以分析網頁內容並提供詳細的優化建議。
 
 ## 基本信息
+
 - **Base URL**: `http://localhost:3000`
 - **Content-Type**: `application/json`
 
 ## API 端點
 
 ### 1. 分析網頁
+
 **POST** `/api/v1/pagelens`
 
 #### 請求參數
+
 ```json
 {
   "html": "網頁的完整 HTML 內容",
@@ -31,6 +35,7 @@ PageLens 是一個 SEO 和可讀性分析服務，可以分析網頁內容並提
 ```
 
 #### 請求範例
+
 ```json
 {
   "html": "<html><head><title>我的網頁</title></head><body><h1>Hello World</h1><p>這是內容</p></body></html>",
@@ -46,6 +51,7 @@ PageLens 是一個 SEO 和可讀性分析服務，可以分析網頁內容並提
 ```
 
 #### 回應格式
+
 ```json
 {
   "success": true,
@@ -57,7 +63,7 @@ PageLens 是一個 SEO 和可讀性分析服務，可以分析網頁內容並提
       "readabilityScore": 72,
       "overallScore": 64,
       "seoGrade": "needs-improvement",
-      "readabilityGrade": "needs-improvement", 
+      "readabilityGrade": "needs-improvement",
       "overallGrade": "needs-improvement"
     },
     "detailedIssues": [
@@ -90,16 +96,18 @@ PageLens 是一個 SEO 和可讀性分析服務，可以分析網頁內容並提
 ```
 
 ### 2. 取得可用檢測項目
+
 **GET** `/api/v1/pagelens/assessments`
 
 #### 回應範例
+
 ```json
 {
   "success": true,
   "assessments": {
     "currentlyImplemented": [
       "h1-missing",
-      "title-needs-improvement", 
+      "title-needs-improvement",
       "meta-description-needs-improvement",
       "images-missing-alt",
       "keyword-density-low",
@@ -121,12 +129,15 @@ PageLens 是一個 SEO 和可讀性分析服務，可以分析網頁內容並提
 ```
 
 ### 3. 健康檢查
+
 **GET** `/api/v1/pagelens/health`
 
 ### 4. 批量分析
+
 **POST** `/api/v1/pagelens/batch`
 
 #### 請求參數
+
 ```json
 {
   "audits": [
@@ -143,6 +154,7 @@ PageLens 是一個 SEO 和可讀性分析服務，可以分析網頁內容並提
 ## 檢測項目說明
 
 ### SEO 檢測
+
 - `h1-missing`: 檢查是否有 H1 標題
 - `title-needs-improvement`: 檢查頁面標題優化
 - `meta-description-needs-improvement`: 檢查 Meta 描述
@@ -151,6 +163,7 @@ PageLens 是一個 SEO 和可讀性分析服務，可以分析網頁內容並提
 - `content-length-short`: 檢查內容長度
 
 ### 可讀性檢測
+
 - `flesch-reading-ease`: Flesch 可讀性評分
 - `sentence-length-long`: 句子長度檢查
 - `paragraph-length-long`: 段落長度檢查
@@ -158,6 +171,7 @@ PageLens 是一個 SEO 和可讀性分析服務，可以分析網頁內容並提
 ## 錯誤處理
 
 ### 錯誤回應格式
+
 ```json
 {
   "success": false,
@@ -167,12 +181,14 @@ PageLens 是一個 SEO 和可讀性分析服務，可以分析網頁內容並提
 ```
 
 ### 常見錯誤
+
 - `400`: 缺少必要參數 (html 或 url)
 - `500`: 伺服器內部錯誤
 
 ## 前端整合範例
 
 ### JavaScript/TypeScript
+
 ```javascript
 async function analyzePageSEO(htmlContent, pageUrl, focusKeyword = '') {
   try {
@@ -192,9 +208,9 @@ async function analyzePageSEO(htmlContent, pageUrl, focusKeyword = '') {
         }
       })
     });
-    
+
     const result = await response.json();
-    
+
     if (result.success) {
       console.log('SEO 分數:', result.report.overallScores.seoScore);
       console.log('可讀性分數:', result.report.overallScores.readabilityScore);
@@ -219,13 +235,14 @@ const report = await analyzePageSEO(
 ```
 
 ### React 範例
+
 ```jsx
 import { useState, useEffect } from 'react';
 
 function SEOAnalyzer() {
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(false);
-  
+
   const analyzeCurrentPage = async () => {
     setLoading(true);
     try {
@@ -238,7 +255,7 @@ function SEOAnalyzer() {
           focusKeyword: 'SEO優化' // 留空則跳過關鍵字分析
         })
       });
-      
+
       const result = await response.json();
       if (result.success) {
         setReport(result.report);
@@ -249,20 +266,20 @@ function SEOAnalyzer() {
       setLoading(false);
     }
   };
-  
+
   return (
     <div>
       <button onClick={analyzeCurrentPage} disabled={loading}>
         {loading ? '分析中...' : '開始 SEO 分析'}
       </button>
-      
+
       {report && (
         <div>
           <h2>分析結果</h2>
           <p>SEO 分數: {report.overallScores.seoScore}</p>
           <p>可讀性分數: {report.overallScores.readabilityScore}</p>
           <p>總評分: {report.overallScores.overallScore}</p>
-          
+
           <h3>問題列表</h3>
           {report.detailedIssues.map((issue, index) => (
             <div key={index}>
@@ -281,12 +298,14 @@ function SEOAnalyzer() {
 ## 特色功能
 
 ### 中文支援
+
 - 自動檢測中文內容
 - 針對中文調整字數統計方式
 - 中文標題和描述長度標準
 - 中文句子長度閾值優化
 
 ### 語言感知
+
 - 自動識別內容語言 (中文/英文/混合)
 - 根據語言調整分析標準
 - 支援中英文混合內容分析
@@ -298,11 +317,13 @@ function SEOAnalyzer() {
 如果 `focusKeyword` 為空或未提供，系統會：
 
 1. **跳過關鍵字相關分析**：
+
    - 不分析關鍵字密度
    - 不檢查關鍵字在首段的出現
    - 不檢查 H1 標題是否包含關鍵字
 
 2. **保持其他分析**：
+
    - 仍然分析標題和描述的長度
    - 仍然進行可讀性分析
    - 仍然檢查圖片 alt 文字等技術性 SEO
@@ -322,11 +343,13 @@ function SEOAnalyzer() {
 ```
 
 此時回應將不包含：
+
 - `keyword-density-low`
-- `keyword-missing-first-paragraph` 
+- `keyword-missing-first-paragraph`
 - `h1-keyword-missing`
 
 但仍包含：
+
 - `title-needs-improvement`
 - `meta-description-needs-improvement`
 - `content-length-good`

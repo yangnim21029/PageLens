@@ -1,82 +1,36 @@
-# 🔍 Audit Service
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-專門用於 WordPress 頁面 SEO 審核的獨立微服務。
+## Getting Started
 
-## 🚀 快速開始
-
-### 環境要求
-
-- Node.js >= 18.17.0
-- TypeScript >= 5.1.6
-- Redis (可選，用於任務隊列)
-
-### 安裝
+First, run the development server:
 
 ```bash
-# 安裝依賴
-npm install
-
-# 複製並配置環境變量
-cp .env.example .env
-# 編輯 .env 文件，填入你的實際配置
-
-# 建構專案
-npm run build
-
-# 啟動服務
-npm run start
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-## 📋 API 文檔
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-### 主要端點
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-#### 1. 頁面審核
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-```bash
-POST /api/v1/page-audit
-```
+## Learn More
 
-**請求參數：**
-```json
-{
-  "url": "https://girlstyle.com/article/123456",
-  "options": {
-    "includeContent": true,
-    "includeSeo": true,
-    "performAudit": true
-  }
-}
-```
+To learn more about Next.js, take a look at the following resources:
 
-#### 2. 批量審核
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-```bash
-POST /api/v1/page-audit/batch
-```
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-#### 3. AI 聊天助手
+## Deploy on Vercel
 
-```bash
-POST /api/v1/chat
-```
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-### 支援的 WordPress 網站
-
-- `girlstyle.com` (GS_TW)
-- `pretty.presslogic.com` (GS_HK)
-
-## 🔧 配置說明
-
-參考 `.env.example` 文件進行配置。
-
-## 🧪 測試
-
-```bash
-npm run test
-npm run test:coverage
-```
-
-## 📄 授權
-
-MIT License
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
