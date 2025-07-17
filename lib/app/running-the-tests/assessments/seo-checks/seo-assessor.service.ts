@@ -1,4 +1,4 @@
-import { AssessmentResult, AssessmentCategory, AssessmentStatus } from '../../types/assessment.types';
+import { AssessmentResult, AssessmentCategory, AssessmentStatus, AvailableAssessments } from '../../types/assessment.types';
 import { ParsedContent } from '../../../understanding-the-page/types/parsed-content.types';
 import { PageIngredients } from '../../../gathering-ingredients/types/ingredients.types';
 
@@ -22,7 +22,7 @@ export class SEOAssessor {
     // Check H1 usage
     if (h1Tags.length === 0) {
       assessments.push({
-        id: 'h1-missing',
+        id: AvailableAssessments.H1_MISSING,
         type: AssessmentCategory.SEO,
         name: 'H1 Tag Missing',
         description: 'Page is missing an H1 heading',
@@ -34,7 +34,7 @@ export class SEOAssessor {
       });
     } else if (h1Tags.length > 1) {
       assessments.push({
-        id: 'multiple-h1',
+        id: AvailableAssessments.MULTIPLE_H1,
         type: AssessmentCategory.SEO,
         name: 'Multiple H1 Tags',
         description: 'Page has multiple H1 headings',
@@ -76,7 +76,7 @@ export class SEOAssessor {
         });
       } else {
         assessments.push({
-          id: 'h1-keyword-missing',
+          id: AvailableAssessments.H1_KEYWORD_MISSING,
           type: AssessmentCategory.SEO,
           name: 'H1 Missing Focus Keyword',
           description: 'H1 heading does not contain the focus keyword',
