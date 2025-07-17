@@ -578,10 +578,10 @@ For issues and questions:
 
 ### Version 1.1.1 (2025-07-17)
 
-- Fixed WordPress API integration issue with URL parsing
-- Improved URL extraction from WordPress post data using proper Cheerio syntax
-- Enhanced error handling for malformed WordPress responses
-- Fixed issue where article URLs were not being properly extracted from API responses
+- Fixed WordPress Article API response validation schema
+- Updated schema to handle wrapped API response with `status` and `data` fields
+- Made author field optional to handle cases where it might not be present
+- Resolved validation errors that were preventing WordPress article analysis
 
 ### Version 1.1.0
 
