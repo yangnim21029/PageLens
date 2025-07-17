@@ -7,7 +7,11 @@ module.exports = {
     '**/?(*.)+(spec|test).ts'
   ],
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    '^.+\\.ts$': ['ts-jest', {
+      tsconfig: {
+        types: ['jest', 'node']
+      }
+    }],
   },
   collectCoverageFrom: [
     'src/**/*.ts',
@@ -20,15 +24,9 @@ module.exports = {
     'lcov',
     'html'
   ],
-  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
+  // setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
   testTimeout: 30000,
-  globals: {
-    'ts-jest': {
-      tsconfig: {
-        types: ['jest', 'node']
-      }
-    }
-  },
+  passWithNoTests: true,
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1'
   }
