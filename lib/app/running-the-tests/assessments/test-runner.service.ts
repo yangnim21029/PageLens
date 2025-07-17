@@ -161,18 +161,18 @@ export class TestRunner {
   private isGoodVersionOfEnabledAssessment(assessmentId: string, enabledAssessments: string[]): boolean {
     // Map of good assessment IDs to their corresponding enabled assessment enum values
     const goodToEnabledMap: Record<string, string> = {
-      'h1-keyword-good': AvailableAssessments.H1_KEYWORD,
-      'images-alt-good': AvailableAssessments.ALT_ATTRIBUTE,
-      'keyword-first-paragraph': AvailableAssessments.INTRODUCTION_KEYWORD,
-      'keyword-density-good': AvailableAssessments.KEYWORD_DENSITY,
-      'keyword-density-high': AvailableAssessments.KEYWORD_DENSITY,
-      'meta-description-good': AvailableAssessments.META_DESCRIPTION_KEYWORD,
-      'title-good': AvailableAssessments.PAGE_TITLE_WIDTH,
-      'content-length-good': AvailableAssessments.TEXT_LENGTH,
-      'sentence-length-good': AvailableAssessments.SENTENCE_LENGTH_IN_TEXT,
-      'paragraph-length-good': AvailableAssessments.PARAGRAPH_TOO_LONG,
-      'subheading-distribution-good': AvailableAssessments.SUBHEADING_DISTRIBUTION_TOO_LONG,
-      'no-images': AvailableAssessments.ALT_ATTRIBUTE
+      'h1-keyword-good': AvailableAssessments.SEO_H1_KEYWORD_CHECK,
+      'images-alt-good': AvailableAssessments.SEO_ALT_ATTRIBUTE_CHECK,
+      'keyword-first-paragraph': AvailableAssessments.SEO_INTRODUCTION_KEYWORD_CHECK,
+      'keyword-density-good': AvailableAssessments.SEO_KEYWORD_DENSITY_CHECK,
+      'keyword-density-high': AvailableAssessments.SEO_KEYWORD_DENSITY_CHECK,
+      'meta-description-good': AvailableAssessments.SEO_META_DESCRIPTION_KEYWORD_CHECK,
+      'title-good': AvailableAssessments.SEO_PAGE_TITLE_WIDTH_CHECK,
+      'content-length-good': AvailableAssessments.SEO_TEXT_LENGTH_CHECK,
+      'sentence-length-good': AvailableAssessments.READABILITY_SENTENCE_LENGTH_IN_TEXT_CHECK,
+      'paragraph-length-good': AvailableAssessments.READABILITY_PARAGRAPH_TOO_LONG_CHECK,
+      'subheading-distribution-good': AvailableAssessments.READABILITY_SUBHEADING_DISTRIBUTION_CHECK,
+      'no-images': AvailableAssessments.SEO_ALT_ATTRIBUTE_CHECK
     };
 
     const correspondingEnabledAssessment = goodToEnabledMap[assessmentId];

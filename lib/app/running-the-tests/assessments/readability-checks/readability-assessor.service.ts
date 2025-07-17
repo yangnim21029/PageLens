@@ -1,4 +1,4 @@
-import { AssessmentResult, AssessmentType, AssessmentStatus } from '../../types/assessment.types';
+import { AssessmentResult, AssessmentCategory, AssessmentStatus } from '../../types/assessment.types';
 import { ParsedContent } from '../../../understanding-the-page/types/parsed-content.types';
 
 export class ReadabilityAssessor {
@@ -32,7 +32,7 @@ export class ReadabilityAssessor {
     if (averageWordsPerSentence <= 20 && longSentences.length <= sentences.length * 0.25) {
       assessments.push({
         id: 'sentence-length-good',
-        type: AssessmentType.READABILITY,
+        type: AssessmentCategory.READABILITY,
         name: 'Good Sentence Length',
         description: `Average sentence length is ${averageWordsPerSentence.toFixed(1)} words`,
         status: AssessmentStatus.GOOD,
@@ -49,7 +49,7 @@ export class ReadabilityAssessor {
       const score = Math.max(0, 100 - (longSentences.length / sentences.length) * 100);
       assessments.push({
         id: 'sentence-length-long',
-        type: AssessmentType.READABILITY,
+        type: AssessmentCategory.READABILITY,
         name: 'Sentences Too Long',
         description: `${longSentences.length} sentences are longer than 20 words`,
         status: longSentences.length > sentences.length * 0.5 ? AssessmentStatus.BAD : AssessmentStatus.OK,
@@ -91,7 +91,7 @@ export class ReadabilityAssessor {
 
     assessments.push({
       id: 'flesch-reading-ease',
-      type: AssessmentType.READABILITY,
+      type: AssessmentCategory.READABILITY,
       name: 'Flesch Reading Ease',
       description,
       status,
@@ -123,7 +123,7 @@ export class ReadabilityAssessor {
     if (averageWordsPerParagraph <= 150 && longParagraphs.length <= paragraphs.length * 0.25) {
       assessments.push({
         id: 'paragraph-length-good',
-        type: AssessmentType.READABILITY,
+        type: AssessmentCategory.READABILITY,
         name: 'Good Paragraph Length',
         description: `Average paragraph length is ${averageWordsPerParagraph.toFixed(1)} words`,
         status: AssessmentStatus.GOOD,
@@ -140,7 +140,7 @@ export class ReadabilityAssessor {
       const score = Math.max(0, 100 - (longParagraphs.length / paragraphs.length) * 100);
       assessments.push({
         id: 'paragraph-length-long',
-        type: AssessmentType.READABILITY,
+        type: AssessmentCategory.READABILITY,
         name: 'Paragraphs Too Long',
         description: `${longParagraphs.length} paragraphs are longer than 150 words`,
         status: longParagraphs.length > paragraphs.length * 0.5 ? AssessmentStatus.BAD : AssessmentStatus.OK,
@@ -172,7 +172,7 @@ export class ReadabilityAssessor {
     if (wordsPerHeading <= 300) {
       assessments.push({
         id: 'subheading-distribution-good',
-        type: AssessmentType.READABILITY,
+        type: AssessmentCategory.READABILITY,
         name: 'Good Subheading Distribution',
         description: `Average of ${wordsPerHeading.toFixed(0)} words per subheading`,
         status: AssessmentStatus.GOOD,
@@ -189,7 +189,7 @@ export class ReadabilityAssessor {
       const score = Math.max(0, 100 - ((wordsPerHeading - 300) / 300) * 50);
       assessments.push({
         id: 'subheading-distribution-poor',
-        type: AssessmentType.READABILITY,
+        type: AssessmentCategory.READABILITY,
         name: 'Poor Subheading Distribution',
         description: `Average of ${wordsPerHeading.toFixed(0)} words per subheading`,
         status: wordsPerHeading > 600 ? AssessmentStatus.BAD : AssessmentStatus.OK,

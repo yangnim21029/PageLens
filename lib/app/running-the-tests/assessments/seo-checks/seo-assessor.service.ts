@@ -1,4 +1,4 @@
-import { AssessmentResult, AssessmentType, AssessmentStatus } from '../../types/assessment.types';
+import { AssessmentResult, AssessmentCategory, AssessmentStatus } from '../../types/assessment.types';
 import { ParsedContent } from '../../../understanding-the-page/types/parsed-content.types';
 import { PageIngredients } from '../../../gathering-ingredients/types/ingredients.types';
 
@@ -23,7 +23,7 @@ export class SEOAssessor {
     if (h1Tags.length === 0) {
       assessments.push({
         id: 'h1-missing',
-        type: AssessmentType.SEO,
+        type: AssessmentCategory.SEO,
         name: 'H1 Tag Missing',
         description: 'Page is missing an H1 heading',
         status: AssessmentStatus.BAD,
@@ -35,7 +35,7 @@ export class SEOAssessor {
     } else if (h1Tags.length > 1) {
       assessments.push({
         id: 'multiple-h1',
-        type: AssessmentType.SEO,
+        type: AssessmentCategory.SEO,
         name: 'Multiple H1 Tags',
         description: 'Page has multiple H1 headings',
         status: AssessmentStatus.BAD,
@@ -53,7 +53,7 @@ export class SEOAssessor {
         // No focus keyword provided, skip keyword analysis
         assessments.push({
           id: 'h1-no-keyword-analysis',
-          type: AssessmentType.SEO,
+          type: AssessmentCategory.SEO,
           name: 'H1 Present (No Keyword Analysis)',
           description: 'H1 heading exists but no focus keyword provided for analysis',
           status: AssessmentStatus.OK,
@@ -65,7 +65,7 @@ export class SEOAssessor {
       } else if (h1Text.includes(focusKeyword)) {
         assessments.push({
           id: 'h1-keyword-good',
-          type: AssessmentType.SEO,
+          type: AssessmentCategory.SEO,
           name: 'H1 Contains Focus Keyword',
           description: 'H1 heading contains the focus keyword',
           status: AssessmentStatus.GOOD,
@@ -77,7 +77,7 @@ export class SEOAssessor {
       } else {
         assessments.push({
           id: 'h1-keyword-missing',
-          type: AssessmentType.SEO,
+          type: AssessmentCategory.SEO,
           name: 'H1 Missing Focus Keyword',
           description: 'H1 heading does not contain the focus keyword',
           status: AssessmentStatus.OK,
@@ -100,7 +100,7 @@ export class SEOAssessor {
     if (images.length === 0) {
       assessments.push({
         id: 'no-images',
-        type: AssessmentType.SEO,
+        type: AssessmentCategory.SEO,
         name: 'No Images Found',
         description: 'Page contains no images',
         status: AssessmentStatus.OK,
@@ -112,7 +112,7 @@ export class SEOAssessor {
     } else if (imagesWithoutAlt.length === 0) {
       assessments.push({
         id: 'images-alt-good',
-        type: AssessmentType.SEO,
+        type: AssessmentCategory.SEO,
         name: 'All Images Have Alt Text',
         description: 'All images have descriptive alt text',
         status: AssessmentStatus.GOOD,
@@ -127,7 +127,7 @@ export class SEOAssessor {
       
       assessments.push({
         id: 'images-missing-alt',
-        type: AssessmentType.SEO,
+        type: AssessmentCategory.SEO,
         name: 'Images Missing Alt Text',
         description: `${imagesWithoutAlt.length} out of ${images.length} images are missing alt text`,
         status,
@@ -154,7 +154,7 @@ export class SEOAssessor {
     if (!focusKeyword || focusKeyword.trim() === '') {
       assessments.push({
         id: 'no-keyword-analysis',
-        type: AssessmentType.SEO,
+        type: AssessmentCategory.SEO,
         name: 'No Keyword Analysis',
         description: 'No focus keyword provided for keyword optimization analysis',
         status: AssessmentStatus.OK,
@@ -171,7 +171,7 @@ export class SEOAssessor {
     if (firstParagraph.includes(focusKeyword)) {
       assessments.push({
         id: 'keyword-first-paragraph',
-        type: AssessmentType.SEO,
+        type: AssessmentCategory.SEO,
         name: 'Keyword in First Paragraph',
         description: 'Focus keyword appears in the first paragraph',
         status: AssessmentStatus.GOOD,
@@ -183,7 +183,7 @@ export class SEOAssessor {
     } else {
       assessments.push({
         id: 'keyword-missing-first-paragraph',
-        type: AssessmentType.SEO,
+        type: AssessmentCategory.SEO,
         name: 'Keyword Missing from First Paragraph',
         description: 'Focus keyword does not appear in the first paragraph',
         status: AssessmentStatus.OK,
@@ -202,7 +202,7 @@ export class SEOAssessor {
     if (keywordDensity >= 0.5 && keywordDensity <= 2.5) {
       assessments.push({
         id: 'keyword-density-good',
-        type: AssessmentType.SEO,
+        type: AssessmentCategory.SEO,
         name: 'Good Keyword Density',
         description: `Focus keyword density is ${keywordDensity.toFixed(1)}%`,
         status: AssessmentStatus.GOOD,
@@ -214,7 +214,7 @@ export class SEOAssessor {
     } else if (keywordDensity < 0.5) {
       assessments.push({
         id: 'keyword-density-low',
-        type: AssessmentType.SEO,
+        type: AssessmentCategory.SEO,
         name: 'Low Keyword Density',
         description: `Focus keyword density is only ${keywordDensity.toFixed(1)}%`,
         status: AssessmentStatus.OK,
@@ -226,7 +226,7 @@ export class SEOAssessor {
     } else {
       assessments.push({
         id: 'keyword-density-high',
-        type: AssessmentType.SEO,
+        type: AssessmentCategory.SEO,
         name: 'High Keyword Density',
         description: `Focus keyword density is ${keywordDensity.toFixed(1)}%`,
         status: AssessmentStatus.BAD,
@@ -251,7 +251,7 @@ export class SEOAssessor {
     if (!title) {
       assessments.push({
         id: 'title-missing',
-        type: AssessmentType.SEO,
+        type: AssessmentCategory.SEO,
         name: 'Title Tag Missing',
         description: 'Page is missing a title tag',
         status: AssessmentStatus.BAD,
@@ -270,7 +270,7 @@ export class SEOAssessor {
       if (titleLength >= minLength && titleLength <= maxLength && titleHasKeyword) {
         assessments.push({
           id: 'title-good',
-          type: AssessmentType.SEO,
+          type: AssessmentCategory.SEO,
           name: 'Good Title Tag',
           description: 'Title tag is well-optimized',
           status: AssessmentStatus.GOOD,
@@ -288,7 +288,7 @@ export class SEOAssessor {
         
         assessments.push({
           id: 'title-needs-improvement',
-          type: AssessmentType.SEO,
+          type: AssessmentCategory.SEO,
           name: 'Title Tag Needs Improvement',
           description: 'Title tag could be optimized better',
           status: AssessmentStatus.OK,
@@ -304,7 +304,7 @@ export class SEOAssessor {
     if (!metaDescription) {
       assessments.push({
         id: 'meta-description-missing',
-        type: AssessmentType.SEO,
+        type: AssessmentCategory.SEO,
         name: 'Meta Description Missing',
         description: 'Page is missing a meta description',
         status: AssessmentStatus.BAD,
@@ -323,7 +323,7 @@ export class SEOAssessor {
       if (descLength >= minLength && descLength <= maxLength && descHasKeyword) {
         assessments.push({
           id: 'meta-description-good',
-          type: AssessmentType.SEO,
+          type: AssessmentCategory.SEO,
           name: 'Good Meta Description',
           description: 'Meta description is well-optimized',
           status: AssessmentStatus.GOOD,
@@ -341,7 +341,7 @@ export class SEOAssessor {
         
         assessments.push({
           id: 'meta-description-needs-improvement',
-          type: AssessmentType.SEO,
+          type: AssessmentCategory.SEO,
           name: 'Meta Description Needs Improvement',
           description: 'Meta description could be optimized better',
           status: AssessmentStatus.OK,
@@ -363,7 +363,7 @@ export class SEOAssessor {
     if (wordCount >= 300) {
       assessments.push({
         id: 'content-length-good',
-        type: AssessmentType.SEO,
+        type: AssessmentCategory.SEO,
         name: 'Sufficient Content Length',
         description: `Page has ${wordCount} words`,
         status: AssessmentStatus.GOOD,
@@ -375,7 +375,7 @@ export class SEOAssessor {
     } else {
       assessments.push({
         id: 'content-length-short',
-        type: AssessmentType.SEO,
+        type: AssessmentCategory.SEO,
         name: 'Content Too Short',
         description: `Page has only ${wordCount} words`,
         status: AssessmentStatus.BAD,

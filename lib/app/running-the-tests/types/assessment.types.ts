@@ -81,7 +81,7 @@ export enum AssessmentType {
 export const AvailableAssessments = AssessmentType;
 
 export interface AssessmentConfiguration {
-  enabledAssessments?: AvailableAssessments[];
+  enabledAssessments?: string[];
   enableAllSEO?: boolean;
   enableAllReadability?: boolean;
   enableAll?: boolean;
