@@ -16,8 +16,11 @@
     "lint:fix": "eslint src/**/*.ts --fix",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",
-    "docker:build": "docker build -t audit-service .",
-    "docker:run": "docker-compose up -d"
+    "docker:build": "npm run build && docker build -t pagelens .",
+    "docker:run": "docker-compose up -d",
+    "docker:stop": "docker-compose down",
+    "docker:logs": "docker-compose logs -f pagelens",
+    "docker:restart": "docker-compose restart pagelens"
   },
   "dependencies": {
     "axios": "^1.5.0",
