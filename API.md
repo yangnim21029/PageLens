@@ -72,10 +72,10 @@ POST /analyze
     "excludeSelectors": [".ad", ".sidebar"],
     "assessmentConfig": {
       "enabledAssessments": [
-        "SEO_SINGLE_H1_CHECK",
-        "SEO_H1_KEYWORD_CHECK", 
-        "SEO_ALT_ATTRIBUTE_CHECK",
-        "SEO_KEYWORD_DENSITY_CHECK"
+        "h1-missing",
+        "h1-keyword-missing",
+        "images-missing-alt",
+        "keyword-density-low"
       ]
     }
   }
@@ -189,36 +189,36 @@ const response = await fetch('https://page-lens-zeta.vercel.app/analyze', {
 ### 檢測項目配置
 如果使用 `enabledAssessments`，請使用檢測 ID 而非名稱：
 
-**❌ 錯誤（使用舊名稱）：**
-```javascript
-"enabledAssessments": ["SINGLE_H1", "H1_KEYWORD"]
-```
-
-**✅ 正確（使用新名稱）：**
+**❌ 錯誤（使用枚舉名稱）：**
 ```javascript
 "enabledAssessments": ["SEO_SINGLE_H1_CHECK", "SEO_H1_KEYWORD_CHECK"]
 ```
 
+**✅ 正確（使用枚舉值）：**
+```javascript
+"enabledAssessments": ["h1-missing", "h1-keyword-missing"]
+```
+
 ### 完整檢測項目列表
 ```javascript
-// SEO 檢測項目
-"SEO_SINGLE_H1_CHECK"                    // H1 標籤檢測
-"SEO_MULTIPLE_H1_CHECK"                  // 多重 H1 檢測
-"SEO_H1_KEYWORD_CHECK"                   // H1 關鍵字檢測
-"SEO_ALT_ATTRIBUTE_CHECK"                // 圖片 Alt 檢測
-"SEO_INTRODUCTION_KEYWORD_CHECK"         // 首段關鍵字檢測
-"SEO_KEYWORD_DENSITY_CHECK"              // 關鍵字密度檢測
-"SEO_META_DESCRIPTION_KEYWORD_CHECK"     // Meta 描述檢測
-"SEO_META_DESCRIPTION_LENGTH_CHECK"      // Meta 描述長度檢測
-"SEO_PAGE_TITLE_WIDTH_CHECK"             // 標題優化檢測
-"SEO_TITLE_KEYWORD_CHECK"                // 標題關鍵字檢測
-"SEO_TEXT_LENGTH_CHECK"                  // 內容長度檢測
+// SEO 檢測項目 (使用這些 ID 值)
+"h1-missing"                        // H1 標籤檢測
+"multiple-h1"                       // 多重 H1 檢測
+"h1-keyword-missing"                // H1 關鍵字檢測
+"images-missing-alt"                // 圖片 Alt 檢測
+"keyword-missing-first-paragraph"   // 首段關鍵字檢測
+"keyword-density-low"               // 關鍵字密度檢測
+"meta-description-needs-improvement" // Meta 描述檢測
+"meta-description-missing"          // Meta 描述長度檢測
+"title-needs-improvement"           // 標題優化檢測
+"title-missing"                     // 標題關鍵字檢測
+"content-length-short"              // 內容長度檢測
 
-// 可讀性檢測項目
-"READABILITY_FLESCH_READING_EASE_CHECK"     // 可讀性評分
-"READABILITY_PARAGRAPH_TOO_LONG_CHECK"      // 段落長度檢測
-"READABILITY_SENTENCE_LENGTH_IN_TEXT_CHECK" // 句子長度檢測
-"READABILITY_SUBHEADING_DISTRIBUTION_CHECK" // 子標題分佈檢測
+// 可讀性檢測項目 (使用這些 ID 值)
+"flesch-reading-ease"               // 可讀性評分
+"paragraph-length-long"             // 段落長度檢測
+"sentence-length-long"              // 句子長度檢測
+"subheading-distribution-poor"      // 子標題分佈檢測
 ```
 
 ## 🐛 錯誤處理
