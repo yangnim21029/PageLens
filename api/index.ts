@@ -15,7 +15,7 @@ import {
   notFoundHandler,
   responseTime,
   validateContentType
-} from '../src/middleware';
+} from '../dist/middleware';
 
 // 載入環境變量
 config();
@@ -38,8 +38,8 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(validateContentType);
 
 // 引入路由和核心服務
-const { createAppRoutes } = require('../src/routes/appRoutes');
-const { AuditPipelineOrchestrator } = require('../src/app/audit-pipeline.orchestrator');
+const { createAppRoutes } = require('../dist/routes/appRoutes');
+const { AuditPipelineOrchestrator } = require('../dist/app/audit-pipeline.orchestrator');
 
 // 實例化審核管道
 const auditOrchestrator = new AuditPipelineOrchestrator();
