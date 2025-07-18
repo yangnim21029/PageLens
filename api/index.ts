@@ -29,7 +29,7 @@ app.get('/docs', (req, res) => {
         "contentType": "application/json",
         "requiredFields": ["htmlContent", "pageDetails.url", "pageDetails.title"],
         "optionalFields": ["focusKeyword", "synonyms", "options"],
-        "returns": "Analysis report with 15 standardized assessment IDs + Markdown report"
+        "returns": "Analysis report with 15 assessments + Markdown report + Page understanding"
       },
       "/analyze-wp-url": {
         "method": "POST", 
@@ -37,17 +37,28 @@ app.get('/docs', (req, res) => {
         "contentType": "application/json",
         "requiredFields": ["url"],
         "optionalFields": ["options"],
-        "returns": "Analysis report with WordPress metadata + Markdown report"
+        "returns": "Analysis report with WordPress metadata + Markdown report + Page understanding"
+      }
+    },
+    "newFeatures": {
+      "pageUnderstanding": {
+        "description": "Structured understanding of the analyzed page",
+        "includes": ["Basic info (title, meta, word count)", "Heading structure", "Media statistics", "Link analysis", "Text statistics"]
+      },
+      "standards": {
+        "description": "Optimal and acceptable ranges for assessments",
+        "example": {
+          "optimal": { "min": 0.5, "max": 2.5, "unit": "%" },
+          "acceptable": { "min": 0.3, "max": 3.0, "unit": "%" },
+          "description": "關鍵字密度最佳範圍 0.5-2.5%"
+        }
+      },
+      "markdownReport": {
+        "description": "Formatted Markdown report for easy reading"
       }
     },
     "assessmentIds": {
       "description": "All assessment IDs use unified naming where key equals value",
-      "note": "Some assessments now include 'standards' field with optimal/acceptable ranges",
-      "standardsExample": {
-        "optimal": { "min": 0.5, "max": 2.5, "unit": "%" },
-        "acceptable": { "min": 0.3, "max": 3.0, "unit": "%" },
-        "description": "關鍵字密度最佳範圍 0.5-2.5%"
-      },
       "seoAssessments": [
         "H1_MISSING",
         "MULTIPLE_H1", 

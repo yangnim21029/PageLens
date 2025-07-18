@@ -85,6 +85,12 @@ GET /example  # 使用範例
 - **包含內容：** 最佳範圍 (optimal)、可接受範圍 (acceptable)、單位和說明
 - **獨立定義：** 每個評估器內部獨立定義標準值，保持模組化
 
+### 頁面理解資訊
+
+- **新增欄位：** API 現在返回 `pageUnderstanding` 欄位
+- **包含內容：** 頁面結構、媒體資訊、連結統計、文字分析等
+- **提升 UX：** 讓用戶了解系統如何理解他們的頁面
+
 ### 詳細使用指南
 
 ```javascript
@@ -144,6 +150,47 @@ API 現在會在 `markdownReport` 欄位返回格式化的 Markdown 報告，包
     "optimal": { "min": 0.5, "max": 2.5, "unit": "%" },
     "acceptable": { "min": 0.3, "max": 3.0, "unit": "%" },
     "description": "關鍵字密度最佳範圍 0.5-2.5%"
+  }
+}
+```
+
+### 📖 頁面理解資訊功能
+
+API 現在會在 `pageUnderstanding` 欄位返回頁面的結構化理解資訊：
+
+```javascript
+// API 回應範例（包含 pageUnderstanding）
+{
+  "pageUnderstanding": {
+    "title": "男士髮型推薦｜2024年9大最新潮流髮型",
+    "metaDescription": "2024年男士髮型推薦，包括韓系髮型、日系髮型等9大潮流趨勢...",
+    "wordCount": 1532,
+    "readingTime": 6,
+
+    "headingStructure": {
+      "h1Count": 1,
+      "h2Count": 9,
+      "totalHeadings": 15,
+      "h1Text": "男士髮型推薦｜2024年9大最新潮流髮型"
+    },
+
+    "mediaInfo": {
+      "imageCount": 12,
+      "imagesWithoutAlt": 2,
+      "videoCount": 0
+    },
+
+    "linkInfo": {
+      "totalLinks": 25,
+      "externalLinks": 8,
+      "internalLinks": 17
+    },
+
+    "textStats": {
+      "paragraphCount": 18,
+      "sentenceCount": 82,
+      "averageWordsPerSentence": 18.7
+    }
   }
 }
 ```

@@ -9,6 +9,7 @@ import { AssessmentConfiguration } from './running-the-tests/types/assessment.ty
 
 import { PageDetails } from './gathering-ingredients/types/ingredients.types';
 import { AuditReport } from './presenting-the-report/types/report.types';
+import { ParsedContent } from './understanding-the-page/types/parsed-content.types';
 
 export interface AuditPipelineInput {
   htmlContent: string;
@@ -25,9 +26,47 @@ export interface AuditPipelineOptions {
   assessmentConfig?: AssessmentConfiguration;
 }
 
+export interface PageUnderstanding {
+  // 基本資訊
+  title: string;
+  metaDescription?: string;
+  wordCount: number;
+  readingTime: number; // 分鐘
+  
+  // 內容結構
+  headingStructure: {
+    h1Count: number;
+    h2Count: number;
+    totalHeadings: number;
+    h1Text?: string;
+  };
+  
+  // 媒體資訊
+  mediaInfo: {
+    imageCount: number;
+    imagesWithoutAlt: number;
+    videoCount: number;
+  };
+  
+  // 連結資訊
+  linkInfo: {
+    totalLinks: number;
+    externalLinks: number;
+    internalLinks: number;
+  };
+  
+  // 文字統計
+  textStats: {
+    paragraphCount: number;
+    sentenceCount: number;
+    averageWordsPerSentence: number;
+  };
+}
+
 export interface AuditPipelineResult {
   success: boolean;
   report?: AuditReport;
+  pageUnderstanding?: PageUnderstanding;
   error?: string;
   processingTime?: number;
 }
@@ -110,9 +149,12 @@ export class AuditPipelineOrchestrator {
         };
       }
 
+      const pageUnderstanding = this.createPageUnderstanding(extractionResult.parsedContent);
+      
       return {
         success: true,
         report: reportResult.report,
+        pageUnderstanding,
         processingTime: Date.now() - startTime
       };
     } catch (error) {
@@ -125,6 +167,52 @@ export class AuditPipelineOrchestrator {
         processingTime: Date.now() - startTime
       };
     }
+  }
+
+  // Helper method to create simplified page understanding from parsed content
+  private createPageUnderstanding(parsedContent: ParsedContent): PageUnderstanding {
+    const h1Headings = parsedContent.headings.filter(h => h.level === 1);
+    const h2Headings = parsedContent.headings.filter(h => h.level === 2);
+    const externalLinks = parsedContent.links.filter(l => l.isExternal);
+    const internalLinks = parsedContent.links.filter(l => !l.isExternal);
+    const imagesWithoutAlt = parsedContent.images.filter(img => !img.alt || img.alt.trim() === '');
+    
+    // Calculate average words per sentence
+    const sentences = parsedContent.textContent.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    const words = parsedContent.textContent.split(/\s+/).filter(w => w.length > 0);
+    const avgWordsPerSentence = sentences.length > 0 ? words.length / sentences.length : 0;
+    
+    return {
+      title: parsedContent.title,
+      metaDescription: parsedContent.metaDescription,
+      wordCount: parsedContent.wordCount,
+      readingTime: parsedContent.textStats.readingTime,
+      
+      headingStructure: {
+        h1Count: h1Headings.length,
+        h2Count: h2Headings.length,
+        totalHeadings: parsedContent.headings.length,
+        h1Text: h1Headings[0]?.text
+      },
+      
+      mediaInfo: {
+        imageCount: parsedContent.images.length,
+        imagesWithoutAlt: imagesWithoutAlt.length,
+        videoCount: parsedContent.videos.length
+      },
+      
+      linkInfo: {
+        totalLinks: parsedContent.links.length,
+        externalLinks: externalLinks.length,
+        internalLinks: internalLinks.length
+      },
+      
+      textStats: {
+        paragraphCount: parsedContent.textStats.paragraphCount,
+        sentenceCount: parsedContent.textStats.sentences,
+        averageWordsPerSentence: Math.round(avgWordsPerSentence * 10) / 10
+      }
+    };
   }
 
   // Helper method to get processing statistics
