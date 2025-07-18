@@ -9,6 +9,22 @@ export enum AssessmentStatus {
   BAD = 'bad'
 }
 
+export interface AssessmentStandard {
+  optimal?: {
+    min?: number;
+    max?: number;
+    value?: any;
+    unit?: string;
+  };
+  acceptable?: {
+    min?: number;
+    max?: number;
+    value?: any;
+    unit?: string;
+  };
+  description?: string;
+}
+
 export interface AssessmentResult {
   id: string;
   type: AssessmentCategory;
@@ -20,6 +36,7 @@ export interface AssessmentResult {
   recommendation: string;
   details?: any;
   rating?: 'good' | 'ok' | 'bad';
+  standards?: AssessmentStandard;
 }
 
 export interface TestResults {

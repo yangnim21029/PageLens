@@ -1,5 +1,5 @@
-import { SEOAssessor } from './seo-checks/seo-assessor.service';
-import { ReadabilityAssessor } from './readability-checks/readability-assessor.service';
+import { SEOAssessor } from './seo-assessor.service';
+import { ReadabilityAssessor } from './readability-assessor.service';
 import { 
   TestRunResult, 
   TestResults, 
