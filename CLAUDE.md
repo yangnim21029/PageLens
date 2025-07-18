@@ -94,26 +94,26 @@ The system supports flexible assessment configuration through `AssessmentConfigu
 - `enabledAssessments` - Specify individual assessments from `AvailableAssessments` enum
 - `enableAllSEO` / `enableAllReadability` - Enable assessment categories
 
-Available assessments in `AvailableAssessments` enum:
+Available assessments in `AvailableAssessments` enum (unified naming format):
 ```typescript
 // SEO Assessments
-SINGLE_H1 = 'h1-missing'
-MULTIPLE_H1 = 'multiple-h1'
-H1_KEYWORD = 'h1-keyword-missing'
-ALT_ATTRIBUTE = 'images-missing-alt'
-INTRODUCTION_KEYWORD = 'keyword-missing-first-paragraph'
-KEYWORD_DENSITY = 'keyword-density-low'
-META_DESCRIPTION_KEYWORD = 'meta-description-needs-improvement'
-META_DESCRIPTION_LENGTH = 'meta-description-missing'
-PAGE_TITLE_WIDTH = 'title-needs-improvement'
-TITLE_KEYWORD = 'title-missing'
-TEXT_LENGTH = 'content-length-short'
+H1_MISSING = 'H1_MISSING'
+MULTIPLE_H1 = 'MULTIPLE_H1'
+H1_KEYWORD_MISSING = 'H1_KEYWORD_MISSING'
+IMAGES_MISSING_ALT = 'IMAGES_MISSING_ALT'
+KEYWORD_MISSING_FIRST_PARAGRAPH = 'KEYWORD_MISSING_FIRST_PARAGRAPH'
+KEYWORD_DENSITY_LOW = 'KEYWORD_DENSITY_LOW'
+META_DESCRIPTION_NEEDS_IMPROVEMENT = 'META_DESCRIPTION_NEEDS_IMPROVEMENT'
+META_DESCRIPTION_MISSING = 'META_DESCRIPTION_MISSING'
+TITLE_NEEDS_IMPROVEMENT = 'TITLE_NEEDS_IMPROVEMENT'
+TITLE_MISSING = 'TITLE_MISSING'
+CONTENT_LENGTH_SHORT = 'CONTENT_LENGTH_SHORT'
 
 // Readability Assessments
-FLESCH_READING_EASE = 'flesch-reading-ease'
-PARAGRAPH_TOO_LONG = 'paragraph-length-long'
-SENTENCE_LENGTH_IN_TEXT = 'sentence-length-long'
-SUBHEADING_DISTRIBUTION_TOO_LONG = 'subheading-distribution-poor'
+FLESCH_READING_EASE = 'FLESCH_READING_EASE'
+PARAGRAPH_LENGTH_LONG = 'PARAGRAPH_LENGTH_LONG'
+SENTENCE_LENGTH_LONG = 'SENTENCE_LENGTH_LONG'
+SUBHEADING_DISTRIBUTION_POOR = 'SUBHEADING_DISTRIBUTION_POOR'
 ```
 
 ### Deployment
@@ -138,9 +138,22 @@ Example assessment configuration:
 ```typescript
 const config: AssessmentConfiguration = {
   enableAllSEO: true,
-  enabledAssessments: [AvailableAssessments.SENTENCE_LENGTH_IN_TEXT]
+  enabledAssessments: [AvailableAssessments.SENTENCE_LENGTH_LONG]
 };
 ```
+
+## Recent Updates (v2.0)
+
+### Pixel-Based Width Calculation
+- **Title/Meta Description**: Now use pixel width instead of character count for accurate Chinese content assessment
+- **Calculation Rules**: Chinese chars (14px), English letters (5px), Numbers (8px), Spaces (5px)
+- **Standards**: Title >150px good (max 600px), Meta Description >600px good (max 960px)
+- **Response Fields**: Both `pixelWidth` and `charEquivalent` included in assessment details
+
+### Enhanced API Response
+- **pageUnderstanding**: Structured page analysis (headings, media, links, text stats)
+- **markdownReport**: Formatted Markdown report for easy reading
+- **standards**: Optimal/acceptable ranges for assessments with pixel-based units
 
 ## API Endpoints
 
