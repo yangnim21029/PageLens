@@ -139,25 +139,44 @@ export class HeadingAssessor {
         }
       };
     } else if (hasFocusKeyword && !matchingRelatedKeyword) {
-      return {
-        id: AvailableAssessments.H1_KEYWORD_MISSING,
-        type: AssessmentCategory.SEO,
-        name: 'H1 Missing Related Keyword',
-        description: 'H1 heading contains focus keyword but missing related keywords',
-        status: AssessmentStatus.OK,
-        score: 75,
-        impact: 'high',
-        recommendation: relatedKeywords.length > 0 
-          ? `Good! H1 contains focus keyword. Consider also including one of these related keywords: ${relatedKeywords.join(', ')}`
-          : 'Good! H1 contains focus keyword.',
-        details: { 
-          h1Text, 
-          focusKeyword,
-          hasFocusKeyword: true,
-          hasRelatedKeyword: false,
-          availableRelatedKeywords: relatedKeywords
-        }
-      };
+      // 如果沒有相關關鍵字，則只要有焦點關鍵字就是 GOOD
+      if (relatedKeywords.length === 0) {
+        return {
+          id: AvailableAssessments.H1_KEYWORD_MISSING,
+          type: AssessmentCategory.SEO,
+          name: 'H1 Contains Focus Keyword',
+          description: 'H1 heading contains the focus keyword',
+          status: AssessmentStatus.GOOD,
+          score: 100,
+          impact: 'high',
+          recommendation: 'Great! Your H1 contains the focus keyword.',
+          details: { 
+            h1Text, 
+            focusKeyword,
+            hasFocusKeyword: true,
+            hasRelatedKeyword: false,
+            availableRelatedKeywords: relatedKeywords
+          }
+        };
+      } else {
+        return {
+          id: AvailableAssessments.H1_KEYWORD_MISSING,
+          type: AssessmentCategory.SEO,
+          name: 'H1 Missing Related Keyword',
+          description: 'H1 heading contains focus keyword but missing related keywords',
+          status: AssessmentStatus.OK,
+          score: 75,
+          impact: 'high',
+          recommendation: `Good! H1 contains focus keyword. Consider also including one of these related keywords: ${relatedKeywords.join(', ')}`,
+          details: { 
+            h1Text, 
+            focusKeyword,
+            hasFocusKeyword: true,
+            hasRelatedKeyword: false,
+            availableRelatedKeywords: relatedKeywords
+          }
+        };
+      }
     } else if (!hasFocusKeyword && matchingRelatedKeyword) {
       return {
         id: AvailableAssessments.H1_KEYWORD_MISSING,
@@ -400,25 +419,44 @@ export class HeadingAssessor {
         }
       };
     } else if (hasFocusKeyword && !matchingRelatedKeyword) {
-      return {
-        id: AvailableAssessments.TITLE_MISSING,
-        type: AssessmentCategory.SEO,
-        name: 'Title Missing Related Keyword',
-        description: 'Title contains focus keyword but missing related keywords',
-        status: AssessmentStatus.OK,
-        score: 75,
-        impact: 'high',
-        recommendation: relatedKeywords.length > 0 
-          ? `Good! Title contains focus keyword. Consider also including one of these related keywords: ${relatedKeywords.join(', ')}`
-          : 'Good! Title contains focus keyword.',
-        details: { 
-          title, 
-          focusKeyword,
-          hasFocusKeyword: true,
-          hasRelatedKeyword: false,
-          availableRelatedKeywords: relatedKeywords
-        }
-      };
+      // 如果沒有相關關鍵字，則只要有焦點關鍵字就是 GOOD
+      if (relatedKeywords.length === 0) {
+        return {
+          id: AvailableAssessments.TITLE_MISSING,
+          type: AssessmentCategory.SEO,
+          name: 'Title Contains Focus Keyword',
+          description: 'Title contains the focus keyword',
+          status: AssessmentStatus.GOOD,
+          score: 100,
+          impact: 'high',
+          recommendation: 'Great! Your title contains the focus keyword.',
+          details: { 
+            title, 
+            focusKeyword,
+            hasFocusKeyword: true,
+            hasRelatedKeyword: false,
+            availableRelatedKeywords: relatedKeywords
+          }
+        };
+      } else {
+        return {
+          id: AvailableAssessments.TITLE_MISSING,
+          type: AssessmentCategory.SEO,
+          name: 'Title Missing Related Keyword',
+          description: 'Title contains focus keyword but missing related keywords',
+          status: AssessmentStatus.OK,
+          score: 75,
+          impact: 'high',
+          recommendation: `Good! Title contains focus keyword. Consider also including one of these related keywords: ${relatedKeywords.join(', ')}`,
+          details: { 
+            title, 
+            focusKeyword,
+            hasFocusKeyword: true,
+            hasRelatedKeyword: false,
+            availableRelatedKeywords: relatedKeywords
+          }
+        };
+      }
     } else if (!hasFocusKeyword && matchingRelatedKeyword) {
       return {
         id: AvailableAssessments.TITLE_MISSING,
