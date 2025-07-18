@@ -125,7 +125,7 @@ function makeRequest(baseUrl, path, payload) {
   return new Promise((resolve, reject) => {
     const postData = JSON.stringify(payload);
     const options = {
-      hostname: baseUrl.includes('localhost') ? 'localhost' : baseUrl.replace(/https?:\/\//, ''),
+      hostname: baseUrl.includes('localhost') ? '127.0.0.1' : baseUrl.replace(/https?:\/\//, ''),
       port: baseUrl.includes('localhost') ? 3000 : (baseUrl.startsWith('https') ? 443 : 80),
       path: path,
       method: 'POST',

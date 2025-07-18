@@ -36,4 +36,4 @@ jobs:
       continue-on-error: true  # ID test may fail until regex is fixed
       
     - name: Stop API server
-      run: pkill -f "node api/index.js" || true
+      run: pkill -f "node api/index.ts" || true
