@@ -71,9 +71,9 @@ const assessmentTranslations = {
         recommendation: '完美！你的 H1 同時包含了焦點關鍵字和相關關鍵字。'
       },
       ok: {
-        title: 'H1 缺少相關關鍵字',
-        description: 'H1 標題包含焦點關鍵字但缺少相關關鍵字',
-        recommendation: '不錯！H1 包含焦點關鍵字。考慮加入相關關鍵字以優化效果。'
+        title: 'H1 包含焦點關鍵字',
+        description: 'H1 標題包含焦點關鍵字',
+        recommendation: '很好！H1 包含了焦點關鍵字。'
       },
       bad: {
         title: 'H1 缺少關鍵字',
@@ -89,9 +89,9 @@ const assessmentTranslations = {
         recommendation: 'Perfect! Your H1 contains both the focus keyword and related keywords.'
       },
       ok: {
-        title: 'H1 Missing Related Keywords',
-        description: 'H1 heading contains focus keyword but missing related keywords',
-        recommendation: 'Good! H1 contains focus keyword. Consider adding related keywords for better optimization.'
+        title: 'H1 Contains Focus Keyword',
+        description: 'H1 heading contains the focus keyword',
+        recommendation: 'Good! H1 contains the focus keyword.'
       },
       bad: {
         title: 'H1 Missing Keywords',
@@ -128,9 +128,9 @@ const assessmentTranslations = {
         recommendation: 'Excellent! All your related keywords appear in H2 headings.'
       },
       ok: {
-        title: 'Some Related Keywords Missing',
-        description: 'Some related keywords found in H2',
-        recommendation: 'Consider including missing keywords in H2 headings.'
+        title: 'Related Keywords Check Skipped',
+        description: 'No related keywords provided for H2 analysis',
+        recommendation: 'Provide related keywords to analyze H2 optimization.'
       },
       bad: {
         title: 'Most Related Keywords Missing',
@@ -343,9 +343,9 @@ const assessmentTranslations = {
         recommendation: '完美！你的標題同時包含了焦點關鍵字和相關關鍵字。'
       },
       ok: {
-        title: '標題缺少相關關鍵字',
-        description: '標題包含焦點關鍵字但缺少相關關鍵字',
-        recommendation: '不錯！標題包含焦點關鍵字。考慮加入相關關鍵字以優化效果。'
+        title: '標題包含焦點關鍵字',
+        description: '標題包含焦點關鍵字',
+        recommendation: '很好！標題包含了焦點關鍵字。'
       },
       bad: {
         title: '標題缺少關鍵字',
@@ -361,9 +361,9 @@ const assessmentTranslations = {
         recommendation: 'Perfect! Your title contains both the focus keyword and related keywords.'
       },
       ok: {
-        title: 'Title Missing Related Keywords',
-        description: 'Title contains focus keyword but missing related keywords',
-        recommendation: 'Good! Title contains focus keyword. Consider adding related keywords for better optimization.'
+        title: 'Title Contains Focus Keyword',
+        description: 'Title contains the focus keyword',
+        recommendation: 'Good! Title contains the focus keyword.'
       },
       bad: {
         title: 'Title Missing Keywords',
