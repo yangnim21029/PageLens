@@ -110,9 +110,9 @@ const assessmentTranslations = {
         recommendation: '太棒了！所有相關關鍵字都分布在 H2 標題中。'
       },
       ok: {
-        title: '部分相關關鍵字缺失',
-        description: 'H2 標題中找到部分相關關鍵字',
-        recommendation: '考慮在 H2 標題中加入缺失的相關關鍵字。'
+        title: '跳過相關關鍵字檢查',
+        description: '沒有提供相關關鍵字進行 H2 分析',
+        recommendation: '提供相關關鍵字以分析 H2 優化。'
       },
       bad: {
         title: '大部分相關關鍵字缺失',
