@@ -37,13 +37,17 @@ const SEO_STANDARDS = {
 export class SEOAssessor {
   // Helper method to count Chinese characters (words)
   private countChineseChars(text: string): number {
-    // Match Chinese characters, punctuation, and other CJK characters
-    const chineseRegex = /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff\u3040-\u309f\u30a0-\u30ff]/g;
+    // Match Chinese characters (excluding punctuation)
+    const chineseRegex = /[\u4e00-\u9fff\u3400-\u4dbf]/g;
     const chineseMatches = text.match(chineseRegex) || [];
     
-    // For mixed content, count non-Chinese words and Chinese characters separately
-    const nonChineseText = text.replace(chineseRegex, ' ');
-    const nonChineseWords = nonChineseText.split(/\s+/).filter(word => word.length > 0);
+    // Remove Chinese characters and punctuation, then count English words/numbers
+    const nonChineseText = text.replace(chineseRegex, ' ')
+                              .replace(/[\u3000-\u303f\uff00-\uffef]/g, ' ') // Remove CJK punctuation
+                              .replace(/[，。！？；：""''（）【】《》]/g, ' '); // Remove Chinese punctuation
+    
+    const nonChineseWords = nonChineseText.split(/\s+/)
+                                         .filter(word => word.trim().length > 0 && /[a-zA-Z0-9]/.test(word));
     
     return chineseMatches.length + nonChineseWords.length;
   }
