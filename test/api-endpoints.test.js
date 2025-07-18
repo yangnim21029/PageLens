@@ -21,7 +21,7 @@ async function testApiEndpoints() {
   console.log(`🌐 API URL: ${testUrl}\n`);
   
   try {
-    // Test 1: WordPress URL analysis - should return 15 assessments
+    // Test 1: WordPress URL analysis - should return 16 assessments
     console.log('📝 Test 1: WordPress URL Analysis (Complete)');
     const fullResult = await makeRequest(testUrl, '/analyze-wp-url', {
       url: 'https://pretty.presslogic.com/article/746508/%E7%94%B7%E5%A3%AB%E9%AB%AE%E5%9E%8B%E6%8E%A8%E8%96%A6'
@@ -29,12 +29,12 @@ async function testApiEndpoints() {
     
     if (fullResult.success && fullResult.report && fullResult.report.detailedIssues) {
       const assessmentCount = fullResult.report.detailedIssues.length;
-      console.log(`✅ Returned ${assessmentCount} assessments (expected: 15)`);
+      console.log(`✅ Returned ${assessmentCount} assessments (expected: 16)`);
       
-      if (assessmentCount === 15) {
+      if (assessmentCount === 16) {
         console.log('✅ Correct number of assessments returned');
       } else {
-        console.log(`❌ Expected 15 assessments, got ${assessmentCount}`);
+        console.log(`❌ Expected 16 assessments, got ${assessmentCount}`);
       }
       
       // Show first few assessment IDs
@@ -44,7 +44,7 @@ async function testApiEndpoints() {
       console.log('❌ Failed to get valid response\n');
     }
     
-    // Test 2: HTML content analysis - should also return 15 assessments
+    // Test 2: HTML content analysis - should also return 16 assessments
     console.log('📝 Test 2: HTML Content Analysis (Complete)');
     const htmlResult = await makeRequest(testUrl, '/analyze', {
       htmlContent: '<html><head><title>測試頁面標題</title><meta name="description" content="這是一個測試用的 meta 描述，用來測試我們的 SEO 分析功能"></head><body><h1>測試頁面標題</h1><p>這是第一段內容，包含了測試關鍵字。</p><p>這是第二段內容，提供更多的文字來測試可讀性評估。</p></body></html>',
@@ -57,12 +57,12 @@ async function testApiEndpoints() {
     
     if (htmlResult.success && htmlResult.report && htmlResult.report.detailedIssues) {
       const assessmentCount = htmlResult.report.detailedIssues.length;
-      console.log(`✅ Returned ${assessmentCount} assessments (expected: 15)`);
+      console.log(`✅ Returned ${assessmentCount} assessments (expected: 16)`);
       
-      if (assessmentCount === 15) {
+      if (assessmentCount === 16) {
         console.log('✅ Correct number of assessments returned');
       } else {
-        console.log(`❌ Expected 15 assessments, got ${assessmentCount}`);
+        console.log(`❌ Expected 16 assessments, got ${assessmentCount}`);
       }
       
       // Show assessment categories
@@ -98,8 +98,8 @@ async function testApiEndpoints() {
       if (assessmentCount === 3) {
         console.log(`✅ Individual filtering works: ${assessmentCount} assessments returned`);
         console.log(`📋 Returned IDs: ${returnedIds.join(', ')}`);
-      } else if (assessmentCount === 15) {
-        console.log('⚠️  Individual filtering not implemented - returns all 15 assessments');
+      } else if (assessmentCount === 16) {
+        console.log('⚠️  Individual filtering not implemented - returns all 16 assessments');
         console.log('ℹ️  This is acceptable as full assessment is still provided');
       } else {
         console.log(`❌ Unexpected result: ${assessmentCount} assessments returned`);

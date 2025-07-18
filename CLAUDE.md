@@ -24,6 +24,7 @@ curl -X POST http://localhost:3000/analyze \
     "htmlContent": "<html>...</html>",
     "pageDetails": {"url": "https://example.com", "title": "Example Page"},
     "focusKeyword": "example",
+    "relatedKeywords": ["related1", "related2"],
     "options": {"enableAllSEO": true}
   }'
 
@@ -100,6 +101,7 @@ Available assessments in `AvailableAssessments` enum (unified naming format):
 H1_MISSING = 'H1_MISSING'
 MULTIPLE_H1 = 'MULTIPLE_H1'
 H1_KEYWORD_MISSING = 'H1_KEYWORD_MISSING'
+H2_SYNONYMS_MISSING = 'H2_SYNONYMS_MISSING'
 IMAGES_MISSING_ALT = 'IMAGES_MISSING_ALT'
 KEYWORD_MISSING_FIRST_PARAGRAPH = 'KEYWORD_MISSING_FIRST_PARAGRAPH'
 KEYWORD_DENSITY_LOW = 'KEYWORD_DENSITY_LOW'
@@ -155,6 +157,24 @@ const config: AssessmentConfiguration = {
 - **markdownReport**: Formatted Markdown report for easy reading
 - **standards**: Optimal/acceptable ranges for assessments with pixel-based units
 
+### Terminology Update (v2.3)
+- **Renamed**: `synonyms` → `relatedKeywords` throughout the codebase for clarity
+- **Purpose**: These are related keywords, not true synonyms of the focus keyword
+- **Future**: Reserved `synonyms` field for true synonym functionality
+- **Backward Compatibility**: API still accepts `synonyms` parameter which maps to `relatedKeywords`
+
+### H2 Related Keywords Assessment (v2.1)
+- **New Assessment**: H2_SYNONYMS_MISSING checks if all related keywords appear in H2 headings
+- **Keyword Structure**: Support for focus keyword (single) and relatedKeywords (multiple secondary keywords)
+- **H2 Coverage**: Ensures all secondary keywords are covered in H2 headings for better content structure
+- **Total Assessments**: Now returns 16 assessments (12 SEO + 4 Readability)
+
+### Enhanced Keyword Matching (v2.2)
+- **Character-Level Matching**: Title and H1 now use character-level matching for Chinese keywords
+- **Title/H1 Requirements**: Must contain focus keyword AND at least one related keyword
+- **WordPress Integration**: Automatically splits keywords by `-` (e.g., `焦點關鍵字-相關關鍵字1-相關關鍵字2`)
+- **Smart Matching**: Handles overlapping characters in keywords (e.g., "九龍好去處" and "九龍好玩")
+
 ## API Endpoints
 
 ### POST /analyze
@@ -169,7 +189,8 @@ Direct HTML analysis endpoint for analyzing raw HTML content.
     "title": "string (required)"
   },
   "focusKeyword": "string (optional)",
-  "synonyms": ["array of strings (optional)"],
+  "relatedKeywords": ["array of strings (optional)"],  // 相關關鍵字
+  "synonyms": ["array of strings (optional)"],  // 預留給未來同義詞功能
   "options": {
     "enableAll": "boolean",
     "enableAllSEO": "boolean",

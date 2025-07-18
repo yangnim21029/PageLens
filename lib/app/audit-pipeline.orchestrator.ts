@@ -15,7 +15,8 @@ export interface AuditPipelineInput {
   htmlContent: string;
   pageDetails: PageDetails;
   focusKeyword: string;
-  synonyms?: string[];
+  relatedKeywords?: string[];
+  synonyms?: string[];  // 預留給未來真正的同義詞功能
 }
 
 export interface AuditPipelineOptions {

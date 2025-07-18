@@ -19,7 +19,8 @@ const response = await fetch('https://page-lens-zeta.vercel.app/analyze', {
       url: 'https://example.com',
       title: '網頁標題'
     },
-    focusKeyword: '關鍵詞'
+    focusKeyword: '焦點關鍵詞',
+    relatedKeywords: ['相關關鍵詞1', '相關關鍵詞2']
   })
 });
 
@@ -29,7 +30,7 @@ console.log('SEO 分數:', result.report.overallScores.seoScore);
 
 ### 📚 完整文檔
 
-- **`GET /docs`** - 完整 API 文檔和所有 15 個評估項目
+- **`GET /docs`** - 完整 API 文檔和所有 16 個評估項目
 - **`GET /example`** - 使用範例和完整請求/回應格式
 
 ## 📋 主要端點
@@ -48,7 +49,9 @@ POST /analyze
 
 **可選參數：**
 
-- `focusKeyword` - 目標關鍵詞
+- `focusKeyword` - 焦點關鍵詞
+- `relatedKeywords` - 相關關鍵字清單（字串陣列）
+- `synonyms` - 同義詞清單（字串陣列，預留給未來功能）_目前建議使用 relatedKeywords_
 - `options.contentSelectors` - CSS 選擇器（指定分析區域）
 - `options.excludeSelectors` - CSS 選擇器（排除區域）
 
@@ -64,6 +67,36 @@ POST /analyze-wp-url
 
 **支援網站：** PressLogic 旗下所有網站（holidaysmart.io、girlstyle.com 等）
 
+**⚠️ WordPress 關鍵字特殊處理規則：**
+
+WordPress API 返回的 `focusKeyphrase` 欄位會使用 `-` 作為分隔符，格式為：
+
+```
+焦點關鍵字-相關關鍵字1-相關關鍵字2-相關關鍵字3
+```
+
+系統會自動解析為：
+
+- **焦點關鍵字 (focusKeyword)**：第一個關鍵字
+- **相關關鍵字清單 (relatedKeywords)**：其餘所有關鍵字
+
+範例：
+
+```json
+// WordPress API 返回
+{
+  "focusKeyphrase": "香港半日遊好去處-九龍半日遊好去處-港島半日遊好去處-新界半日遊好去處"
+}
+
+// PageLens 解析後
+{
+  "focusKeyword": "香港半日遊好去處",
+  "relatedKeywords": ["九龍半日遊好去處", "港島半日遊好去處", "新界半日遊好去處"]
+}
+```
+
+**注意：** 此特殊規則僅適用於 WordPress 端點，一般 `/analyze` 端點仍需分別提供 `focusKeyword` 和 `relatedKeywords`。
+
 ### 3. 代理端點（隱藏 WordPress 路由）
 
 ```http
@@ -74,10 +107,12 @@ POST /api/proxy/metadata   # 獲取 SEO 元數據
 **用途：** 通過代理層訪問 WordPress API，隱藏實際的 WordPress 端點
 
 **Content 端點參數：**
+
 - `resourceId` - 文章 ID
 - `siteCode` - 站點代碼（如 GS_HK）
 
 **Metadata 端點參數：**
+
 - `resourceUrl` - 文章完整 URL
 
 ### 4. 文檔端點
@@ -92,14 +127,14 @@ GET /example  # 使用範例
 ### 統一評估 ID 格式
 
 - **統一命名：** 所有評估 ID 現在前後端一致（如 `H1_MISSING = 'H1_MISSING'`）
-- **固定數量：** 每次分析保證返回 15 個評估結果
+- **固定數量：** 每次分析保證返回 16 個評估結果（12 個 SEO + 4 個可讀性）
 - **增強回應：** 包含處理時間、API 版本、時間戳等資訊
 
 ### 🆕 像素寬度計算
 
 - **精確評估：** 針對中文內容使用像素寬度計算，而非字符數
-- **計算規則：** 中文字14px、英文字母5px、數字8px、空格5px
-- **智能標準：** Title >150px良好(最大600px)、Meta Description >600px良好(最大960px)
+- **計算規則：** 中文字 14px、英文字母 5px、數字 8px、空格 5px
+- **智能標準：** Title >150px 良好(最大 600px)、Meta Description >600px 良好(最大 960px)
 - **雙重數據：** 同時提供 `pixelWidth` 和 `charEquivalent` 兩種數據
 
 ### 評估標準值
@@ -114,6 +149,13 @@ GET /example  # 使用範例
 - **新增欄位：** API 現在返回 `pageUnderstanding` 欄位
 - **包含內容：** 頁面結構、媒體資訊、連結統計、文字分析等
 - **提升 UX：** 讓用戶了解系統如何理解他們的頁面
+
+### 術語更新 (v2.3)
+
+- **更名：** `synonyms` → `relatedKeywords` 更準確反映其用途
+- **相關關鍵字：** 這些是與焦點關鍵字相關的次要關鍵字，而非同義詞
+- **向後兼容：** API 仍接受 `synonyms` 參數，會自動映射到 `relatedKeywords`
+- **未來保留：** `synonyms` 欄位保留給未來真正的同義詞功能使用
 
 ### 詳細使用指南
 
@@ -140,7 +182,8 @@ const response = await fetch('https://page-lens-zeta.vercel.app/analyze', {
   body: JSON.stringify({
     htmlContent: '<html>...</html>',
     pageDetails: { url: 'https://example.com', title: '標題' },
-    focusKeyword: '關鍵詞',
+    focusKeyword: '焦點關鍵詞',
+    relatedKeywords: ['相關關鍵詞1', '相關關鍵詞2'],
     options: {
       contentSelectors: ['article', 'main'],
       excludeSelectors: ['.ad', '.sidebar']
@@ -165,13 +208,13 @@ API 現在會在 `markdownReport` 欄位返回格式化的 Markdown 報告，包
 // API 回應範例（Meta Description - 使用像素寬度）
 {
   "id": "META_DESCRIPTION_MISSING",
-  "type": "SEO", 
+  "type": "SEO",
   "name": "Meta Description Length Good",
   "status": "good",
   "score": 100,
-  "details": { 
-    "pixelWidth": 837, 
-    "charEquivalent": 60 
+  "details": {
+    "pixelWidth": 837,
+    "charEquivalent": 60
   },
   "standards": {
     "optimal": { "min": 600, "max": 960, "unit": "px" },
@@ -184,12 +227,12 @@ API 現在會在 `markdownReport` 欄位返回格式化的 Markdown 報告，包
 {
   "id": "TITLE_NEEDS_IMPROVEMENT",
   "type": "SEO",
-  "name": "Title Length Good", 
+  "name": "Title Length Good",
   "status": "good",
   "score": 100,
-  "details": { 
-    "pixelWidth": 263, 
-    "charEquivalent": 19 
+  "details": {
+    "pixelWidth": 263,
+    "charEquivalent": 19
   },
   "standards": {
     "optimal": { "min": 150, "max": 600, "unit": "px" },
@@ -200,8 +243,9 @@ API 現在會在 `markdownReport` 欄位返回格式化的 Markdown 報告，包
 ```
 
 #### 像素寬度計算規則：
+
 - **中文字符**: 14px/字
-- **英文字母**: 5px/字  
+- **英文字母**: 5px/字
 - **數字**: 8px/字
 - **空格**: 5px/字
 - **標點符號**: 忽略不計算
@@ -266,13 +310,14 @@ API 現在會在 `pageUnderstanding` 欄位返回頁面的結構化理解資訊�
 ...
 ```
 
-## 🔧 15 個評估項目
+## 🔧 16 個評估項目
 
-### SEO 項目 (11 個)
+### SEO 項目 (12 個)
 
 - `H1_MISSING` - H1 標籤檢測
 - `MULTIPLE_H1` - 多重 H1 檢測
 - `H1_KEYWORD_MISSING` - H1 關鍵字檢測
+- `H2_SYNONYMS_MISSING` - H2 相關關鍵字檢測（檢查 relatedKeywords）
 - `IMAGES_MISSING_ALT` - 圖片 Alt 檢測
 - `KEYWORD_MISSING_FIRST_PARAGRAPH` - 首段關鍵字檢測
 - `KEYWORD_DENSITY_LOW` - 關鍵字密度檢測
@@ -288,6 +333,20 @@ API 現在會在 `pageUnderstanding` 欄位返回頁面的結構化理解資訊�
 - `PARAGRAPH_LENGTH_LONG` - 段落長度檢測
 - `SENTENCE_LENGTH_LONG` - 句子長度檢測
 - `SUBHEADING_DISTRIBUTION_POOR` - 子標題分佈檢測
+
+## 🎯 新增評估標準 (v2.3)
+
+### H1 和 Title 關鍵字要求
+
+- **H1 標籤：** 必須同時包含焦點關鍵字和至少一個相關關鍵字
+- **Title 標籤：** 必須同時包含焦點關鍵字和至少一個相關關鍵字
+- **字符級匹配：** 使用字符級匹配算法，特別適合中文關鍵字（如「九龍好去處」和「九龍好玩」）
+
+### H2 相關關鍵字覆蓋
+
+- **H2_SYNONYMS_MISSING：** 檢查所有相關關鍵字是否出現在 H2 標籤中
+- **覆蓋率評分：** 100% 覆蓋得滿分，50% 以上為 OK，低於 50% 為 BAD
+- **內容結構：** 確保相關關鍵字分佈在各個章節，提升內容相關性
 
 ## 🏢 支援的 WordPress 站點
 
@@ -327,7 +386,8 @@ curl -X POST "https://page-lens-zeta.vercel.app/analyze" \
       "url": "https://example.com/article",
       "title": "Article Title"
     },
-    "focusKeyword": "關鍵詞",
+    "focusKeyword": "焦點關鍵詞",
+    "relatedKeywords": ["相關關鍵詞1", "相關關鍵詞2"],
     "options": {
       "contentSelectors": ["article", "main", ".content"],
       "excludeSelectors": [".ad", ".sidebar"]

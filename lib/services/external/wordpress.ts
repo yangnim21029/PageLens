@@ -102,7 +102,11 @@ function _parseFocusKeyphrase(focusKeyphrase: string): {
     };
   }
 
-  const keywords = parseKeywordsFromString(focusKeyphrase);
+  // 特殊規則：WordPress 使用 - 分隔關鍵字
+  // 格式：焦點關鍵字-相關關鍵字1-相關關鍵字2
+  const keywords = focusKeyphrase.split('-')
+    .map(kw => kw.trim())
+    .filter(kw => kw.length > 0);
 
   return {
     keywords

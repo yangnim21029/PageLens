@@ -9,6 +9,7 @@ export class IngredientsGatherer {
     htmlContent: string;
     pageDetails: PageDetails;
     focusKeyword?: string;
+    relatedKeywords?: string[];
     synonyms?: string[];
   }): Promise<IngredientsGatheringResult> {
     try {
@@ -16,7 +17,8 @@ export class IngredientsGatherer {
         htmlContent: input.htmlContent,
         pageDetails: input.pageDetails,
         focusKeyword: input.focusKeyword ? input.focusKeyword.toLowerCase().trim() : '',
-        synonyms: (input.synonyms || []).map(s => s.toLowerCase().trim())
+        relatedKeywords: (input.relatedKeywords || []).map(s => s.toLowerCase().trim()),
+        synonyms: input.synonyms ? input.synonyms.map(s => s.toLowerCase().trim()) : undefined
       };
 
       this.validateIngredients(ingredients);

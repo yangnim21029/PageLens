@@ -35,6 +35,30 @@ const SEO_STANDARDS = {
 };
 
 export class SEOAssessor {
+  // Helper method to check if all characters of a keyword exist in the text
+  private containsAllCharacters(text: string, keyword: string): boolean {
+    const textLower = text.toLowerCase();
+    const keywordLower = keyword.toLowerCase();
+    
+    // Check if every character in the keyword exists in the text
+    for (const char of keywordLower) {
+      if (!textLower.includes(char)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // Helper method to find which related keyword contains all its characters in the text
+  private findMatchingRelatedKeyword(text: string, relatedKeywords: string[]): string | null {
+    for (const keyword of relatedKeywords) {
+      if (this.containsAllCharacters(text, keyword)) {
+        return keyword;
+      }
+    }
+    return null;
+  }
+
   // Helper method to calculate pixel width of text
   private calculateTextWidth(text: string): number {
     let totalWidth = 0;
@@ -67,10 +91,11 @@ export class SEOAssessor {
   async runSEOChecks(parsedContent: ParsedContent, ingredients: PageIngredients): Promise<AssessmentResult[]> {
     const assessments: AssessmentResult[] = [];
 
-    // 確保返回所有 11 個 SEO assessments
+    // 確保返回所有 12 個 SEO assessments
     assessments.push(this.checkH1Missing(parsedContent));
     assessments.push(this.checkMultipleH1(parsedContent));
     assessments.push(this.checkH1Keyword(parsedContent, ingredients));
+    assessments.push(this.checkH2RelatedKeywords(parsedContent, ingredients));
     assessments.push(this.checkImagesAlt(parsedContent));
     assessments.push(this.checkKeywordFirstParagraph(parsedContent, ingredients));
     assessments.push(this.checkKeywordDensity(parsedContent, ingredients));
@@ -160,8 +185,9 @@ export class SEOAssessor {
       };
     }
 
-    const h1Text = h1Tags[0].text.toLowerCase();
-    const focusKeyword = ingredients.focusKeyword?.toLowerCase() || '';
+    const h1Text = h1Tags[0].text;
+    const focusKeyword = ingredients.focusKeyword || '';
+    const relatedKeywords = ingredients.relatedKeywords || [];
     
     if (!focusKeyword || focusKeyword.trim() === '') {
       return {
@@ -175,29 +201,200 @@ export class SEOAssessor {
         recommendation: 'Set a focus keyword to analyze H1 keyword optimization.',
         details: { h1Text, reason: 'No focus keyword provided' }
       };
-    } else if (h1Text.includes(focusKeyword)) {
+    }
+    
+    // Check if focus keyword is included using character-level matching
+    const hasFocusKeyword = this.containsAllCharacters(h1Text, focusKeyword);
+    const matchingRelatedKeyword = this.findMatchingRelatedKeyword(h1Text, relatedKeywords);
+    
+    if (hasFocusKeyword && matchingRelatedKeyword) {
       return {
         id: AvailableAssessments.H1_KEYWORD_MISSING,
         type: AssessmentCategory.SEO,
-        name: 'H1 Contains Focus Keyword',
-        description: 'H1 heading contains the focus keyword',
+        name: 'H1 Contains Both Keywords',
+        description: 'H1 heading contains focus keyword and a related keyword',
         status: AssessmentStatus.GOOD,
         score: 100,
         impact: 'high',
-        recommendation: 'Excellent! Your H1 heading contains the focus keyword.',
-        details: { h1Text, focusKeyword }
+        recommendation: 'Perfect! Your H1 contains both the focus keyword and a related keyword.',
+        details: { 
+          h1Text, 
+          focusKeyword,
+          matchingRelatedKeyword,
+          hasFocusKeyword: true,
+          hasRelatedKeyword: true
+        }
+      };
+    } else if (hasFocusKeyword && !matchingRelatedKeyword) {
+      return {
+        id: AvailableAssessments.H1_KEYWORD_MISSING,
+        type: AssessmentCategory.SEO,
+        name: 'H1 Missing Related Keyword',
+        description: 'H1 heading contains focus keyword but missing related keywords',
+        status: AssessmentStatus.OK,
+        score: 75,
+        impact: 'high',
+        recommendation: relatedKeywords.length > 0 
+          ? `Good! H1 contains focus keyword. Consider also including one of these related keywords: ${relatedKeywords.join(', ')}`
+          : 'Good! H1 contains focus keyword. Consider adding related keywords for better optimization.',
+        details: { 
+          h1Text, 
+          focusKeyword,
+          hasFocusKeyword: true,
+          hasRelatedKeyword: false,
+          availableRelatedKeywords: relatedKeywords
+        }
+      };
+    } else if (!hasFocusKeyword && matchingRelatedKeyword) {
+      return {
+        id: AvailableAssessments.H1_KEYWORD_MISSING,
+        type: AssessmentCategory.SEO,
+        name: 'H1 Missing Focus Keyword',
+        description: 'H1 heading contains a related keyword but missing the focus keyword',
+        status: AssessmentStatus.BAD,
+        score: 50,
+        impact: 'high',
+        recommendation: `H1 contains related keyword "${matchingRelatedKeyword}" but missing the focus keyword "${focusKeyword}". Include the focus keyword for better SEO.`,
+        details: { 
+          h1Text, 
+          focusKeyword,
+          matchingRelatedKeyword,
+          hasFocusKeyword: false,
+          hasRelatedKeyword: true
+        }
       };
     } else {
       return {
         id: AvailableAssessments.H1_KEYWORD_MISSING,
         type: AssessmentCategory.SEO,
-        name: 'H1 Missing Focus Keyword',
-        description: 'H1 heading does not contain the focus keyword',
+        name: 'H1 Missing Both Keywords',
+        description: 'H1 heading missing both focus and related keywords',
         status: AssessmentStatus.BAD,
-        score: 60,
+        score: 40,
+        impact: 'high',
+        recommendation: `Include your focus keyword "${focusKeyword}" and at least one related keyword in the H1 heading.`,
+        details: { 
+          h1Text, 
+          focusKeyword,
+          hasFocusKeyword: false,
+          hasRelatedKeyword: false,
+          availableRelatedKeywords: relatedKeywords
+        }
+      };
+    }
+  }
+
+  private checkH2RelatedKeywords(parsedContent: ParsedContent, ingredients: PageIngredients): AssessmentResult {
+    const h2Tags = parsedContent.headings.filter(h => h.level === 2);
+    const relatedKeywords = ingredients.relatedKeywords || [];
+    
+    // If no related keywords provided, return OK status
+    if (relatedKeywords.length === 0) {
+      return {
+        id: AvailableAssessments.H2_SYNONYMS_MISSING,
+        type: AssessmentCategory.SEO,
+        name: 'H2 Related Keywords Check Skipped',
+        description: 'No related keywords provided for H2 analysis',
+        status: AssessmentStatus.OK,
+        score: 75,
         impact: 'medium',
-        recommendation: `Consider including your focus keyword "${ingredients.focusKeyword}" in the H1 heading.`,
-        details: { h1Text, focusKeyword }
+        recommendation: 'Provide related keywords to analyze H2 optimization.',
+        details: { 
+          h2Count: h2Tags.length,
+          relatedKeywordsProvided: 0,
+          reason: 'No related keywords provided' 
+        }
+      };
+    }
+    
+    // If no H2 tags found
+    if (h2Tags.length === 0) {
+      return {
+        id: AvailableAssessments.H2_SYNONYMS_MISSING,
+        type: AssessmentCategory.SEO,
+        name: 'No H2 Headings Found',
+        description: 'No H2 headings found to check for related keywords',
+        status: AssessmentStatus.BAD,
+        score: 40,
+        impact: 'medium',
+        recommendation: 'Add H2 headings that include your related keywords for better content structure.',
+        details: { 
+          h2Count: 0,
+          relatedKeywordsProvided: relatedKeywords.length,
+          missingRelatedKeywords: relatedKeywords 
+        }
+      };
+    }
+    
+    // Check which related keywords are found in H2 tags
+    const h2Texts = h2Tags.map(h => h.text.toLowerCase()).join(' ');
+    const foundRelatedKeywords: string[] = [];
+    const missingRelatedKeywords: string[] = [];
+    
+    for (const relatedKeyword of relatedKeywords) {
+      const relatedKeywordLower = relatedKeyword.toLowerCase();
+      if (h2Texts.includes(relatedKeywordLower)) {
+        foundRelatedKeywords.push(relatedKeyword);
+      } else {
+        missingRelatedKeywords.push(relatedKeyword);
+      }
+    }
+    
+    const coveragePercentage = (foundRelatedKeywords.length / relatedKeywords.length) * 100;
+    
+    // Determine status based on coverage
+    if (coveragePercentage === 100) {
+      return {
+        id: AvailableAssessments.H2_SYNONYMS_MISSING,
+        type: AssessmentCategory.SEO,
+        name: 'All Related Keywords Found in H2',
+        description: 'All related keywords appear in H2 headings',
+        status: AssessmentStatus.GOOD,
+        score: 100,
+        impact: 'medium',
+        recommendation: 'Excellent! All your related keywords appear in H2 headings.',
+        details: { 
+          h2Count: h2Tags.length,
+          relatedKeywordsProvided: relatedKeywords.length,
+          foundRelatedKeywords,
+          coveragePercentage: 100
+        }
+      };
+    } else if (coveragePercentage >= 50) {
+      return {
+        id: AvailableAssessments.H2_SYNONYMS_MISSING,
+        type: AssessmentCategory.SEO,
+        name: 'Some Related Keywords Missing in H2',
+        description: `${foundRelatedKeywords.length} out of ${relatedKeywords.length} related keywords found in H2`,
+        status: AssessmentStatus.OK,
+        score: 70 + (coveragePercentage * 0.3),
+        impact: 'medium',
+        recommendation: `Consider including these keywords in H2 headings: ${missingRelatedKeywords.join(', ')}`,
+        details: { 
+          h2Count: h2Tags.length,
+          relatedKeywordsProvided: relatedKeywords.length,
+          foundRelatedKeywords,
+          missingRelatedKeywords,
+          coveragePercentage
+        }
+      };
+    } else {
+      return {
+        id: AvailableAssessments.H2_SYNONYMS_MISSING,
+        type: AssessmentCategory.SEO,
+        name: 'Most Related Keywords Missing in H2',
+        description: `Only ${foundRelatedKeywords.length} out of ${relatedKeywords.length} related keywords found in H2`,
+        status: AssessmentStatus.BAD,
+        score: 40 + (coveragePercentage * 0.6),
+        impact: 'medium',
+        recommendation: `Include these related keywords in your H2 headings: ${missingRelatedKeywords.join(', ')}`,
+        details: { 
+          h2Count: h2Tags.length,
+          relatedKeywordsProvided: relatedKeywords.length,
+          foundRelatedKeywords,
+          missingRelatedKeywords,
+          coveragePercentage
+        }
       };
     }
   }
@@ -514,8 +711,9 @@ export class SEOAssessor {
   }
 
   private checkTitleKeyword(parsedContent: ParsedContent, ingredients: PageIngredients): AssessmentResult {
-    const title = parsedContent.title?.toLowerCase() || '';
-    const focusKeyword = ingredients.focusKeyword?.toLowerCase() || '';
+    const title = parsedContent.title || '';
+    const focusKeyword = ingredients.focusKeyword || '';
+    const relatedKeywords = ingredients.relatedKeywords || [];
     
     if (!focusKeyword || focusKeyword.trim() === '') {
       return {
@@ -530,30 +728,84 @@ export class SEOAssessor {
         details: { reason: 'No focus keyword provided' }
       };
     }
-
-    if (title.includes(focusKeyword)) {
+    
+    // Check if focus keyword is included using character-level matching
+    const hasFocusKeyword = this.containsAllCharacters(title, focusKeyword);
+    const matchingRelatedKeyword = this.findMatchingRelatedKeyword(title, relatedKeywords);
+    
+    if (hasFocusKeyword && matchingRelatedKeyword) {
       return {
         id: AvailableAssessments.TITLE_MISSING,
         type: AssessmentCategory.SEO,
-        name: 'Title Contains Keyword',
-        description: 'Title contains the focus keyword',
+        name: 'Title Contains Both Keywords',
+        description: 'Title contains focus keyword and a related keyword',
         status: AssessmentStatus.GOOD,
         score: 100,
         impact: 'high',
-        recommendation: 'Great! Your title contains the focus keyword.',
-        details: { title, focusKeyword }
+        recommendation: 'Perfect! Your title contains both the focus keyword and a related keyword.',
+        details: { 
+          title, 
+          focusKeyword,
+          matchingRelatedKeyword,
+          hasFocusKeyword: true,
+          hasRelatedKeyword: true
+        }
+      };
+    } else if (hasFocusKeyword && !matchingRelatedKeyword) {
+      return {
+        id: AvailableAssessments.TITLE_MISSING,
+        type: AssessmentCategory.SEO,
+        name: 'Title Missing Related Keyword',
+        description: 'Title contains focus keyword but missing related keywords',
+        status: AssessmentStatus.OK,
+        score: 75,
+        impact: 'high',
+        recommendation: relatedKeywords.length > 0 
+          ? `Good! Title contains focus keyword. Consider also including one of these related keywords: ${relatedKeywords.join(', ')}`
+          : 'Good! Title contains focus keyword. Consider adding related keywords for better optimization.',
+        details: { 
+          title, 
+          focusKeyword,
+          hasFocusKeyword: true,
+          hasRelatedKeyword: false,
+          availableRelatedKeywords: relatedKeywords
+        }
+      };
+    } else if (!hasFocusKeyword && matchingRelatedKeyword) {
+      return {
+        id: AvailableAssessments.TITLE_MISSING,
+        type: AssessmentCategory.SEO,
+        name: 'Title Missing Focus Keyword',
+        description: 'Title contains a related keyword but missing the focus keyword',
+        status: AssessmentStatus.BAD,
+        score: 50,
+        impact: 'high',
+        recommendation: `Title contains related keyword "${matchingRelatedKeyword}" but missing the focus keyword "${focusKeyword}". Include the focus keyword for better SEO.`,
+        details: { 
+          title, 
+          focusKeyword,
+          matchingRelatedKeyword,
+          hasFocusKeyword: false,
+          hasRelatedKeyword: true
+        }
       };
     } else {
       return {
         id: AvailableAssessments.TITLE_MISSING,
         type: AssessmentCategory.SEO,
-        name: 'Title Missing Keyword',
-        description: 'Title does not contain the focus keyword',
+        name: 'Title Missing Both Keywords',
+        description: 'Title missing both focus and related keywords',
         status: AssessmentStatus.BAD,
         score: 30,
         impact: 'high',
-        recommendation: 'Include your focus keyword in the title.',
-        details: { title, focusKeyword }
+        recommendation: `Include your focus keyword "${focusKeyword}" and at least one related keyword in the title.`,
+        details: { 
+          title, 
+          focusKeyword,
+          hasFocusKeyword: false,
+          hasRelatedKeyword: false,
+          availableRelatedKeywords: relatedKeywords
+        }
       };
     }
   }

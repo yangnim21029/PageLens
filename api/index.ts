@@ -75,6 +75,7 @@ app.get('/docs', (req, res) => {
         "H1_MISSING",
         "MULTIPLE_H1", 
         "H1_KEYWORD_MISSING",
+        "H2_SYNONYMS_MISSING",
         "IMAGES_MISSING_ALT",
         "KEYWORD_MISSING_FIRST_PARAGRAPH",
         "KEYWORD_DENSITY_LOW",
@@ -90,7 +91,7 @@ app.get('/docs', (req, res) => {
         "SENTENCE_LENGTH_LONG",
         "SUBHEADING_DISTRIBUTION_POOR"
       ],
-      "totalCount": 15,
+      "totalCount": 16,
       "format": "Each assessment ID is consistent across frontend and backend (e.g., H1_MISSING = 'H1_MISSING')"
     }
   });
@@ -157,12 +158,12 @@ app.get('/example', (req, res) => {
       },
       "processingTime": 250,
       "apiVersion": "2.0",
-      "assessmentCount": 15,
+      "assessmentCount": 16,
       "timestamp": "2024-12-01T10:30:00.000Z"
     },
     "notes": [
       "All assessment IDs use unified naming (H1_MISSING = 'H1_MISSING')",
-      "API always returns exactly 15 assessments",
+      "API always returns exactly 16 assessments (12 SEO + 4 Readability)",
       "Processing time is included in response",
       "New: Pixel-based width calculation for accurate Chinese content assessment",
       "Title/Meta Description include both pixelWidth and charEquivalent in details",
@@ -211,7 +212,7 @@ app.post('/analyze', async (req, res) => {
   const startTime = Date.now();
   
   try {
-    const { htmlContent, pageDetails, focusKeyword, synonyms, options } = req.body;
+    const { htmlContent, pageDetails, focusKeyword, relatedKeywords, synonyms, options } = req.body;
 
     // Enhanced validation with detailed error messages
     if (!htmlContent) {
@@ -259,16 +260,17 @@ app.post('/analyze', async (req, res) => {
       htmlContent,
       pageDetails,
       focusKeyword: focusKeyword || '',
-      synonyms: synonyms || []
+      relatedKeywords: relatedKeywords || synonyms || [],  // 支援新舊參數名
+      synonyms: undefined  // 預留給未來真正的同義詞功能
     };
 
     // Execute audit pipeline
     const result = await orchestrator.executeAuditPipeline(input, options || {});
 
-    // Validate that we return exactly 15 assessment IDs
+    // Validate that we return exactly 16 assessment IDs
     const assessmentCount = result.report?.detailedIssues?.length || 0;
-    if (assessmentCount !== 15) {
-      console.warn(`Warning: Expected 15 assessments, got ${assessmentCount}`);
+    if (assessmentCount !== 16) {
+      console.warn(`Warning: Expected 16 assessments, got ${assessmentCount}`);
     }
 
     // Generate Markdown report
@@ -452,7 +454,7 @@ app.post('/analyze-wp-url', async (req, res) => {
 
     // Use focus keyword from WordPress SEO data
     const focusKeyword = keywords && keywords.length > 0 ? keywords[0] : '';
-    const synonyms = keywords && keywords.length > 1 ? keywords.slice(1) : [];
+    const relatedKeywords = keywords && keywords.length > 1 ? keywords.slice(1) : [];
 
     // Initialize audit pipeline
     const orchestrator = new AuditPipelineOrchestrator();
@@ -475,7 +477,8 @@ app.post('/analyze-wp-url', async (req, res) => {
       htmlContent: htmlWithMetadata,
       pageDetails,
       focusKeyword,
-      synonyms
+      relatedKeywords,
+      synonyms: undefined  // 預留給未來真正的同義詞功能
     };
 
     // For WordPress sites, use default selectors if user didn't specify
@@ -498,8 +501,8 @@ app.post('/analyze-wp-url', async (req, res) => {
 
     // Validate assessment count
     const assessmentCount = result.report?.detailedIssues?.length || 0;
-    if (assessmentCount !== 15) {
-      console.warn(`Warning: Expected 15 assessments, got ${assessmentCount}`);
+    if (assessmentCount !== 16) {
+      console.warn(`Warning: Expected 16 assessments, got ${assessmentCount}`);
     }
 
     // Generate Markdown report
@@ -568,7 +571,7 @@ app.listen(3000, () => {
   console.log('   POST /api/proxy/metadata - WordPress metadata proxy');
   console.log('✨ New Features:');
   console.log('   - Unified assessment IDs (H1_MISSING = "H1_MISSING")');
-  console.log('   - Always returns exactly 15 assessments');
+  console.log('   - Always returns exactly 16 assessments (12 SEO + 4 Readability)');
   console.log('   - Enhanced error handling with error codes');
   console.log('   - Processing time tracking');
   console.log('   - Comprehensive logging');
