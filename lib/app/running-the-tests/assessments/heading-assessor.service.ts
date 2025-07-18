@@ -99,7 +99,7 @@ export class HeadingAssessor {
     }
 
     const h1Text = h1Tags[0].text;
-    const focusKeyword = ingredients.focusKeyword || '';
+    const focusKeyword = ingredients.focusKeyword?.toLowerCase() || '';
     const relatedKeywords = ingredients.relatedKeywords || [];
     
     if (!focusKeyword || focusKeyword.trim() === '') {
@@ -361,7 +361,7 @@ export class HeadingAssessor {
 
   checkTitleKeyword(parsedContent: ParsedContent, ingredients: PageIngredients): AssessmentResult {
     const title = parsedContent.title || '';
-    const focusKeyword = ingredients.focusKeyword || '';
+    const focusKeyword = ingredients.focusKeyword?.toLowerCase() || '';
     const relatedKeywords = ingredients.relatedKeywords || [];
     
     if (!focusKeyword || focusKeyword.trim() === '') {

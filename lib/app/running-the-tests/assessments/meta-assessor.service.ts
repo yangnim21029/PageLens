@@ -102,7 +102,10 @@ export class MetaAssessor {
       };
     }
 
-    if (metaDescription.includes(focusKeyword)) {
+    // 使用字符級別匹配，檢查是否包含焦點關鍵字的所有字符
+    const containsKeyword = SEOAssessmentUtils.containsAllCharacters(metaDescription, focusKeyword);
+    
+    if (containsKeyword) {
       return {
         id: AvailableAssessments.META_DESCRIPTION_NEEDS_IMPROVEMENT,
         type: AssessmentCategory.SEO,
@@ -112,7 +115,7 @@ export class MetaAssessor {
         score: 100,
         impact: 'high',
         recommendation: 'Great! Your meta description contains the focus keyword.',
-        details: { metaDescription, focusKeyword }
+        details: { metaDescription, focusKeyword, containsKeyword: true }
       };
     } else {
       return {
@@ -124,7 +127,7 @@ export class MetaAssessor {
         score: 50,
         impact: 'high',
         recommendation: 'Include your focus keyword in the meta description.',
-        details: { metaDescription, focusKeyword }
+        details: { metaDescription, focusKeyword, containsKeyword: false }
       };
     }
   }
