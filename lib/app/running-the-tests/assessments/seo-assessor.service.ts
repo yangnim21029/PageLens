@@ -10,14 +10,14 @@ const SEO_STANDARDS = {
     description: '關鍵字密度最佳範圍 0.5-2.5%'
   },
   META_DESCRIPTION_LENGTH: {
-    optimal: { min: 80, max: 90, unit: '字' },
-    acceptable: { min: 60, max: 120, unit: '字' },
-    description: 'Meta 描述長度最佳 80-90 字'
+    optimal: { min: 600, max: 960, unit: 'px' },
+    acceptable: { min: 300, max: 960, unit: 'px' },
+    description: 'Meta 描述寬度最佳 >600px，最大960px'
   },
   TITLE_LENGTH: {
-    optimal: { min: 15, max: 30, unit: '字' },
-    acceptable: { min: 10, max: 35, unit: '字' },
-    description: '標題長度最佳 15-30 字'
+    optimal: { min: 150, max: 600, unit: 'px' },
+    acceptable: { min: 100, max: 600, unit: 'px' },
+    description: '標題寬度最佳 >150px，最大600px'
   },
   CONTENT_LENGTH: {
     optimal: { min: 300, unit: '字' },
@@ -35,21 +35,34 @@ const SEO_STANDARDS = {
 };
 
 export class SEOAssessor {
-  // Helper method to count Chinese characters (words)
-  private countChineseChars(text: string): number {
-    // Match Chinese characters (excluding punctuation)
-    const chineseRegex = /[\u4e00-\u9fff\u3400-\u4dbf]/g;
-    const chineseMatches = text.match(chineseRegex) || [];
+  // Helper method to calculate pixel width of text
+  private calculateTextWidth(text: string): number {
+    let totalWidth = 0;
     
-    // Remove Chinese characters and punctuation, then count English words/numbers
-    const nonChineseText = text.replace(chineseRegex, ' ')
-                              .replace(/[\u3000-\u303f\uff00-\uffef]/g, ' ') // Remove CJK punctuation
-                              .replace(/[，。！？；：""''（）【】《》]/g, ' '); // Remove Chinese punctuation
+    for (const char of text) {
+      if (/[\u4e00-\u9fff\u3400-\u4dbf]/.test(char)) {
+        // Chinese characters: 14px
+        totalWidth += 14;
+      } else if (/[0-9]/.test(char)) {
+        // Numbers: 8px
+        totalWidth += 8;
+      } else if (/[a-zA-Z]/.test(char)) {
+        // English letters: 5px
+        totalWidth += 5;
+      } else if (/\s/.test(char)) {
+        // Spaces: 5px (same as English)
+        totalWidth += 5;
+      }
+      // Punctuation and other characters are ignored for width calculation
+    }
     
-    const nonChineseWords = nonChineseText.split(/\s+/)
-                                         .filter(word => word.trim().length > 0 && /[a-zA-Z0-9]/.test(word));
-    
-    return chineseMatches.length + nonChineseWords.length;
+    return totalWidth;
+  }
+
+  // Helper method to convert pixel width to equivalent character count for display
+  private pixelWidthToCharCount(pixelWidth: number): number {
+    // Convert to "character units" for user-friendly display (using 14px as base)
+    return Math.round(pixelWidth / 14);
   }
   async runSEOChecks(parsedContent: ParsedContent, ingredients: PageIngredients): Promise<AssessmentResult[]> {
     const assessments: AssessmentResult[] = [];
@@ -407,10 +420,11 @@ export class SEOAssessor {
 
   private checkMetaDescriptionLength(parsedContent: ParsedContent): AssessmentResult {
     const metaDescription = parsedContent.metaDescription || '';
-    const length = this.countChineseChars(metaDescription);
+    const pixelWidth = this.calculateTextWidth(metaDescription);
+    const charEquivalent = this.pixelWidthToCharCount(pixelWidth);
     
     
-    if (length === 0) {
+    if (pixelWidth === 0) {
       return {
         id: AvailableAssessments.META_DESCRIPTION_MISSING,
         type: AssessmentCategory.SEO,
@@ -419,21 +433,21 @@ export class SEOAssessor {
         status: AssessmentStatus.BAD,
         score: 0,
         impact: 'high',
-        recommendation: 'Add a meta description between 80-90 characters.',
-        details: { length: 0 },
+        recommendation: 'Add a meta description (optimal width: >600px, max 960px).',
+        details: { pixelWidth: 0, charEquivalent: 0 },
         standards: SEO_STANDARDS.META_DESCRIPTION_LENGTH
       };
-    } else if (length >= 80 && length <= 90) {
+    } else if (pixelWidth >= 600 && pixelWidth <= 960) {
       return {
         id: AvailableAssessments.META_DESCRIPTION_MISSING,
         type: AssessmentCategory.SEO,
         name: 'Meta Description Length Good',
-        description: `Meta description is ${length} characters (optimal: 80-90)`,
+        description: `Meta description width is ${pixelWidth}px (good: >600px, max: 960px)`,
         status: AssessmentStatus.GOOD,
         score: 100,
         impact: 'medium',
-        recommendation: 'Perfect! Your meta description length is optimal.',
-        details: { length },
+        recommendation: 'Perfect! Your meta description width is optimal.',
+        details: { pixelWidth, charEquivalent },
         standards: SEO_STANDARDS.META_DESCRIPTION_LENGTH
       };
     } else {
@@ -441,12 +455,12 @@ export class SEOAssessor {
         id: AvailableAssessments.META_DESCRIPTION_MISSING,
         type: AssessmentCategory.SEO,
         name: 'Meta Description Length Needs Improvement',
-        description: `Meta description is ${length} characters (recommended: 80-90)`,
-        status: length < 80 ? AssessmentStatus.OK : AssessmentStatus.BAD,
-        score: length < 80 ? 70 : 40,
+        description: `Meta description width is ${pixelWidth}px (recommended: >600px, max: 960px)`,
+        status: pixelWidth > 960 ? AssessmentStatus.BAD : AssessmentStatus.OK,
+        score: pixelWidth > 960 ? 40 : 70,
         impact: 'medium',
-        recommendation: length < 80 ? 'Consider expanding your meta description.' : 'Consider shortening your meta description.',
-        details: { length },
+        recommendation: pixelWidth > 960 ? 'Consider shortening your meta description.' : 'Consider expanding your meta description.',
+        details: { pixelWidth, charEquivalent },
         standards: SEO_STANDARDS.META_DESCRIPTION_LENGTH
       };
     }
@@ -454,9 +468,10 @@ export class SEOAssessor {
 
   private checkTitleOptimization(parsedContent: ParsedContent, ingredients: PageIngredients): AssessmentResult {
     const title = parsedContent.title || '';
-    const length = this.countChineseChars(title);
+    const pixelWidth = this.calculateTextWidth(title);
+    const charEquivalent = this.pixelWidthToCharCount(pixelWidth);
     
-    if (length === 0) {
+    if (pixelWidth === 0) {
       return {
         id: AvailableAssessments.TITLE_NEEDS_IMPROVEMENT,
         type: AssessmentCategory.SEO,
@@ -465,21 +480,21 @@ export class SEOAssessor {
         status: AssessmentStatus.BAD,
         score: 0,
         impact: 'high',
-        recommendation: 'Add a descriptive title between 15-30 characters.',
-        details: { length: 0 },
+        recommendation: 'Add a descriptive title (optimal width: >150px, max 600px).',
+        details: { pixelWidth: 0, charEquivalent: 0 },
         standards: SEO_STANDARDS.TITLE_LENGTH
       };
-    } else if (length >= 15 && length <= 30) {
+    } else if (pixelWidth >= 150 && pixelWidth <= 600) {
       return {
         id: AvailableAssessments.TITLE_NEEDS_IMPROVEMENT,
         type: AssessmentCategory.SEO,
         name: 'Title Length Good',
-        description: `Title is ${length} characters (optimal: 15-30)`,
+        description: `Title width is ${pixelWidth}px (good: >150px, max: 600px)`,
         status: AssessmentStatus.GOOD,
         score: 100,
         impact: 'high',
-        recommendation: 'Perfect! Your title length is optimal.',
-        details: { length },
+        recommendation: 'Perfect! Your title width is optimal.',
+        details: { pixelWidth, charEquivalent },
         standards: SEO_STANDARDS.TITLE_LENGTH
       };
     } else {
@@ -487,12 +502,12 @@ export class SEOAssessor {
         id: AvailableAssessments.TITLE_NEEDS_IMPROVEMENT,
         type: AssessmentCategory.SEO,
         name: 'Title Length Needs Improvement',
-        description: `Title is ${length} characters (recommended: 15-30)`,
-        status: length < 15 ? AssessmentStatus.OK : AssessmentStatus.BAD,
-        score: length < 15 ? 70 : 40,
+        description: `Title width is ${pixelWidth}px (recommended: >150px, max: 600px)`,
+        status: pixelWidth > 600 ? AssessmentStatus.BAD : AssessmentStatus.OK,
+        score: pixelWidth > 600 ? 40 : 70,
         impact: 'high',
-        recommendation: length < 15 ? 'Consider expanding your title.' : 'Consider shortening your title.',
-        details: { length },
+        recommendation: pixelWidth > 600 ? 'Consider shortening your title.' : 'Consider expanding your title.',
+        details: { pixelWidth, charEquivalent },
         standards: SEO_STANDARDS.TITLE_LENGTH
       };
     }
