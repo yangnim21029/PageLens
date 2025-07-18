@@ -39,9 +39,10 @@ export class ContentAssessor {
       };
     }
 
-    const firstParagraph = parsedContent.textContent.split('\n')[0]?.toLowerCase() || '';
+    const firstParagraph = parsedContent.textContent.split('\n')[0] || '';
     
-    if (firstParagraph.includes(focusKeyword)) {
+    // 使用字符級別匹配檢查焦點關鍵字
+    if (SEOAssessmentUtils.containsAllCharacters(firstParagraph, focusKeyword)) {
       return {
         id: AvailableAssessments.KEYWORD_MISSING_FIRST_PARAGRAPH,
         type: AssessmentCategory.SEO,
@@ -51,7 +52,7 @@ export class ContentAssessor {
         score: 100,
         impact: 'high',
         recommendation: 'Great! Your focus keyword appears in the first paragraph.',
-        details: { firstParagraph: firstParagraph.substring(0, 100) + '...', focusKeyword }
+        details: { firstParagraph: firstParagraph.substring(0, 100) + '...', focusKeyword, containsKeyword: true }
       };
     } else {
       return {
@@ -63,7 +64,7 @@ export class ContentAssessor {
         score: 30,
         impact: 'high',
         recommendation: 'Include your focus keyword in the first paragraph to improve SEO.',
-        details: { firstParagraph: firstParagraph.substring(0, 100) + '...', focusKeyword }
+        details: { firstParagraph: firstParagraph.substring(0, 100) + '...', focusKeyword, containsKeyword: false }
       };
     }
   }
