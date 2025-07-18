@@ -10,6 +10,9 @@
 const https = require('https');
 const http = require('http');
 
+// Load environment variables
+require('dotenv').config();
+
 // Test API endpoints
 async function testApiEndpoints() {
   const testUrl = process.env.API_URL || 'http://localhost:3000';

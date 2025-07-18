@@ -14,7 +14,7 @@ const http = require('http');
 
 // Read the assessment types from the actual enum file
 function getActualAssessmentIds() {
-  const assessmentTypesPath = path.join(__dirname, 'lib/app/running-the-tests/types/assessment.types.ts');
+  const assessmentTypesPath = path.join(__dirname, '../lib/app/running-the-tests/types/assessment.types.ts');
   const content = fs.readFileSync(assessmentTypesPath, 'utf8');
   
   // Extract enum values using regex
@@ -43,7 +43,7 @@ function getActualAssessmentIds() {
 
 // Read assessment IDs from API documentation
 function getDocumentedAssessmentIds() {
-  const apiDocsPath = path.join(__dirname, 'api/index.ts');
+  const apiDocsPath = path.join(__dirname, '../api/index.ts');
   const content = fs.readFileSync(apiDocsPath, 'utf8');
   
   // Extract SEO assessments
@@ -67,7 +67,7 @@ function getDocumentedAssessmentIds() {
 
 // Read assessment IDs from CLAUDE.md
 function getClauldeMdAssessmentIds() {
-  const claudeMdPath = path.join(__dirname, 'CLAUDE.md');
+  const claudeMdPath = path.join(__dirname, '../CLAUDE.md');
   const content = fs.readFileSync(claudeMdPath, 'utf8');
   
   // Extract enum section
