@@ -307,6 +307,93 @@ app.post('/analyze', async (req, res) => {
   }
 });
 
+// Proxy endpoints to hide WordPress API routes
+app.post('/api/proxy/content', async (req, res) => {
+  try {
+    const { resourceId, siteCode } = req.body;
+    
+    if (!resourceId || !siteCode) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required parameters',
+        code: 'MISSING_PARAMS'
+      });
+    }
+
+    // Internally call WordPress Article API
+    const wpApiUrl = `https://article-api.presslogic.com/v1/articles/${resourceId}?site=${siteCode}`;
+    
+    const response = await fetch(wpApiUrl, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Content API returned ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // Return data without revealing the WordPress structure
+    res.json({
+      success: true,
+      content: data
+    });
+  } catch (error) {
+    console.error('Content proxy error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Content fetch failed',
+      code: 'CONTENT_ERROR'
+    });
+  }
+});
+
+app.post('/api/proxy/metadata', async (req, res) => {
+  try {
+    const { resourceUrl } = req.body;
+    
+    if (!resourceUrl) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required parameter: resourceUrl',
+        code: 'MISSING_URL'
+      });
+    }
+
+    // Internally call WordPress SEO API
+    const wpApiUrl = process.env.WP_ARTICLE_SEO_URL || 
+      'https://article-api.presslogic.com/v1/articles/getArticleSEO';
+    
+    const response = await fetch(wpApiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ url: resourceUrl })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Metadata API returned ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // Return data without revealing the WordPress structure
+    res.json({
+      success: true,
+      metadata: data
+    });
+  } catch (error) {
+    console.error('Metadata proxy error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Metadata fetch failed',
+      code: 'METADATA_ERROR'
+    });
+  }
+});
+
 // WordPress URL analysis endpoint - Enhanced for v2.0
 app.post('/analyze-wp-url', async (req, res) => {
   const startTime = Date.now();
@@ -477,6 +564,8 @@ app.listen(3000, () => {
   console.log('   GET  /example  - Usage examples');
   console.log('   POST /analyze  - HTML content analysis');
   console.log('   POST /analyze-wp-url - WordPress URL analysis');
+  console.log('   POST /api/proxy/content  - WordPress content proxy');
+  console.log('   POST /api/proxy/metadata - WordPress metadata proxy');
   console.log('✨ New Features:');
   console.log('   - Unified assessment IDs (H1_MISSING = "H1_MISSING")');
   console.log('   - Always returns exactly 15 assessments');

@@ -64,7 +64,23 @@ POST /analyze-wp-url
 
 **支援網站：** PressLogic 旗下所有網站（holidaysmart.io、girlstyle.com 等）
 
-### 3. 文檔端點
+### 3. 代理端點（隱藏 WordPress 路由）
+
+```http
+POST /api/proxy/content    # 獲取文章內容
+POST /api/proxy/metadata   # 獲取 SEO 元數據
+```
+
+**用途：** 通過代理層訪問 WordPress API，隱藏實際的 WordPress 端點
+
+**Content 端點參數：**
+- `resourceId` - 文章 ID
+- `siteCode` - 站點代碼（如 GS_HK）
+
+**Metadata 端點參數：**
+- `resourceUrl` - 文章完整 URL
+
+### 4. 文檔端點
 
 ```http
 GET /docs     # 完整 API 文檔
