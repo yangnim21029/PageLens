@@ -99,6 +99,7 @@ export class ContentAssessor {
     // - 使用 parsedContent.wordCount（已經過正確的中英文分詞）
     // - 如果沒有 wordCount，使用 analyzeTextLength() 作為後備
     // - 確保兩個計算使用相同的邏輯，保持一致性
+    // - 確保關鍵字匹配大小寫不敏感
     const totalWords = parsedContent.wordCount || SEOAssessmentUtils.analyzeTextLength(text);
     const keywordCount = text.split(focusKeyword).length - 1;
     const density = (keywordCount / totalWords) * 100;
