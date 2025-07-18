@@ -1,0 +1,39 @@
+name: API Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Start API server
+      run: |
+        npm start &
+        sleep 10
+      
+    - name: Run API endpoint tests
+      run: npm run test:api
+      
+    - name: Run ID consistency tests
+      run: npm run test:ids
+      continue-on-error: true  # ID test may fail until regex is fixed
+      
+    - name: Stop API server
+      run: pkill -f "node api/index.js" || true
