@@ -10,14 +10,14 @@ const SEO_STANDARDS = {
     description: '關鍵字密度最佳範圍 0.5-2.5%'
   },
   META_DESCRIPTION_LENGTH: {
-    optimal: { min: 150, max: 160, unit: '字' },
-    acceptable: { min: 120, max: 180, unit: '字' },
-    description: 'Meta 描述長度最佳 150-160 字'
+    optimal: { min: 80, max: 90, unit: '字' },
+    acceptable: { min: 60, max: 120, unit: '字' },
+    description: 'Meta 描述長度最佳 80-90 字'
   },
   TITLE_LENGTH: {
-    optimal: { min: 30, max: 60, unit: '字' },
-    acceptable: { min: 20, max: 70, unit: '字' },
-    description: '標題長度最佳 30-60 字'
+    optimal: { min: 15, max: 30, unit: '字' },
+    acceptable: { min: 10, max: 35, unit: '字' },
+    description: '標題長度最佳 15-30 字'
   },
   CONTENT_LENGTH: {
     optimal: { min: 300, unit: '字' },
@@ -35,6 +35,18 @@ const SEO_STANDARDS = {
 };
 
 export class SEOAssessor {
+  // Helper method to count Chinese characters (words)
+  private countChineseChars(text: string): number {
+    // Match Chinese characters, punctuation, and other CJK characters
+    const chineseRegex = /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff\u3040-\u309f\u30a0-\u30ff]/g;
+    const chineseMatches = text.match(chineseRegex) || [];
+    
+    // For mixed content, count non-Chinese words and Chinese characters separately
+    const nonChineseText = text.replace(chineseRegex, ' ');
+    const nonChineseWords = nonChineseText.split(/\s+/).filter(word => word.length > 0);
+    
+    return chineseMatches.length + nonChineseWords.length;
+  }
   async runSEOChecks(parsedContent: ParsedContent, ingredients: PageIngredients): Promise<AssessmentResult[]> {
     const assessments: AssessmentResult[] = [];
 
@@ -391,7 +403,7 @@ export class SEOAssessor {
 
   private checkMetaDescriptionLength(parsedContent: ParsedContent): AssessmentResult {
     const metaDescription = parsedContent.metaDescription || '';
-    const length = metaDescription.length;
+    const length = this.countChineseChars(metaDescription);
     
     
     if (length === 0) {
@@ -403,16 +415,16 @@ export class SEOAssessor {
         status: AssessmentStatus.BAD,
         score: 0,
         impact: 'high',
-        recommendation: 'Add a meta description between 150-160 characters.',
+        recommendation: 'Add a meta description between 80-90 characters.',
         details: { length: 0 },
         standards: SEO_STANDARDS.META_DESCRIPTION_LENGTH
       };
-    } else if (length >= 150 && length <= 160) {
+    } else if (length >= 80 && length <= 90) {
       return {
         id: AvailableAssessments.META_DESCRIPTION_MISSING,
         type: AssessmentCategory.SEO,
         name: 'Meta Description Length Good',
-        description: `Meta description is ${length} characters (optimal: 150-160)`,
+        description: `Meta description is ${length} characters (optimal: 80-90)`,
         status: AssessmentStatus.GOOD,
         score: 100,
         impact: 'medium',
@@ -425,11 +437,11 @@ export class SEOAssessor {
         id: AvailableAssessments.META_DESCRIPTION_MISSING,
         type: AssessmentCategory.SEO,
         name: 'Meta Description Length Needs Improvement',
-        description: `Meta description is ${length} characters (recommended: 150-160)`,
-        status: length < 150 ? AssessmentStatus.OK : AssessmentStatus.BAD,
-        score: length < 150 ? 70 : 40,
+        description: `Meta description is ${length} characters (recommended: 80-90)`,
+        status: length < 80 ? AssessmentStatus.OK : AssessmentStatus.BAD,
+        score: length < 80 ? 70 : 40,
         impact: 'medium',
-        recommendation: length < 150 ? 'Consider expanding your meta description.' : 'Consider shortening your meta description.',
+        recommendation: length < 80 ? 'Consider expanding your meta description.' : 'Consider shortening your meta description.',
         details: { length },
         standards: SEO_STANDARDS.META_DESCRIPTION_LENGTH
       };
@@ -438,7 +450,7 @@ export class SEOAssessor {
 
   private checkTitleOptimization(parsedContent: ParsedContent, ingredients: PageIngredients): AssessmentResult {
     const title = parsedContent.title || '';
-    const length = title.length;
+    const length = this.countChineseChars(title);
     
     if (length === 0) {
       return {
@@ -449,32 +461,35 @@ export class SEOAssessor {
         status: AssessmentStatus.BAD,
         score: 0,
         impact: 'high',
-        recommendation: 'Add a descriptive title between 30-60 characters.',
-        details: { length: 0 }
+        recommendation: 'Add a descriptive title between 15-30 characters.',
+        details: { length: 0 },
+        standards: SEO_STANDARDS.TITLE_LENGTH
       };
-    } else if (length >= 30 && length <= 60) {
+    } else if (length >= 15 && length <= 30) {
       return {
         id: AvailableAssessments.TITLE_NEEDS_IMPROVEMENT,
         type: AssessmentCategory.SEO,
         name: 'Title Length Good',
-        description: `Title is ${length} characters (optimal: 30-60)`,
+        description: `Title is ${length} characters (optimal: 15-30)`,
         status: AssessmentStatus.GOOD,
         score: 100,
         impact: 'high',
         recommendation: 'Perfect! Your title length is optimal.',
-        details: { length }
+        details: { length },
+        standards: SEO_STANDARDS.TITLE_LENGTH
       };
     } else {
       return {
         id: AvailableAssessments.TITLE_NEEDS_IMPROVEMENT,
         type: AssessmentCategory.SEO,
         name: 'Title Length Needs Improvement',
-        description: `Title is ${length} characters (recommended: 30-60)`,
-        status: length < 30 ? AssessmentStatus.OK : AssessmentStatus.BAD,
-        score: length < 30 ? 70 : 40,
+        description: `Title is ${length} characters (recommended: 15-30)`,
+        status: length < 15 ? AssessmentStatus.OK : AssessmentStatus.BAD,
+        score: length < 15 ? 70 : 40,
         impact: 'high',
-        recommendation: length < 30 ? 'Consider expanding your title.' : 'Consider shortening your title.',
-        details: { length }
+        recommendation: length < 15 ? 'Consider expanding your title.' : 'Consider shortening your title.',
+        details: { length },
+        standards: SEO_STANDARDS.TITLE_LENGTH
       };
     }
   }
