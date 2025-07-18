@@ -149,7 +149,7 @@ export class HeadingAssessor {
         impact: 'high',
         recommendation: relatedKeywords.length > 0 
           ? `Good! H1 contains focus keyword. Consider also including one of these related keywords: ${relatedKeywords.join(', ')}`
-          : 'Good! H1 contains focus keyword. Consider adding related keywords for better optimization.',
+          : 'Good! H1 contains focus keyword.',
         details: { 
           h1Text, 
           focusKeyword,
@@ -239,14 +239,13 @@ export class HeadingAssessor {
       };
     }
     
-    // Check which related keywords are found in H2 tags
-    const h2Texts = h2Tags.map(h => h.text.toLowerCase()).join(' ');
+    // Check which related keywords are found in H2 tags using character-level matching
+    const h2Texts = h2Tags.map(h => h.text).join(' ');
     const foundRelatedKeywords: string[] = [];
     const missingRelatedKeywords: string[] = [];
     
     for (const relatedKeyword of relatedKeywords) {
-      const relatedKeywordLower = relatedKeyword.toLowerCase();
-      if (h2Texts.includes(relatedKeywordLower)) {
+      if (SEOAssessmentUtils.containsAllCharacters(h2Texts, relatedKeyword)) {
         foundRelatedKeywords.push(relatedKeyword);
       } else {
         missingRelatedKeywords.push(relatedKeyword);
@@ -411,7 +410,7 @@ export class HeadingAssessor {
         impact: 'high',
         recommendation: relatedKeywords.length > 0 
           ? `Good! Title contains focus keyword. Consider also including one of these related keywords: ${relatedKeywords.join(', ')}`
-          : 'Good! Title contains focus keyword. Consider adding related keywords for better optimization.',
+          : 'Good! Title contains focus keyword.',
         details: { 
           title, 
           focusKeyword,
