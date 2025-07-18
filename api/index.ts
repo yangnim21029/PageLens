@@ -46,11 +46,23 @@ app.get('/docs', (req, res) => {
         "includes": ["Basic info (title, meta, word count)", "Heading structure", "Media statistics", "Link analysis", "Text statistics"]
       },
       "standards": {
-        "description": "Optimal and acceptable ranges for assessments",
-        "example": {
-          "optimal": { "min": 0.5, "max": 2.5, "unit": "%" },
-          "acceptable": { "min": 0.3, "max": 3.0, "unit": "%" },
-          "description": "關鍵字密度最佳範圍 0.5-2.5%"
+        "description": "Pixel-based width calculation for Chinese content accuracy",
+        "pixelCalculation": {
+          "chineseChars": "14px/char",
+          "englishLetters": "5px/char", 
+          "numbers": "8px/char",
+          "spaces": "5px/char",
+          "punctuation": "ignored"
+        },
+        "examples": {
+          "metaDescription": {
+            "optimal": { "min": 600, "max": 960, "unit": "px" },
+            "description": "Meta 描述寬度最佳 >600px，最大960px"
+          },
+          "title": {
+            "optimal": { "min": 150, "max": 600, "unit": "px" },
+            "description": "標題寬度最佳 >150px，最大600px"
+          }
         }
       },
       "markdownReport": {
@@ -125,17 +137,20 @@ app.get('/example', (req, res) => {
         },
         "detailedIssues": [
           {
-            "id": "H1_MISSING",
+            "id": "TITLE_NEEDS_IMPROVEMENT",
             "type": "SEO",
-            "name": "H1 Tag Present",
+            "name": "Title Length Good",
             "status": "good",
             "score": 100,
             "impact": "high",
-            "recommendation": "Great! Your page has an H1 heading.",
-            "details": { "h1Count": 1 },
+            "recommendation": "Perfect! Your title width is optimal.",
+            "details": { 
+              "pixelWidth": 263, 
+              "charEquivalent": 19 
+            },
             "standards": {
-              "optimal": { "value": 1, "unit": "個" },
-              "description": "每頁應有且僅有一個 H1 標籤"
+              "optimal": { "min": 150, "max": 600, "unit": "px" },
+              "description": "標題寬度最佳 >150px，最大600px"
             }
           }
         ]
@@ -149,8 +164,11 @@ app.get('/example', (req, res) => {
       "All assessment IDs use unified naming (H1_MISSING = 'H1_MISSING')",
       "API always returns exactly 15 assessments",
       "Processing time is included in response",
-      "Some assessments include 'standards' field with optimal ranges",
-      "Standards help understand what values are considered good/acceptable",
+      "New: Pixel-based width calculation for accurate Chinese content assessment",
+      "Title/Meta Description include both pixelWidth and charEquivalent in details",
+      "Standards field shows optimal/acceptable pixel width ranges",
+      "pageUnderstanding field provides structured page analysis",
+      "markdownReport field includes formatted analysis report",
       "Use /docs endpoint for complete API documentation"
     ]
   });
