@@ -66,8 +66,8 @@ async function testApiEndpoints() {
       }
       
       // Show assessment categories
-      const seoCount = htmlResult.report.detailedIssues.filter(a => a.type === 'seo').length;
-      const readabilityCount = htmlResult.report.detailedIssues.filter(a => a.type === 'readability').length;
+      const seoCount = htmlResult.report.detailedIssues.filter(a => a.assessmentType === 'seo').length;
+      const readabilityCount = htmlResult.report.detailedIssues.filter(a => a.assessmentType === 'readability').length;
       console.log(`📊 SEO: ${seoCount}, Readability: ${readabilityCount}\n`);
     } else {
       console.log('❌ Failed to get valid response\n');
@@ -78,10 +78,10 @@ async function testApiEndpoints() {
     console.log('ℹ️  Testing if API supports individual assessment selection...');
     
     const filteredResult = await makeRequest(testUrl, '/analyze', {
-      htmlContent: '<html><head><title>測試頁面</title></head><body><h1>測試標題</h1><p>測試內容</p></body></html>',
+      htmlContent: '<html><head><title>測試頁面標題用於 SEO 分析</title><meta name="description" content="這是測試頁面的 meta 描述，包含足夠的內容來通過最小長度檢查"></head><body><h1>測試標題用於內容分析</h1><p>這是第一段測試內容，包含了足夠的文字來進行有意義的分析。我們需要確保內容足夠長，這樣系統才能正確評估各種 SEO 和可讀性指標。</p><p>這是第二段內容，繼續提供更多文字。多段內容有助於測試段落長度和句子長度等評估項目。</p><p>第三段內容確保我們有足夠的材料來進行完整的分析測試。</p></body></html>',
       pageDetails: {
         url: 'https://example.com/test-filtered',
-        title: '測試頁面'
+        title: '測試頁面標題用於 SEO 分析'
       },
       focusKeyword: '測試',
       options: {
@@ -132,7 +132,8 @@ function makeRequest(baseUrl, path, payload) {
       headers: {
         'Content-Type': 'application/json',
         'Content-Length': Buffer.byteLength(postData)
-      }
+      },
+      timeout: 30000 // 30 second timeout
     };
     
     const protocol = baseUrl.startsWith('https') ? https : http;
@@ -152,6 +153,11 @@ function makeRequest(baseUrl, path, payload) {
           reject(new Error(`Failed to parse response: ${error.message}`));
         }
       });
+    });
+    
+    req.on('timeout', () => {
+      req.destroy();
+      reject(new Error('Request timeout'));
     });
     
     req.on('error', (error) => {
