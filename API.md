@@ -320,7 +320,7 @@ API 現在會在 `pageUnderstanding` 欄位返回頁面的結構化理解資訊�
 - `H2_SYNONYMS_MISSING` - H2 相關關鍵字檢測（檢查 relatedKeywords）
 - `IMAGES_MISSING_ALT` - 圖片 Alt 檢測
 - `KEYWORD_MISSING_FIRST_PARAGRAPH` - 首段關鍵字檢測
-- `KEYWORD_DENSITY_LOW` - 關鍵字密度檢測（H2 關鍵字享 2x 權重；支援空格分隔的關鍵字）
+- `KEYWORD_DENSITY_LOW` - 關鍵字密度檢測（v2.4: 考慮關鍵字長度，H2 關鍵字享 2x 權重；支援空格分隔的關鍵字）
 - `META_DESCRIPTION_NEEDS_IMPROVEMENT` - Meta 描述檢測
 - `META_DESCRIPTION_MISSING` - Meta 描述長度檢測
 - `TITLE_NEEDS_IMPROVEMENT` - 標題優化檢測
@@ -350,10 +350,11 @@ API 現在會在 `pageUnderstanding` 欄位返回頁面的結構化理解資訊�
 
 ### 關鍵字密度計算 (v2.4)
 
-- **計算公式：** (關鍵字總字數 × 出現次數) / 總字數
+- **計算公式：** (關鍵字長度 × 出現次數) / 總字數 × 100%
 - **H2 權重：** H2 中的關鍵字獲得 2 倍權重
 - **空格支援：** 關鍵字如「洗面乳 推薦」會分別計算每個詞
 - **回應新增：** `keywordLength` 顯示關鍵字長度
+- **最佳範圍：** 1-3%（考慮關鍵字長度）
 
 ## 🏢 支援的 WordPress 站點
 
