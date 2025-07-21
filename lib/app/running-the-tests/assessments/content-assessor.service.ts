@@ -17,6 +17,11 @@ const CONTENT_STANDARDS = {
     optimal: { min: 300, unit: '字' },
     acceptable: { min: 200, unit: '字' },
     description: '內容至少 300 字'
+  },
+  FIRST_PARAGRAPH_KEYWORD: {
+    optimal: { value: '包含', unit: '' },
+    acceptable: { value: '包含', unit: '' },
+    description: '首段（前100字）應包含焦點關鍵字'
   }
 };
 
@@ -35,7 +40,8 @@ export class ContentAssessor {
         score: 75,
         impact: 'low',
         recommendation: 'Set a focus keyword to analyze first paragraph optimization.',
-        details: { reason: 'No focus keyword provided' }
+        details: { reason: 'No focus keyword provided' },
+        standards: CONTENT_STANDARDS.FIRST_PARAGRAPH_KEYWORD
       };
     }
 
@@ -55,7 +61,8 @@ export class ContentAssessor {
         score: 0,
         impact: 'high',
         recommendation: 'Add paragraph content to your page for SEO analysis.',
-        details: { reason: 'No paragraph content found' }
+        details: { reason: 'No paragraph content found' },
+        standards: CONTENT_STANDARDS.FIRST_PARAGRAPH_KEYWORD
       };
     }
     
@@ -79,7 +86,8 @@ export class ContentAssessor {
           firstParagraph: firstParagraphPreview, 
           focusKeyword, 
           containsKeyword: true 
-        }
+        },
+        standards: CONTENT_STANDARDS.FIRST_PARAGRAPH_KEYWORD
       };
     } else {
       return {
@@ -95,7 +103,8 @@ export class ContentAssessor {
           firstParagraph: firstParagraphPreview, 
           focusKeyword, 
           containsKeyword: false 
-        }
+        },
+        standards: CONTENT_STANDARDS.FIRST_PARAGRAPH_KEYWORD
       };
     }
   }
