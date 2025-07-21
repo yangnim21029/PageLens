@@ -23,17 +23,11 @@ jobs:
     - name: Install dependencies
       run: npm install
       
-    - name: Start API server
-      run: |
-        npm start &
-        sleep 10
-      
-    - name: Run API endpoint tests
+    - name: Run API endpoint tests against production
       run: npm run test:api
+      env:
+        API_URL: https://page-lens-zeta.vercel.app
       
     - name: Run ID consistency tests
       run: npm run test:ids
       continue-on-error: true  # ID test may fail until regex is fixed
-      
-    - name: Stop API server
-      run: pkill -f "node api/index.ts" || true
