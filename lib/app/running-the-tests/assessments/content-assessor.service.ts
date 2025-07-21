@@ -10,7 +10,7 @@ import { SEOAssessmentUtils } from './utils/seo-assessment-utils';
 const CONTENT_STANDARDS = {
   KEYWORD_DENSITY: {
     optimal: { min: 0.5, max: 2.5, unit: '%' },
-    acceptable: { min: 0.3, max: 3.0, unit: '%' },
+    acceptable: { min: 0.5, max: 6.0, unit: '%' },
     description: '關鍵字密度最佳範圍 0.5-2.5%'
   },
   CONTENT_LENGTH: {
@@ -189,16 +189,38 @@ export class ContentAssessor {
         },
         standards: CONTENT_STANDARDS.KEYWORD_DENSITY
       };
+    } else if (density > 2.5 && density <= 6.0) {
+      return {
+        id: AvailableAssessments.KEYWORD_DENSITY_LOW,
+        type: AssessmentCategory.SEO,
+        name: 'Acceptable Keyword Density',
+        description: `Keyword density is ${density.toFixed(1)}% (acceptable range: 0.5-6.0%)`,
+        status: AssessmentStatus.OK,
+        score: 70,
+        impact: 'medium',
+        recommendation: 'Your keyword density is acceptable but could be optimized. Consider aiming for 0.5-2.5% for best results.',
+        details: { 
+          density: parseFloat(density.toFixed(2)), 
+          keywordCount: keywordCountInText, 
+          keywordCountInH2,
+          effectiveKeywordCount: parseFloat(effectiveKeywordCount.toFixed(1)),
+          keywordLength,
+          totalWords,
+          h2Weight: H2_WEIGHT,
+          note: 'Keywords in H2 headings are given 2x weight'
+        },
+        standards: CONTENT_STANDARDS.KEYWORD_DENSITY
+      };
     } else {
       return {
         id: AvailableAssessments.KEYWORD_DENSITY_LOW,
         type: AssessmentCategory.SEO,
         name: 'High Keyword Density',
-        description: `Keyword density is ${density.toFixed(1)}% (recommended: 0.5-2.5%)`,
+        description: `Keyword density is ${density.toFixed(1)}% (exceeds acceptable range: 0.5-6.0%)`,
         status: AssessmentStatus.BAD,
         score: 40,
         impact: 'medium',
-        recommendation: 'Reduce keyword usage to avoid keyword stuffing.',
+        recommendation: 'Reduce keyword usage to avoid keyword stuffing. Aim for 0.5-6.0% density.',
         details: { 
           density: parseFloat(density.toFixed(2)), 
           keywordCount: keywordCountInText, 
