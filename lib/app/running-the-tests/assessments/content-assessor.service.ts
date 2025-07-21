@@ -39,7 +39,30 @@ export class ContentAssessor {
       };
     }
 
-    const firstParagraph = parsedContent.textContent.split('\n')[0] || '';
+    // 使用 paragraphs 陣列來獲取真正的第一段落（排除標題）
+    const firstParagraph = parsedContent.paragraphs && parsedContent.paragraphs.length > 0 
+      ? parsedContent.paragraphs[0] 
+      : '';
+    
+    // 如果沒有段落，回傳適當的結果
+    if (!firstParagraph) {
+      return {
+        id: AvailableAssessments.KEYWORD_MISSING_FIRST_PARAGRAPH,
+        type: AssessmentCategory.SEO,
+        name: 'No Paragraphs Found',
+        description: 'No paragraph content found for analysis',
+        status: AssessmentStatus.BAD,
+        score: 0,
+        impact: 'high',
+        recommendation: 'Add paragraph content to your page for SEO analysis.',
+        details: { reason: 'No paragraph content found' }
+      };
+    }
+    
+    // 顯示前 100 字作為預覽
+    const firstParagraphPreview = firstParagraph.length > 100 
+      ? firstParagraph.substring(0, 100) + '...' 
+      : firstParagraph;
     
     // 使用字符級別匹配檢查焦點關鍵字
     if (SEOAssessmentUtils.containsAllCharacters(firstParagraph, focusKeyword)) {
@@ -52,7 +75,11 @@ export class ContentAssessor {
         score: 100,
         impact: 'high',
         recommendation: 'Great! Your focus keyword appears in the first paragraph.',
-        details: { firstParagraph: firstParagraph.substring(0, 100) + '...', focusKeyword, containsKeyword: true }
+        details: { 
+          firstParagraph: firstParagraphPreview, 
+          focusKeyword, 
+          containsKeyword: true 
+        }
       };
     } else {
       return {
@@ -64,7 +91,11 @@ export class ContentAssessor {
         score: 30,
         impact: 'high',
         recommendation: 'Include your focus keyword in the first paragraph to improve SEO.',
-        details: { firstParagraph: firstParagraph.substring(0, 100) + '...', focusKeyword, containsKeyword: false }
+        details: { 
+          firstParagraph: firstParagraphPreview, 
+          focusKeyword, 
+          containsKeyword: false 
+        }
       };
     }
   }
