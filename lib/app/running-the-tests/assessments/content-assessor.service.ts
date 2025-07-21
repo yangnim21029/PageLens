@@ -102,8 +102,23 @@ export class ContentAssessor {
     // - 確保兩個計算使用相同的邏輯，保持一致性
     // - 確保關鍵字匹配大小寫不敏感
     const totalWords = parsedContent.wordCount || SEOAssessmentUtils.analyzeTextLength(text);
-    const keywordCount = text.split(focusKeyword).length - 1;
-    const density = (keywordCount / totalWords) * 100;
+    
+    // 計算基本的關鍵字出現次數
+    const keywordCountInText = text.split(focusKeyword).length - 1;
+    
+    // 計算 H2 標題中的關鍵字出現次數（給予額外權重）
+    const h2Headings = parsedContent.headings.filter(h => h.level === 2);
+    let keywordCountInH2 = 0;
+    h2Headings.forEach(h2 => {
+      const h2Text = h2.text.toLowerCase();
+      const occurrencesInH2 = h2Text.split(focusKeyword).length - 1;
+      keywordCountInH2 += occurrencesInH2;
+    });
+    
+    // H2 中的關鍵字給予 2 倍權重
+    const H2_WEIGHT = 2;
+    const effectiveKeywordCount = keywordCountInText + (keywordCountInH2 * (H2_WEIGHT - 1));
+    const density = (effectiveKeywordCount / totalWords) * 100;
     
     if (density >= 0.5 && density <= 2.5) {
       return {
@@ -115,7 +130,15 @@ export class ContentAssessor {
         score: 100,
         impact: 'medium',
         recommendation: 'Perfect! Your keyword density is within the optimal range.',
-        details: { density, keywordCount, totalWords },
+        details: { 
+          density: parseFloat(density.toFixed(2)), 
+          keywordCount: keywordCountInText, 
+          keywordCountInH2,
+          effectiveKeywordCount: parseFloat(effectiveKeywordCount.toFixed(1)),
+          totalWords,
+          h2Weight: H2_WEIGHT,
+          note: 'Keywords in H2 headings are given 2x weight'
+        },
         standards: CONTENT_STANDARDS.KEYWORD_DENSITY
       };
     } else if (density < 0.5) {
@@ -127,8 +150,16 @@ export class ContentAssessor {
         status: AssessmentStatus.BAD,
         score: 30,
         impact: 'medium',
-        recommendation: 'Consider using your focus keyword more frequently throughout the content.',
-        details: { density, keywordCount, totalWords },
+        recommendation: 'Consider using your focus keyword more frequently throughout the content, especially in H2 headings.',
+        details: { 
+          density: parseFloat(density.toFixed(2)), 
+          keywordCount: keywordCountInText, 
+          keywordCountInH2,
+          effectiveKeywordCount: parseFloat(effectiveKeywordCount.toFixed(1)),
+          totalWords,
+          h2Weight: H2_WEIGHT,
+          note: 'Keywords in H2 headings are given 2x weight'
+        },
         standards: CONTENT_STANDARDS.KEYWORD_DENSITY
       };
     } else {
@@ -141,7 +172,15 @@ export class ContentAssessor {
         score: 40,
         impact: 'medium',
         recommendation: 'Reduce keyword usage to avoid keyword stuffing.',
-        details: { density, keywordCount, totalWords },
+        details: { 
+          density: parseFloat(density.toFixed(2)), 
+          keywordCount: keywordCountInText, 
+          keywordCountInH2,
+          effectiveKeywordCount: parseFloat(effectiveKeywordCount.toFixed(1)),
+          totalWords,
+          h2Weight: H2_WEIGHT,
+          note: 'Keywords in H2 headings are given 2x weight'
+        },
         standards: CONTENT_STANDARDS.KEYWORD_DENSITY
       };
     }
