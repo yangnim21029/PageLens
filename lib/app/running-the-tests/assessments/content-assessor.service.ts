@@ -103,22 +103,47 @@ export class ContentAssessor {
     // - 確保關鍵字匹配大小寫不敏感
     const totalWords = parsedContent.wordCount || SEOAssessmentUtils.analyzeTextLength(text);
     
-    // 計算基本的關鍵字出現次數
-    const keywordCountInText = text.split(focusKeyword).length - 1;
+    // 將關鍵字按空格分割成多個詞（支援「洗面乳 推薦」這種格式）
+    const keywordParts = focusKeyword.trim().split(/\s+/);
     
-    // 計算 H2 標題中的關鍵字出現次數（給予額外權重）
-    const h2Headings = parsedContent.headings.filter(h => h.level === 2);
-    let keywordCountInH2 = 0;
-    h2Headings.forEach(h2 => {
-      const h2Text = h2.text.toLowerCase();
-      const occurrencesInH2 = h2Text.split(focusKeyword).length - 1;
-      keywordCountInH2 += occurrencesInH2;
+    // 計算每個關鍵字部分的出現次數
+    let totalKeywordOccurrences = 0;
+    let totalKeywordLength = 0;
+    let h2KeywordOccurrences = 0;
+    
+    keywordParts.forEach(keywordPart => {
+      if (keywordPart.length === 0) return;
+      
+      // 計算這個關鍵字部分在文本中的出現次數
+      const occurrencesInText = text.split(keywordPart).length - 1;
+      totalKeywordOccurrences += occurrencesInText;
+      
+      // 計算這個關鍵字部分的長度
+      const partLength = SEOAssessmentUtils.analyzeTextLength(keywordPart);
+      totalKeywordLength += partLength * occurrencesInText;
+      
+      // 計算 H2 標題中的出現次數
+      const h2Headings = parsedContent.headings.filter(h => h.level === 2);
+      h2Headings.forEach(h2 => {
+        const h2Text = h2.text.toLowerCase();
+        const occurrencesInH2 = h2Text.split(keywordPart).length - 1;
+        h2KeywordOccurrences += occurrencesInH2;
+      });
     });
     
     // H2 中的關鍵字給予 2 倍權重
     const H2_WEIGHT = 2;
-    const effectiveKeywordCount = keywordCountInText + (keywordCountInH2 * (H2_WEIGHT - 1));
-    const density = (effectiveKeywordCount / totalWords) * 100;
+    const effectiveKeywordLength = totalKeywordLength + (h2KeywordOccurrences * H2_WEIGHT - h2KeywordOccurrences) * 
+                                   (totalKeywordLength / totalKeywordOccurrences);
+    
+    // 正確的密度計算：總關鍵字字數（含權重） / 總字數
+    const density = (effectiveKeywordLength / totalWords) * 100;
+    
+    // 用於顯示的關鍵字資訊
+    const keywordCountInText = totalKeywordOccurrences;
+    const keywordCountInH2 = h2KeywordOccurrences;
+    const effectiveKeywordCount = totalKeywordOccurrences + (h2KeywordOccurrences * (H2_WEIGHT - 1));
+    const keywordLength = SEOAssessmentUtils.analyzeTextLength(focusKeyword);
     
     if (density >= 0.5 && density <= 2.5) {
       return {
@@ -135,6 +160,7 @@ export class ContentAssessor {
           keywordCount: keywordCountInText, 
           keywordCountInH2,
           effectiveKeywordCount: parseFloat(effectiveKeywordCount.toFixed(1)),
+          keywordLength,
           totalWords,
           h2Weight: H2_WEIGHT,
           note: 'Keywords in H2 headings are given 2x weight'
@@ -156,6 +182,7 @@ export class ContentAssessor {
           keywordCount: keywordCountInText, 
           keywordCountInH2,
           effectiveKeywordCount: parseFloat(effectiveKeywordCount.toFixed(1)),
+          keywordLength,
           totalWords,
           h2Weight: H2_WEIGHT,
           note: 'Keywords in H2 headings are given 2x weight'
@@ -177,6 +204,7 @@ export class ContentAssessor {
           keywordCount: keywordCountInText, 
           keywordCountInH2,
           effectiveKeywordCount: parseFloat(effectiveKeywordCount.toFixed(1)),
+          keywordLength,
           totalWords,
           h2Weight: H2_WEIGHT,
           note: 'Keywords in H2 headings are given 2x weight'

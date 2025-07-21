@@ -3,8 +3,8 @@
 
 const assessmentTranslations = {
   // ========== SEO 評估項目 (12個) ==========
-  
-  'H1_MISSING': {
+
+  H1_MISSING: {
     'zh-TW': {
       name: 'H1 標籤檢測',
       good: {
@@ -18,7 +18,7 @@ const assessmentTranslations = {
         recommendation: '新增一個 H1 標題來描述頁面的主要內容。'
       }
     },
-    'en': {
+    en: {
       name: 'H1 Tag Check',
       good: {
         title: 'H1 Tag Present',
@@ -28,12 +28,13 @@ const assessmentTranslations = {
       bad: {
         title: 'H1 Tag Missing',
         description: 'Page is missing an H1 heading',
-        recommendation: 'Add exactly one H1 heading that describes the main topic of your page.'
+        recommendation:
+          'Add exactly one H1 heading that describes the main topic of your page.'
       }
     }
   },
 
-  'MULTIPLE_H1': {
+  MULTIPLE_H1: {
     'zh-TW': {
       name: '多重 H1 檢測',
       good: {
@@ -47,7 +48,7 @@ const assessmentTranslations = {
         recommendation: '每頁只使用一個 H1 標籤。將其他的 H1 改為 H2 或 H3。'
       }
     },
-    'en': {
+    en: {
       name: 'Multiple H1 Detection',
       good: {
         title: 'Single H1 Tag',
@@ -57,12 +58,13 @@ const assessmentTranslations = {
       bad: {
         title: 'Multiple H1 Tags',
         description: 'Page has multiple H1 headings',
-        recommendation: 'Use only one H1 heading per page. Convert additional H1s to H2 or H3.'
+        recommendation:
+          'Use only one H1 heading per page. Convert additional H1s to H2 or H3.'
       }
     }
   },
 
-  'H1_KEYWORD_MISSING': {
+  H1_KEYWORD_MISSING: {
     'zh-TW': {
       name: 'H1 關鍵字檢測',
       good: {
@@ -71,9 +73,9 @@ const assessmentTranslations = {
         recommendation: '完美！你的 H1 同時包含了焦點關鍵字和相關關鍵字。'
       },
       ok: {
-        title: 'H1 包含焦點關鍵字',
-        description: 'H1 標題包含焦點關鍵字',
-        recommendation: '很好！H1 包含了焦點關鍵字。'
+        title: '沒有提供焦點關鍵字',
+        description: '沒有提供焦點關鍵字進行 H1 分析',
+        recommendation: '設定焦點關鍵字以分析 H1 優化。'
       },
       bad: {
         title: 'H1 缺少關鍵字',
@@ -81,12 +83,13 @@ const assessmentTranslations = {
         recommendation: '在 H1 標題中加入焦點關鍵字和至少一個相關關鍵字。'
       }
     },
-    'en': {
+    en: {
       name: 'H1 Keyword Check',
       good: {
         title: 'H1 Contains Keywords',
         description: 'H1 heading contains focus keyword and related keywords',
-        recommendation: 'Perfect! Your H1 contains both the focus keyword and related keywords.'
+        recommendation:
+          'Perfect! Your H1 contains both the focus keyword and related keywords.'
       },
       ok: {
         title: 'H1 Contains Focus Keyword',
@@ -96,12 +99,13 @@ const assessmentTranslations = {
       bad: {
         title: 'H1 Missing Keywords',
         description: 'H1 heading missing focus keyword',
-        recommendation: 'Include your focus keyword and at least one related keyword in the H1 heading.'
+        recommendation:
+          'Include your focus keyword and at least one related keyword in the H1 heading.'
       }
     }
   },
 
-  'H2_SYNONYMS_MISSING': {
+  H2_SYNONYMS_MISSING: {
     'zh-TW': {
       name: 'H2 相關關鍵字檢測',
       good: {
@@ -110,9 +114,9 @@ const assessmentTranslations = {
         recommendation: '太棒了！所有相關關鍵字都分布在 H2 標題中。'
       },
       ok: {
-        title: '跳過相關關鍵字檢查',
+        title: '沒有提供相關關鍵字',
         description: '沒有提供相關關鍵字進行 H2 分析',
-        recommendation: '提供相關關鍵字以分析 H2 優化。'
+        recommendation: '設定相關關鍵字以分析 H2 優化。'
       },
       bad: {
         title: '大部分相關關鍵字缺失',
@@ -120,12 +124,13 @@ const assessmentTranslations = {
         recommendation: '在 H2 標題中加入相關關鍵字，改善內容結構。'
       }
     },
-    'en': {
+    en: {
       name: 'H2 Related Keywords Check',
       good: {
         title: 'All Related Keywords in H2',
         description: 'All related keywords appear in H2 headings',
-        recommendation: 'Excellent! All your related keywords appear in H2 headings.'
+        recommendation:
+          'Excellent! All your related keywords appear in H2 headings.'
       },
       ok: {
         title: 'Related Keywords Check Skipped',
@@ -140,7 +145,7 @@ const assessmentTranslations = {
     }
   },
 
-  'IMAGES_MISSING_ALT': {
+  IMAGES_MISSING_ALT: {
     'zh-TW': {
       name: '圖片替代文字檢測',
       good: {
@@ -154,7 +159,7 @@ const assessmentTranslations = {
         recommendation: '為所有圖片加入描述性的替代文字，改善無障礙性和 SEO。'
       }
     },
-    'en': {
+    en: {
       name: 'Image Alt Text Check',
       good: {
         title: 'All Images Have Alt Text',
@@ -164,12 +169,13 @@ const assessmentTranslations = {
       bad: {
         title: 'Images Missing Alt Text',
         description: 'Some images are missing alt text',
-        recommendation: 'Add descriptive alt text to all images for better accessibility and SEO.'
+        recommendation:
+          'Add descriptive alt text to all images for better accessibility and SEO.'
       }
     }
   },
 
-  'KEYWORD_MISSING_FIRST_PARAGRAPH': {
+  KEYWORD_MISSING_FIRST_PARAGRAPH: {
     'zh-TW': {
       name: '首段關鍵字檢測',
       good: {
@@ -177,28 +183,35 @@ const assessmentTranslations = {
         description: '焦點關鍵字出現在第一段',
         recommendation: '很好！你的焦點關鍵字出現在第一段。'
       },
+      ok: {
+        title: '沒有提供焦點關鍵字',
+        description: '沒有提供焦點關鍵字進行首段分析',
+        recommendation: '設定焦點關鍵字以分析首段優化。'
+      },
       bad: {
         title: '首段缺少關鍵字',
         description: '焦點關鍵字沒有出現在第一段',
         recommendation: '在第一段中加入焦點關鍵字以提升 SEO 效果。'
       }
     },
-    'en': {
+    en: {
       name: 'First Paragraph Keyword Check',
       good: {
         title: 'Keyword in First Paragraph',
         description: 'Focus keyword appears in the first paragraph',
-        recommendation: 'Great! Your focus keyword appears in the first paragraph.'
+        recommendation:
+          'Great! Your focus keyword appears in the first paragraph.'
       },
       bad: {
         title: 'Keyword Missing from First Paragraph',
         description: 'Focus keyword does not appear in the first paragraph',
-        recommendation: 'Include your focus keyword in the first paragraph to improve SEO.'
+        recommendation:
+          'Include your focus keyword in the first paragraph to improve SEO.'
       }
     }
   },
 
-  'KEYWORD_DENSITY_LOW': {
+  KEYWORD_DENSITY_LOW: {
     'zh-TW': {
       name: '關鍵字密度檢測',
       good: {
@@ -206,18 +219,24 @@ const assessmentTranslations = {
         description: '關鍵字密度在最佳範圍內',
         recommendation: '完美！你的關鍵字密度在最佳範圍內。'
       },
+      ok: {
+        title: '沒有提供焦點關鍵字',
+        description: '沒有提供焦點關鍵字進行密度分析',
+        recommendation: '設定焦點關鍵字以分析關鍵字密度。'
+      },
       bad: {
         title: '關鍵字密度異常',
         description: '關鍵字密度過低或過高',
         recommendation: '調整關鍵字使用頻率，建議密度保持在 0.5-2.5% 之間。'
       }
     },
-    'en': {
+    en: {
       name: 'Keyword Density Check',
       good: {
         title: 'Good Keyword Density',
         description: 'Keyword density is within optimal range',
-        recommendation: 'Perfect! Your keyword density is within the optimal range.'
+        recommendation:
+          'Perfect! Your keyword density is within the optimal range.'
       },
       bad: {
         title: 'Keyword Density Issue',
@@ -227,7 +246,7 @@ const assessmentTranslations = {
     }
   },
 
-  'META_DESCRIPTION_NEEDS_IMPROVEMENT': {
+  META_DESCRIPTION_NEEDS_IMPROVEMENT: {
     'zh-TW': {
       name: 'Meta 描述關鍵字檢測',
       good: {
@@ -235,18 +254,24 @@ const assessmentTranslations = {
         description: 'Meta 描述包含焦點關鍵字',
         recommendation: '很好！你的 Meta 描述包含了焦點關鍵字。'
       },
+      ok: {
+        title: '沒有提供焦點關鍵字',
+        description: '沒有提供焦點關鍵字進行 Meta 描述分析',
+        recommendation: '設定焦點關鍵字以分析 Meta 描述優化。'
+      },
       bad: {
         title: 'Meta 描述需要改進',
         description: 'Meta 描述缺少焦點關鍵字',
         recommendation: '在 Meta 描述中加入焦點關鍵字。'
       }
     },
-    'en': {
+    en: {
       name: 'Meta Description Keyword Check',
       good: {
         title: 'Meta Description Contains Keyword',
         description: 'Meta description contains the focus keyword',
-        recommendation: 'Great! Your meta description contains the focus keyword.'
+        recommendation:
+          'Great! Your meta description contains the focus keyword.'
       },
       bad: {
         title: 'Meta Description Needs Improvement',
@@ -256,7 +281,7 @@ const assessmentTranslations = {
     }
   },
 
-  'META_DESCRIPTION_MISSING': {
+  META_DESCRIPTION_MISSING: {
     'zh-TW': {
       name: 'Meta 描述長度檢測',
       good: {
@@ -275,7 +300,7 @@ const assessmentTranslations = {
         recommendation: '新增 Meta 描述（最佳寬度：>600px，最大 960px）。'
       }
     },
-    'en': {
+    en: {
       name: 'Meta Description Length Check',
       good: {
         title: 'Meta Description Length Good',
@@ -285,17 +310,19 @@ const assessmentTranslations = {
       ok: {
         title: 'Meta Description Length Needs Adjustment',
         description: 'Meta description too short or too long',
-        recommendation: 'Adjust meta description length. Optimal: >600px, max 960px.'
+        recommendation:
+          'Adjust meta description length. Optimal: >600px, max 960px.'
       },
       bad: {
         title: 'Meta Description Missing',
         description: 'Page is missing meta description',
-        recommendation: 'Add a meta description (optimal width: >600px, max 960px).'
+        recommendation:
+          'Add a meta description (optimal width: >600px, max 960px).'
       }
     }
   },
 
-  'TITLE_NEEDS_IMPROVEMENT': {
+  TITLE_NEEDS_IMPROVEMENT: {
     'zh-TW': {
       name: '標題長度檢測',
       good: {
@@ -314,7 +341,7 @@ const assessmentTranslations = {
         recommendation: '新增描述性標題（最佳寬度：>150px，最大 600px）。'
       }
     },
-    'en': {
+    en: {
       name: 'Title Length Check',
       good: {
         title: 'Title Length Good',
@@ -329,12 +356,13 @@ const assessmentTranslations = {
       bad: {
         title: 'Title Missing',
         description: 'Page is missing title',
-        recommendation: 'Add a descriptive title (optimal width: >150px, max 600px).'
+        recommendation:
+          'Add a descriptive title (optimal width: >150px, max 600px).'
       }
     }
   },
 
-  'TITLE_MISSING': {
+  TITLE_MISSING: {
     'zh-TW': {
       name: '標題關鍵字檢測',
       good: {
@@ -343,9 +371,9 @@ const assessmentTranslations = {
         recommendation: '完美！你的標題同時包含了焦點關鍵字和相關關鍵字。'
       },
       ok: {
-        title: '標題包含焦點關鍵字',
-        description: '標題包含焦點關鍵字',
-        recommendation: '很好！標題包含了焦點關鍵字。'
+        title: '沒有提供焦點關鍵字',
+        description: '沒有提供焦點關鍵字進行標題分析',
+        recommendation: '設定焦點關鍵字以分析標題優化。'
       },
       bad: {
         title: '標題缺少關鍵字',
@@ -353,12 +381,13 @@ const assessmentTranslations = {
         recommendation: '在標題中加入焦點關鍵字和至少一個相關關鍵字。'
       }
     },
-    'en': {
+    en: {
       name: 'Title Keyword Check',
       good: {
         title: 'Title Contains Keywords',
         description: 'Title contains focus keyword and related keywords',
-        recommendation: 'Perfect! Your title contains both the focus keyword and related keywords.'
+        recommendation:
+          'Perfect! Your title contains both the focus keyword and related keywords.'
       },
       ok: {
         title: 'Title Contains Focus Keyword',
@@ -368,12 +397,13 @@ const assessmentTranslations = {
       bad: {
         title: 'Title Missing Keywords',
         description: 'Title missing focus keyword',
-        recommendation: 'Include your focus keyword and at least one related keyword in the title.'
+        recommendation:
+          'Include your focus keyword and at least one related keyword in the title.'
       }
     }
   },
 
-  'CONTENT_LENGTH_SHORT': {
+  CONTENT_LENGTH_SHORT: {
     'zh-TW': {
       name: '內容長度檢測',
       good: {
@@ -387,7 +417,7 @@ const assessmentTranslations = {
         recommendation: '擴充內容至少到 300 字以上。'
       }
     },
-    'en': {
+    en: {
       name: 'Content Length Check',
       good: {
         title: 'Content Length Good',
@@ -404,7 +434,7 @@ const assessmentTranslations = {
 
   // ========== 可讀性評估項目 (4個) ==========
 
-  'FLESCH_READING_EASE': {
+  FLESCH_READING_EASE: {
     'zh-TW': {
       name: '可讀性評分',
       good: {
@@ -423,7 +453,7 @@ const assessmentTranslations = {
         recommendation: '使用更簡短的句子和常用詞彙來提升可讀性。'
       }
     },
-    'en': {
+    en: {
       name: 'Readability Score',
       good: {
         title: 'Good Readability',
@@ -433,17 +463,19 @@ const assessmentTranslations = {
       ok: {
         title: 'Fair Readability',
         description: 'Text readability is average',
-        recommendation: 'Consider simplifying sentence structure for better readability.'
+        recommendation:
+          'Consider simplifying sentence structure for better readability.'
       },
       bad: {
         title: 'Poor Readability',
         description: 'Text is difficult to read',
-        recommendation: 'Use shorter sentences and common words to improve readability.'
+        recommendation:
+          'Use shorter sentences and common words to improve readability.'
       }
     }
   },
 
-  'PARAGRAPH_LENGTH_LONG': {
+  PARAGRAPH_LENGTH_LONG: {
     'zh-TW': {
       name: '段落長度檢測',
       good: {
@@ -457,7 +489,7 @@ const assessmentTranslations = {
         recommendation: '將過長的段落分成較短的段落，每段建議不超過 150 字。'
       }
     },
-    'en': {
+    en: {
       name: 'Paragraph Length Check',
       good: {
         title: 'Good Paragraph Length',
@@ -467,12 +499,13 @@ const assessmentTranslations = {
       bad: {
         title: 'Long Paragraphs',
         description: 'Some paragraphs exceed recommended length',
-        recommendation: 'Break long paragraphs into shorter ones. Aim for max 150 words per paragraph.'
+        recommendation:
+          'Break long paragraphs into shorter ones. Aim for max 150 words per paragraph.'
       }
     }
   },
 
-  'SENTENCE_LENGTH_LONG': {
+  SENTENCE_LENGTH_LONG: {
     'zh-TW': {
       name: '句子長度檢測',
       good: {
@@ -486,7 +519,7 @@ const assessmentTranslations = {
         recommendation: '縮短過長的句子，每句建議不超過 20 個字。'
       }
     },
-    'en': {
+    en: {
       name: 'Sentence Length Check',
       good: {
         title: 'Good Sentence Length',
@@ -496,12 +529,13 @@ const assessmentTranslations = {
       bad: {
         title: 'Long Sentences',
         description: 'Too many sentences exceed recommended length',
-        recommendation: 'Shorten long sentences. Aim for max 20 words per sentence.'
+        recommendation:
+          'Shorten long sentences. Aim for max 20 words per sentence.'
       }
     }
   },
 
-  'SUBHEADING_DISTRIBUTION_POOR': {
+  SUBHEADING_DISTRIBUTION_POOR: {
     'zh-TW': {
       name: '子標題分布檢測',
       good: {
@@ -512,10 +546,11 @@ const assessmentTranslations = {
       bad: {
         title: '子標題分布不佳',
         description: '文字區塊過長，缺少子標題',
-        recommendation: '增加子標題來改善內容結構，建議每 300 字至少一個子標題。'
+        recommendation:
+          '增加子標題來改善內容結構，建議每 300 字至少一個子標題。'
       }
     },
-    'en': {
+    en: {
       name: 'Subheading Distribution Check',
       good: {
         title: 'Good Subheading Distribution',
@@ -525,7 +560,8 @@ const assessmentTranslations = {
       bad: {
         title: 'Poor Subheading Distribution',
         description: 'Text blocks too long without subheadings',
-        recommendation: 'Add subheadings to improve structure. Aim for at least one subheading per 300 words.'
+        recommendation:
+          'Add subheadings to improve structure. Aim for at least one subheading per 300 words.'
       }
     }
   }
@@ -552,23 +588,21 @@ function getAssessmentTranslation(assessmentId, status, language = 'zh-TW') {
 
 // 評估影響級別翻譯
 const impactTranslations = {
-  'high': { 'zh-TW': '高', 'en': 'High' },
-  'medium': { 'zh-TW': '中', 'en': 'Medium' },
-  'low': { 'zh-TW': '低', 'en': 'Low' }
+  high: { 'zh-TW': '高', en: 'High' },
+  medium: { 'zh-TW': '中', en: 'Medium' },
+  low: { 'zh-TW': '低', en: 'Low' }
 };
 
 // 評估類型翻譯
 const typeTranslations = {
-  'SEO': { 'zh-TW': 'SEO', 'en': 'SEO' },
-  'READABILITY': { 'zh-TW': '可讀性', 'en': 'Readability' }
+  SEO: { 'zh-TW': 'SEO', en: 'SEO' },
+  READABILITY: { 'zh-TW': '可讀性', en: 'Readability' }
 };
 
 // 導出給前端使用
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    assessmentTranslations,
-    getAssessmentTranslation,
-    impactTranslations,
-    typeTranslations
-  };
-}
+export {
+  assessmentTranslations,
+  getAssessmentTranslation,
+  impactTranslations,
+  typeTranslations
+};
