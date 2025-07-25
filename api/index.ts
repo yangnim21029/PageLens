@@ -1,4 +1,5 @@
 const express = require('express');
+const { marked } = require('marked');
 const { AuditPipelineOrchestrator } = require('../lib/app/audit-pipeline.orchestrator');
 const { 
   callWordPressArticleApi, 
@@ -15,8 +16,27 @@ app.use(express.json({ limit: '10mb' }));
 // Health check endpoint
 app.get('/', (req, res) => res.send('PageLens API v2.0 - Unified Assessment IDs'));
 
-// API Documentation endpoint
+// API Documentation endpoint - Returns API.md content
 app.get('/docs', (req, res) => {
+  const fs = require('fs');
+  const path = require('path');
+  const apiMdPath = path.join(__dirname, '..', 'API.md');
+  
+  try {
+    const apiMdContent = fs.readFileSync(apiMdPath, 'utf8');
+    res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+    res.send(apiMdContent);
+  } catch (error) {
+    console.error('Failed to read API.md:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to read API documentation file'
+    });
+  }
+});
+
+// Legacy JSON documentation endpoint (deprecated)
+app.get('/docs-json', (req, res) => {
   res.json({
     "name": "PageLens API",
     "version": "2.0",
@@ -170,7 +190,7 @@ app.get('/example', (req, res) => {
       "Standards field shows optimal/acceptable pixel width ranges",
       "pageUnderstanding field provides structured page analysis",
       "markdownReport field includes formatted analysis report",
-      "Use /docs endpoint for complete API documentation"
+      "Use /docs endpoint for complete API documentation (Markdown format)"
     ]
   });
 });
@@ -396,6 +416,124 @@ app.post('/api/proxy/metadata', async (req, res) => {
   }
 });
 
+// Markdown analysis endpoint - v2.0
+app.post('/analyze-md', async (req, res) => {
+  const startTime = Date.now();
+  
+  try {
+    const { mdContent, pageDetails, focusKeyword, relatedKeywords, synonyms, options } = req.body;
+
+    // Enhanced validation with detailed error messages
+    if (!mdContent) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required field: mdContent is required',
+        code: 'MISSING_MD_CONTENT'
+      });
+    }
+
+    if (!pageDetails) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required field: pageDetails object is required',
+        code: 'MISSING_PAGE_DETAILS'
+      });
+    }
+
+    if (!pageDetails.url) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required field: pageDetails.url is required',
+        code: 'MISSING_PAGE_URL'
+      });
+    }
+
+    if (!pageDetails.title) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required field: pageDetails.title is required',
+        code: 'MISSING_PAGE_TITLE'
+      });
+    }
+
+    // Log request for debugging
+    console.log(`[${new Date().toISOString()}] Markdown analysis request for: ${pageDetails.url}`);
+    console.log(`Focus keyword: ${focusKeyword || 'None'}`);
+    console.log(`Content length: ${mdContent.length} characters`);
+
+    // Convert Markdown to HTML
+    const htmlContent = marked(mdContent);
+    
+    // Wrap HTML with proper structure including title and meta
+    const fullHtmlContent = `<!DOCTYPE html>
+<html>
+<head>
+  <title>${pageDetails.title}</title>
+  ${pageDetails.description ? `<meta name="description" content="${pageDetails.description}">` : ''}
+</head>
+<body>
+  ${htmlContent}
+</body>
+</html>`;
+
+    // Initialize audit pipeline
+    const orchestrator = new AuditPipelineOrchestrator();
+
+    // Prepare input
+    const input = {
+      htmlContent: fullHtmlContent,
+      pageDetails,
+      focusKeyword: focusKeyword || '',
+      relatedKeywords: relatedKeywords || synonyms || [],
+      synonyms: undefined
+    };
+
+    // Execute audit pipeline
+    const result = await orchestrator.executeAuditPipeline(input, options || {});
+
+    // Validate that we return exactly 16 assessment IDs
+    const assessmentCount = result.report?.detailedIssues?.length || 0;
+    if (assessmentCount !== 16) {
+      console.warn(`Warning: Expected 16 assessments, got ${assessmentCount}`);
+    }
+
+    // Generate Markdown report
+    let markdownReport = '';
+    if (result.success && result.report) {
+      const reportFormatter = new (require('../lib/app/presenting-the-report/formatters/report-formatter.service')).ReportFormatter();
+      markdownReport = reportFormatter.generateMarkdownReport(result.report);
+    }
+
+    // Add processing metadata
+    const processingTime = Date.now() - startTime;
+    const enhancedResult = {
+      ...result,
+      processingTime,
+      apiVersion: '2.0',
+      assessmentCount,
+      timestamp: new Date().toISOString(),
+      markdownReport,
+      sourceFormat: 'markdown'
+    };
+
+    console.log(`Markdown analysis completed in ${processingTime}ms with ${assessmentCount} assessments`);
+    
+    res.json(enhancedResult);
+  } catch (error) {
+    const processingTime = Date.now() - startTime;
+    console.error('Markdown analysis error:', error);
+    console.error('Error stack:', error.stack);
+    
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Internal server error',
+      code: 'MARKDOWN_ANALYSIS_ERROR',
+      processingTime,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // WordPress URL analysis endpoint - Enhanced for v2.0
 app.post('/analyze-wp-url', async (req, res) => {
   const startTime = Date.now();
@@ -563,9 +701,10 @@ app.listen(3000, () => {
   console.log('📡 Port: 3000');
   console.log('🔗 Endpoints:');
   console.log('   GET  /         - Health check');
-  console.log('   GET  /docs     - API documentation');
+  console.log('   GET  /docs     - API documentation (Markdown)');
   console.log('   GET  /example  - Usage examples');
   console.log('   POST /analyze  - HTML content analysis');
+  console.log('   POST /analyze-md - Markdown content analysis');
   console.log('   POST /analyze-wp-url - WordPress URL analysis');
   console.log('   POST /api/proxy/content  - WordPress content proxy');
   console.log('   POST /api/proxy/metadata - WordPress metadata proxy');
