@@ -40,6 +40,18 @@ export interface PageUnderstanding {
     h2Count: number;
     totalHeadings: number;
     h1Text?: string;
+    headings: Array<{
+      tag: string;
+      text: string;
+      level: number;
+      order: number;
+    }>;
+    h2Headings: Array<{
+      tag: string;
+      text: string;
+      order: number;
+    }>;
+    h2Texts: string[];
   };
   
   // 媒體資訊
@@ -47,6 +59,11 @@ export interface PageUnderstanding {
     imageCount: number;
     imagesWithoutAlt: number;
     videoCount: number;
+    imagesWithAlt: Array<{
+      src: string;
+      alt: string;
+    }>;
+    altTexts: string[];
   };
   
   // 連結資訊
@@ -54,6 +71,10 @@ export interface PageUnderstanding {
     totalLinks: number;
     externalLinks: number;
     internalLinks: number;
+    internalLinkList: Array<{
+      href: string;
+      text: string;
+    }>;
   };
   
   // 文字統計
@@ -174,9 +195,30 @@ export class AuditPipelineOrchestrator {
   private createPageUnderstanding(parsedContent: ParsedContent): PageUnderstanding {
     const h1Headings = parsedContent.headings.filter(h => h.level === 1);
     const h2Headings = parsedContent.headings.filter(h => h.level === 2);
+    const headingDetails = parsedContent.headings.map(h => ({
+      tag: `h${h.level}`,
+      text: h.text,
+      level: h.level,
+      order: h.order
+    }));
+    const h2HeadingDetails = h2Headings.map(h => ({
+      tag: 'h2',
+      text: h.text,
+      order: h.order
+    }));
     const externalLinks = parsedContent.links.filter(l => l.isExternal);
     const internalLinks = parsedContent.links.filter(l => !l.isExternal);
     const imagesWithoutAlt = parsedContent.images.filter(img => !img.alt || img.alt.trim() === '');
+    const imagesWithAlt = parsedContent.images
+      .filter(img => img.alt && img.alt.trim().length > 0)
+      .map(img => ({
+        src: img.src,
+        alt: (img.alt || '').trim()
+      }));
+    const internalLinkList = internalLinks.map(link => ({
+      href: link.href,
+      text: link.text
+    }));
     
     // Calculate average words per sentence
     const sentences = parsedContent.textContent.split(/[.!?]+/).filter(s => s.trim().length > 0);
@@ -193,19 +235,25 @@ export class AuditPipelineOrchestrator {
         h1Count: h1Headings.length,
         h2Count: h2Headings.length,
         totalHeadings: parsedContent.headings.length,
-        h1Text: h1Headings[0]?.text
+        h1Text: h1Headings[0]?.text,
+        headings: headingDetails,
+        h2Headings: h2HeadingDetails,
+        h2Texts: h2HeadingDetails.map(h => h.text)
       },
       
       mediaInfo: {
         imageCount: parsedContent.images.length,
         imagesWithoutAlt: imagesWithoutAlt.length,
-        videoCount: parsedContent.videos.length
+        videoCount: parsedContent.videos.length,
+        imagesWithAlt,
+        altTexts: imagesWithAlt.map(img => img.alt)
       },
       
       linkInfo: {
         totalLinks: parsedContent.links.length,
         externalLinks: externalLinks.length,
-        internalLinks: internalLinks.length
+        internalLinks: internalLinks.length,
+        internalLinkList
       },
       
       textStats: {
