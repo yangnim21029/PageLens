@@ -55,30 +55,7 @@ POST /analyze
 - `options.contentSelectors` - CSS 選擇器（指定分析區域）
 - `options.excludeSelectors` - CSS 選擇器（排除區域）
 
-### 2. Markdown 內容分析
-
-```http
-POST /analyze-md
-```
-
-**必要參數：**
-
-- `mdContent` - Markdown 內容字串
-- `pageDetails.url` - 網頁 URL
-- `pageDetails.title` - 網頁標題
-
-**可選參數：**
-
-- `pageDetails.description` - 網頁描述（會被設置為 meta description）
-- `focusKeyword` - 焦點關鍵詞
-- `relatedKeywords` - 相關關鍵字清單（字串陣列）
-- `synonyms` - 同義詞清單（字串陣列，預留給未來功能）_目前建議使用 relatedKeywords_
-- `options.contentSelectors` - CSS 選擇器（指定分析區域）
-- `options.excludeSelectors` - CSS 選擇器（排除區域）
-
-**注意：** Markdown 內容會自動轉換為 HTML 並包裹在完整的 HTML 文檔結構中。
-
-### 3. WordPress 文章分析
+### 2. WordPress 文章分析
 
 ```http
 POST /analyze-wp-url
@@ -120,7 +97,7 @@ WordPress API 返回的 `focusKeyphrase` 欄位會使用 `-` 作為分隔符，�
 
 **注意：** 此特殊規則僅適用於 WordPress 端點，一般 `/analyze` 端點仍需分別提供 `focusKeyword` 和 `relatedKeywords`。
 
-### 4. 代理端點（隱藏 WordPress 路由）
+### 3. 代理端點（隱藏 WordPress 路由）
 
 ```http
 POST /api/proxy/content    # 獲取文章內容
@@ -138,7 +115,7 @@ POST /api/proxy/metadata   # 獲取 SEO 元數據
 
 - `resourceUrl` - 文章完整 URL
 
-### 5. 文檔端點
+### 4. 文檔端點
 
 ```http
 GET /docs     # 完整 API 文檔
@@ -185,7 +162,7 @@ GET /example  # 使用範例
 - **精準檢測：** 首段檢測現在使用 `paragraphs` 陣列，只分析 `<p>` 標籤內容
 - **排除標題：** 不再將 H1 或其他標題文字誤判為首段內容
 - **標準回應：** 評估結果包含 `details.firstParagraph` 顯示前 100 字預覽
-- **新增標準值：** 添加 `standards` 欄位，說明「首段（前 100 字）應包含焦點關鍵字」
+- **新增標準值：** 添加 `standards` 欄位，說明「首段（前100字）應包含焦點關鍵字」
 
 ### 詳細使用指南
 
@@ -220,25 +197,6 @@ const response = await fetch('https://page-lens-zeta.vercel.app/analyze', {
     }
   })
 });
-
-// Markdown 分析
-const response = await fetch(
-  'https://page-lens-zeta.vercel.app/analyze-md',
-  {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      mdContent: '# 標題\n\n這是一段包含 **關鍵字** 的內容。\n\n## 副標題\n\n更多相關內容。',
-      pageDetails: { 
-        url: 'https://example.com', 
-        title: '標題',
-        description: '這是頁面描述'
-      },
-      focusKeyword: '關鍵字',
-      relatedKeywords: ['相關詞1', '相關詞2']
-    })
-  }
-);
 ```
 
 ### 📄 Markdown 報告功能
@@ -443,23 +401,6 @@ curl -X POST "https://page-lens-zeta.vercel.app/analyze-wp-url" \
   -H "Content-Type: application/json" \
   -d '{
     "url": "https://holidaysmart.io/article/456984/九龍"
-  }'
-```
-
-### Markdown 內容分析
-
-```bash
-curl -X POST "https://page-lens-zeta.vercel.app/analyze-md" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "mdContent": "# 測試標題\n\n這是一段包含 **SEO優化** 的內容。\n\n## 副標題\n\n更多關於 SEO優化 的相關內容。",
-    "pageDetails": {
-      "url": "https://example.com/test-article",
-      "title": "測試標題 - SEO優化指南",
-      "description": "這是一篇關於SEO優化的測試文章"
-    },
-    "focusKeyword": "SEO優化",
-    "relatedKeywords": ["內容優化", "關鍵字"]
   }'
 ```
 

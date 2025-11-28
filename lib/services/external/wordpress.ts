@@ -208,7 +208,7 @@ export async function callWordPressSEOApi(url: string): Promise<any | null> {
  */
 export async function callWordPressArticleApi(
   url: string,
-  options: { timeout?: number; preview?: boolean } = {}
+  options: { timeout?: number } = {}
 ): Promise<{ success: boolean; data?: wpArticleData; error?: string }> {
   try {
     console.log(
@@ -246,9 +246,7 @@ export async function callWordPressArticleApi(
       return { success: false, error: 'Could not determine site code for URL' };
     }
 
-    // 預設 preview 為 true
-    const preview = options.preview !== undefined ? options.preview : true;
-    const wpApiUrl = `https://article-api.presslogic.com/v1/articles/${postId}?site=${formattedSiteCode}&preview=${preview}`;
+    const wpApiUrl = `https://article-api.presslogic.com/v1/articles/${postId}?site=${formattedSiteCode}`;
     console.log(
       `[WordPress Client - callWordPressArticleApi] Fetching from: ${wpApiUrl}`
     );

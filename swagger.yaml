@@ -1,0 +1,299 @@
+openapi: 3.0.3
+info:
+  title: PageLens API v2.0
+  description: SEO and readability analysis service
+  version: "2.0.0"
+servers:
+  - url: http://localhost:3000
+    description: Local development
+  - url: https://page-lens-zeta.vercel.app
+    description: Production
+paths:
+  /:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: PageLens API v2.0 - Unified Assessment IDs
+  /docs:
+    get:
+      summary: API documentation (Markdown)
+      responses:
+        "200":
+          description: Markdown documentation
+          content:
+            text/markdown:
+              schema:
+                type: string
+  /example:
+    get:
+      summary: Example payloads
+      responses:
+        "200":
+          description: Example JSON
+  /analyze:
+    post:
+      summary: Analyze raw HTML content
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalyzeHtmlRequest"
+            example:
+              htmlContent: "<html><head><title>Test Page</title></head><body><h1>Main Heading</h1><p>Content...</p></body></html>"
+              pageDetails:
+                url: "https://example.com"
+                title: "Test Page"
+              focusKeyword: "test keyword"
+              relatedKeywords: ["related keyword"]
+      responses:
+        "200":
+          description: Analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalysisResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /analyze-md:
+    post:
+      summary: Analyze Markdown content
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalyzeMarkdownRequest"
+            example:
+              mdContent: "# Title\n\nSome content"
+              pageDetails:
+                url: "https://example.com"
+                title: "Markdown Page"
+              focusKeyword: "example"
+      responses:
+        "200":
+          description: Analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalysisResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /analyze-wp-url:
+    post:
+      summary: Analyze a WordPress article URL via WordPress APIs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalyzeWpUrlRequest"
+            example:
+              url: "https://mamidaily.com/article/205982/%e9%a0%82%e5%ae%a2%e6%97%8f-%e4%b8%8d%e7%94%9f%e8%82%b2-%e9%9b%99%e8%96%aa-%e5%be%8c%e6%82%94-%e7%b5%b1%e8%a8%88"
+      responses:
+        "200":
+          description: Analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalysisResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/proxy/content:
+    post:
+      summary: Proxy WordPress content API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resourceId:
+                  type: string
+                siteCode:
+                  type: string
+              required: [resourceId, siteCode]
+      responses:
+        "200":
+          description: WordPress content
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/proxy/metadata:
+    post:
+      summary: Proxy WordPress metadata API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resourceId:
+                  type: string
+                siteCode:
+                  type: string
+              required: [resourceId, siteCode]
+      responses:
+        "200":
+          description: WordPress metadata
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /debug-wp-api:
+    post:
+      summary: Debug WordPress API call
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  format: uri
+              required: [url]
+      responses:
+        "200":
+          description: WordPress API response
+        "400":
+          $ref: "#/components/responses/BadRequest"
+components:
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+              error:
+                type: string
+              code:
+                type: string
+  schemas:
+    PageDetails:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+        title:
+          type: string
+        description:
+          type: string
+        language:
+          type: string
+        author:
+          type: string
+        publishedDate:
+          type: string
+          format: date-time
+        category:
+          type: string
+      required: [url, title]
+    AnalyzeHtmlRequest:
+      type: object
+      properties:
+        htmlContent:
+          type: string
+        pageDetails:
+          $ref: "#/components/schemas/PageDetails"
+        focusKeyword:
+          type: string
+        relatedKeywords:
+          type: array
+          items:
+            type: string
+        synonyms:
+          type: array
+          items:
+            type: string
+        options:
+          $ref: "#/components/schemas/AnalysisOptions"
+      required: [htmlContent, pageDetails]
+    AnalyzeMarkdownRequest:
+      type: object
+      properties:
+        mdContent:
+          type: string
+        pageDetails:
+          $ref: "#/components/schemas/PageDetails"
+        focusKeyword:
+          type: string
+        relatedKeywords:
+          type: array
+          items:
+            type: string
+        synonyms:
+          type: array
+          items:
+            type: string
+        options:
+          $ref: "#/components/schemas/AnalysisOptions"
+      required: [mdContent, pageDetails]
+    AnalyzeWpUrlRequest:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+        options:
+          $ref: "#/components/schemas/AnalysisOptions"
+      required: [url]
+    AnalysisOptions:
+      type: object
+      properties:
+        contentSelectors:
+          type: array
+          items:
+            type: string
+        excludeSelectors:
+          type: array
+          items:
+            type: string
+        extractMainContent:
+          type: boolean
+        baseUrl:
+          type: string
+          format: uri
+    AnalysisResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        report:
+          type: object
+        pageUnderstanding:
+          type: object
+        processingTime:
+          type: integer
+          format: int64
+        apiVersion:
+          type: string
+        assessmentCount:
+          type: integer
+        timestamp:
+          type: string
+          format: date-time
+        markdownReport:
+          type: string
+        wordpressData:
+          type: object
+        warnings:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              message:
+                type: string

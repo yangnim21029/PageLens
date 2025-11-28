@@ -30,7 +30,8 @@
     "express": "^5.1.0",
     "html-to-text": "^9.0.5",
     "jsdom": "^26.1.0",
-    "marked": "^16.1.1",
+    "swagger-ui-express": "^5.0.1",
+    "yaml": "^2.8.1",
     "zod": "^4.0.5"
   },
   "devDependencies": {
