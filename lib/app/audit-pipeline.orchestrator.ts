@@ -75,6 +75,17 @@ export interface PageUnderstanding {
       href: string;
       text: string;
     }>;
+    allLinks: Array<{
+      href: string;
+      text: string;
+      isExternal: boolean;
+      isNoFollow: boolean;
+      title?: string;
+      rel?: string;
+      target?: string;
+      isUGC?: boolean;
+      isSponsored?: boolean;
+    }>;
   };
   
   // 文字統計
@@ -219,6 +230,17 @@ export class AuditPipelineOrchestrator {
       href: link.href,
       text: link.text
     }));
+    const allLinks = parsedContent.links.map(link => ({
+      href: link.href,
+      text: link.text,
+      isExternal: link.isExternal,
+      isNoFollow: link.isNoFollow,
+      title: link.title,
+      rel: link.rel,
+      target: link.target,
+      isUGC: link.isUGC,
+      isSponsored: link.isSponsored
+    }));
     
     // Calculate average words per sentence
     const sentences = parsedContent.textContent.split(/[.!?]+/).filter(s => s.trim().length > 0);
@@ -253,7 +275,8 @@ export class AuditPipelineOrchestrator {
         totalLinks: parsedContent.links.length,
         externalLinks: externalLinks.length,
         internalLinks: internalLinks.length,
-        internalLinkList
+        internalLinkList,
+        allLinks
       },
       
       textStats: {

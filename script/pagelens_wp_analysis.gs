@@ -1,4 +1,4 @@
-// 建立 PageLensHtmlTagAudit 命名空間以避免與其他 Apps Script 衝突
+ ㄐ// 建立 PageLensHtmlTagAudit 命名空間以避免與其他 Apps Script 衝突
 var PageLensHtmlTagAudit = (function () {
   const CONFIG = {
     baseUrl: 'https://page-lens-zeta.vercel.app',
