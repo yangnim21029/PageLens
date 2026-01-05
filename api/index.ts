@@ -356,7 +356,7 @@ app.post('/analyze-wp-url', async (req, res) => {
   const startTime = Date.now();
 
   try {
-    const { url, options } = req.body;
+    const { url, options, focusKeyword, relatedKeywords } = req.body;
 
     // Validate required fields
     if (!url) {
@@ -423,9 +423,14 @@ app.post('/analyze-wp-url', async (req, res) => {
       category: 'WordPress Article'
     };
 
-    // Use focus keyword from WordPress SEO data
-    const focusKeyword = keywords && keywords.length > 0 ? keywords[0] : '';
-    const relatedKeywords = keywords && keywords.length > 1 ? keywords.slice(1) : [];
+    // Use focus keyword from request body (override) or WordPress SEO data
+    const wpFocusKeyword = keywords && keywords.length > 0 ? keywords[0] : '';
+    const wpRelatedKeywords = keywords && keywords.length > 1 ? keywords.slice(1) : [];
+
+    const finalFocusKeyword = req.body.focusKeyword || wpFocusKeyword;
+    const finalRelatedKeywords = (req.body.relatedKeywords && req.body.relatedKeywords.length > 0)
+      ? req.body.relatedKeywords
+      : wpRelatedKeywords;
 
     // Initialize audit pipeline
     const orchestrator = new AuditPipelineOrchestrator();
@@ -447,8 +452,8 @@ app.post('/analyze-wp-url', async (req, res) => {
     const input = {
       htmlContent: htmlWithMetadata,
       pageDetails,
-      focusKeyword,
-      relatedKeywords,
+      focusKeyword: finalFocusKeyword,
+      relatedKeywords: finalRelatedKeywords,
       synonyms: undefined  // 預留給未來真正的同義詞功能
     };
 
