@@ -7,11 +7,13 @@ import { PageIngredients } from '../../gathering-ingredients/types/ingredients.t
 import { SEOAssessmentUtils } from './utils/seo-assessment-utils';
 
 // 內容相關評估標準值
+const KEYWORD_DENSITY_MIN_TARGET = 12;
+
 const CONTENT_STANDARDS = {
   KEYWORD_DENSITY: {
-    optimal: { min: 2.5, max: 15, unit: '%' },
-    acceptable: { min: 2.5, max: 15, unit: '%' },
-    description: '首段關鍵字密度以第一段為準，目標 2.5%-15%，越高越好但不超過 15%'
+    optimal: { min: KEYWORD_DENSITY_MIN_TARGET, unit: '%' },
+    acceptable: { min: KEYWORD_DENSITY_MIN_TARGET, unit: '%' },
+    description: `前100字關鍵字密度，目標 >${KEYWORD_DENSITY_MIN_TARGET}%，暫不設上限`
   },
   CONTENT_LENGTH: {
     optimal: { min: 300, unit: '字' },
@@ -21,70 +23,72 @@ const CONTENT_STANDARDS = {
   FIRST_PARAGRAPH_KEYWORD: {
     optimal: { value: '包含', unit: '' },
     acceptable: { value: '包含', unit: '' },
-    description: '首段（前100字）應包含焦點關鍵字'
+    description: '前100字應包含焦點關鍵字'
   }
 };
 
 export class ContentAssessor {
   
   checkKeywordFirstParagraph(parsedContent: ParsedContent, ingredients: PageIngredients): AssessmentResult {
-    const focusKeyword = ingredients.focusKeyword?.toLowerCase() || '';
+    const keywords = [
+      ingredients.focusKeyword,
+      ...(ingredients.relatedKeywords || [])
+    ]
+      .map(kw => kw?.toLowerCase().trim())
+      .filter((kw): kw is string => !!kw);
     
-    if (!focusKeyword || focusKeyword.trim() === '') {
+    if (keywords.length === 0) {
       return {
         id: AvailableAssessments.KEYWORD_MISSING_FIRST_PARAGRAPH,
         type: AssessmentCategory.SEO,
-        name: 'No Keyword for First Paragraph Analysis',
-        description: 'No focus keyword provided for first paragraph analysis',
+        name: 'No Keyword for First 100 Chars Analysis',
+        description: 'No focus/related keyword provided for first 100 characters analysis',
         status: AssessmentStatus.OK,
         score: 75,
         impact: 'low',
-        recommendation: 'Set a focus keyword to analyze first paragraph optimization.',
-        details: { reason: 'No focus keyword provided' },
+        recommendation: 'Set a focus keyword (or related keywords) to analyze first-100-characters optimization.',
+        details: { reason: 'No focus/related keyword provided' },
         standards: CONTENT_STANDARDS.FIRST_PARAGRAPH_KEYWORD
       };
     }
 
-    // 使用 paragraphs 陣列來獲取真正的第一段落（排除標題）
-    const firstParagraph = parsedContent.paragraphs && parsedContent.paragraphs.length > 0 
-      ? parsedContent.paragraphs[0] 
-      : '';
+    // 直接取全文前 100 字
+    const analyzedFirstParagraph = (parsedContent.textContent || '').substring(0, 100);
     
     // 如果沒有段落，回傳適當的結果
-    if (!firstParagraph) {
+    if (!analyzedFirstParagraph) {
       return {
         id: AvailableAssessments.KEYWORD_MISSING_FIRST_PARAGRAPH,
         type: AssessmentCategory.SEO,
-        name: 'No Paragraphs Found',
-        description: 'No paragraph content found for analysis',
+        name: 'No Text Found',
+        description: 'No text content found for analysis',
         status: AssessmentStatus.BAD,
         score: 0,
         impact: 'high',
-        recommendation: 'Add paragraph content to your page for SEO analysis.',
-        details: { reason: 'No paragraph content found' },
+        recommendation: 'Add textual content to your page for SEO analysis.',
+        details: { reason: 'No text content found' },
         standards: CONTENT_STANDARDS.FIRST_PARAGRAPH_KEYWORD
       };
     }
     
     // 顯示前 100 字作為預覽
-    const firstParagraphPreview = firstParagraph.length > 100 
-      ? firstParagraph.substring(0, 100) + '...' 
-      : firstParagraph;
+    const firstParagraphPreview = analyzedFirstParagraph;
     
     // 使用字符級別匹配檢查焦點關鍵字
-    if (SEOAssessmentUtils.containsAllCharacters(firstParagraph, focusKeyword)) {
+    const matchedKeyword = keywords.find(kw => SEOAssessmentUtils.containsAllCharacters(analyzedFirstParagraph, kw));
+    if (matchedKeyword) {
       return {
         id: AvailableAssessments.KEYWORD_MISSING_FIRST_PARAGRAPH,
         type: AssessmentCategory.SEO,
-        name: 'Keyword in First Paragraph',
-        description: 'Focus keyword appears in the first paragraph',
+        name: 'Keyword in First 100 Chars',
+        description: 'Focus/related keyword appears in the first 100 characters',
         status: AssessmentStatus.GOOD,
         score: 100,
         impact: 'high',
-        recommendation: 'Great! Your focus keyword appears in the first paragraph.',
+        recommendation: 'Great! Your keyword (focus or related) appears in the first 100 characters.',
         details: { 
           firstParagraph: firstParagraphPreview, 
-          focusKeyword, 
+          keyword: matchedKeyword, 
           containsKeyword: true 
         },
         standards: CONTENT_STANDARDS.FIRST_PARAGRAPH_KEYWORD
@@ -93,15 +97,15 @@ export class ContentAssessor {
       return {
         id: AvailableAssessments.KEYWORD_MISSING_FIRST_PARAGRAPH,
         type: AssessmentCategory.SEO,
-        name: 'Keyword Missing from First Paragraph',
-        description: 'Focus keyword does not appear in the first paragraph',
+        name: 'Keyword Missing from First 100 Chars',
+        description: 'Focus/related keyword does not appear in the first 100 characters',
         status: AssessmentStatus.BAD,
         score: 30,
         impact: 'high',
-        recommendation: 'Include your focus keyword in the first paragraph to improve SEO.',
+        recommendation: 'Include your focus/related keyword in the first 100 characters to improve SEO.',
         details: { 
           firstParagraph: firstParagraphPreview, 
-          focusKeyword, 
+          keywords, 
           containsKeyword: false 
         },
         standards: CONTENT_STANDARDS.FIRST_PARAGRAPH_KEYWORD
@@ -110,115 +114,159 @@ export class ContentAssessor {
   }
 
   checkKeywordDensity(parsedContent: ParsedContent, ingredients: PageIngredients): AssessmentResult {
-    const focusKeyword = ingredients.focusKeyword?.toLowerCase() || '';
+    const keywords = [
+      ingredients.focusKeyword,
+      ...(ingredients.relatedKeywords || [])
+    ]
+      .map(kw => kw?.toLowerCase().trim())
+      .filter((kw): kw is string => !!kw);
     
-    if (!focusKeyword || focusKeyword.trim() === '') {
+    if (keywords.length === 0) {
       return {
         id: AvailableAssessments.KEYWORD_DENSITY_LOW,
         type: AssessmentCategory.SEO,
         name: 'No Keyword for Density Analysis',
-        description: 'No focus keyword provided for density analysis',
+        description: 'No focus/related keyword provided for density analysis',
         status: AssessmentStatus.OK,
         score: 75,
         impact: 'low',
-        recommendation: 'Set a focus keyword to analyze keyword density.',
-        details: { reason: 'No focus keyword provided' },
+        recommendation: 'Set a focus or related keyword to analyze keyword density.',
+        details: { reason: 'No focus/related keyword provided' },
         standards: CONTENT_STANDARDS.KEYWORD_DENSITY
       };
     }
 
-    // 只看第一段落的關鍵字密度，目標 2.5%-15%，越高越好但不超過 15%
-    const firstParagraph = parsedContent.paragraphs && parsedContent.paragraphs.length > 0
-      ? parsedContent.paragraphs[0]
-      : '';
+    // 只看前 100 字的關鍵字密度，目標 >12%，暫不設上限
+    const analyzedParagraph = (parsedContent.textContent || '').substring(0, 100);
 
-    if (!firstParagraph) {
+    if (!analyzedParagraph) {
       return {
         id: AvailableAssessments.KEYWORD_DENSITY_LOW,
         type: AssessmentCategory.SEO,
-        name: 'No Paragraphs Found for Density',
-        description: 'No paragraph content found to calculate keyword density',
+        name: 'No Text Found for Density',
+        description: 'No text content found to calculate keyword density',
         status: AssessmentStatus.BAD,
         score: 0,
         impact: 'medium',
-        recommendation: 'Add paragraph content to enable keyword density analysis.',
-        details: { reason: 'No paragraph content found' },
+        recommendation: 'Add textual content to enable keyword density analysis.',
+        details: { reason: 'No text content found' },
         standards: CONTENT_STANDARDS.KEYWORD_DENSITY
       };
     }
 
-    const firstParagraphLower = firstParagraph.toLowerCase();
-    const totalWords = SEOAssessmentUtils.analyzeTextLength(firstParagraphLower);
-    const keywordLength = SEOAssessmentUtils.analyzeTextLength(focusKeyword);
+    const firstParagraphLower = analyzedParagraph.toLowerCase();
+    const totalLengthChars = analyzedParagraph.length || 0; // 前 100 字長度做為分母
 
-    const keywordOccurrences = focusKeyword.length > 0
-      ? firstParagraphLower.split(focusKeyword).length - 1
-      : 0;
+    const calculateMetrics = (keyword: string) => {
+      const keywordNormalized = keyword.toLowerCase().trim();
+      const chineseChars = keywordNormalized.match(/[\u4e00-\u9fff]/g) || [];
+      const wordTokens = keywordNormalized.match(/[a-z0-9]+/g) || [];
+      const countWordOccurrences = (token: string) => {
+        const regex = new RegExp(`\\b${token}\\b`, 'g');
+        const matches = firstParagraphLower.match(regex);
+        return matches ? matches.length : 0;
+      };
+      // 中文：逐字累計出現次數；英數：按單字，累計單字長度
+      const matchedChineseCharsCount = chineseChars.reduce((sum, char) => {
+        const regex = new RegExp(char, 'g');
+        const matches = firstParagraphLower.match(regex);
+        return sum + (matches ? matches.length : 0);
+      }, 0);
+      const matchedWordTokensLength = wordTokens.reduce((sum, token) => {
+        const occurrences = countWordOccurrences(token);
+        return sum + occurrences * token.length;
+      }, 0);
 
-    const keywordWordLength = keywordOccurrences * keywordLength;
-    const density = totalWords > 0 ? (keywordWordLength / totalWords) * 100 : 0;
-    const densityRounded = parseFloat(density.toFixed(2));
-    const paragraphPreview = firstParagraph.length > 100 ? firstParagraph.substring(0, 100) + '...' : firstParagraph;
-    const firstParagraphLengthChars = firstParagraph.length;
-    const baseDetails = {
-      density: densityRounded,
-      keywordOccurrences,
-      totalWords,
-      keywordWordLength,
-      firstParagraphPreview: paragraphPreview,
-      firstParagraphLengthChars
+      const matchedCharsTotal = matchedChineseCharsCount + matchedWordTokensLength;
+      const densityVal = totalLengthChars > 0 ? (matchedCharsTotal / totalLengthChars) * 100 : 0;
+      const densityRoundedVal = parseFloat(densityVal.toFixed(2));
+      return {
+        keyword,
+        matchedChineseCharsCount,
+        matchedWordTokensLength,
+        matchedCharsTotal,
+        densityRounded: densityRoundedVal
+      };
     };
 
-    // 評分：0 無、<2.5 太低、2.5-6 OK、6-15 優、>15 太高
-    if (density === 0) {
+    const allChineseChars = new Set<string>();
+    const allWordTokens = new Set<string>();
+    const metricsList = keywords.map(k => {
+      const metric = calculateMetrics(k);
+      metric.keyword
+        .match(/[\u4e00-\u9fff]/g)?.forEach(ch => allChineseChars.add(ch));
+      metric.keyword
+        .toLowerCase()
+        .match(/[a-z0-9]+/g)?.forEach(token => allWordTokens.add(token));
+      return metric;
+    });
+
+    const uniqueMatchedChineseChars = Array.from(allChineseChars).reduce((sum, char) => {
+      const regex = new RegExp(char, 'g');
+      const matches = firstParagraphLower.match(regex);
+      return sum + (matches ? matches.length : 0);
+    }, 0);
+
+    const countWordOccurrences = (token: string) => {
+      const regex = new RegExp(`\\b${token}\\b`, 'g');
+      const matches = firstParagraphLower.match(regex);
+      return matches ? matches.length : 0;
+    };
+    const uniqueMatchedWordTokensLength = Array.from(allWordTokens).reduce((sum, token) => {
+      const occurrences = countWordOccurrences(token);
+      return sum + occurrences * token.length;
+    }, 0);
+
+    const matchedCharsTotal = uniqueMatchedChineseChars + uniqueMatchedWordTokensLength;
+    const densityVal = totalLengthChars > 0 ? (matchedCharsTotal / totalLengthChars) * 100 : 0;
+    const densityRounded = parseFloat(densityVal.toFixed(2));
+    const paragraphPreview = analyzedParagraph;
+    const firstParagraphLengthChars = analyzedParagraph.length;
+    const baseDetails = {
+      matchedCharsTotal,
+      density: densityRounded,
+      keywordOccurrences: matchedCharsTotal, // deduped across keywords
+      keywordUnits: matchedCharsTotal,
+      totalWords: totalLengthChars,
+      keywordWordLength: matchedCharsTotal,
+      matchedChineseChars: uniqueMatchedChineseChars,
+      matchedWordTokens: uniqueMatchedWordTokensLength,
+      uniqueChineseChars: Array.from(allChineseChars),
+      uniqueWordTokens: Array.from(allWordTokens),
+      totalCharsAnalyzed: totalLengthChars,
+      firstParagraphPreview: paragraphPreview,
+      firstParagraphLengthChars,
+      matchMode: 'char-count-over-100-chars-dedup-keywords',
+      matchedKeyword: undefined,
+      targetMinPercent: KEYWORD_DENSITY_MIN_TARGET,
+      checkedKeywords: keywords,
+      keywordMatches: metricsList
+    };
+
+    // 評分：0 無、<12 太低、>=12 達標（暫無上限）
+    if (densityRounded === 0) {
       return {
         id: AvailableAssessments.KEYWORD_DENSITY_LOW,
         type: AssessmentCategory.SEO,
-        name: 'Keyword Not Found in First Paragraph',
-        description: 'Focus keyword does not appear in the first paragraph',
+        name: 'Keyword Not Found in First 100 Chars',
+        description: 'Focus/related keyword does not appear in the first 100 characters',
         status: AssessmentStatus.BAD,
         score: 20,
         impact: 'medium',
-        recommendation: 'Add your focus keyword to the first paragraph to improve density (aim 2.5%-15%).',
+        recommendation: `Add your focus/related keyword to the first 100 characters to improve density (aim >${KEYWORD_DENSITY_MIN_TARGET}%).`,
         details: baseDetails,
         standards: CONTENT_STANDARDS.KEYWORD_DENSITY
       };
-    } else if (density > 15) {
+    } else if (densityRounded < KEYWORD_DENSITY_MIN_TARGET) {
       return {
         id: AvailableAssessments.KEYWORD_DENSITY_LOW,
         type: AssessmentCategory.SEO,
-        name: 'Keyword Density Too High',
-        description: `Keyword density is ${densityRounded}% (should not exceed 15%)`,
+        name: 'Keyword Density Too Low',
+        description: `Keyword density is ${densityRounded}% in the first 100 characters (target >${KEYWORD_DENSITY_MIN_TARGET}%)`,
         status: AssessmentStatus.BAD,
         score: 40,
         impact: 'medium',
-        recommendation: 'Reduce the focus keyword usage in the first paragraph to stay under 15%.',
-        details: baseDetails,
-        standards: CONTENT_STANDARDS.KEYWORD_DENSITY
-      };
-    } else if (density >= 6) {
-      return {
-        id: AvailableAssessments.KEYWORD_DENSITY_LOW,
-        type: AssessmentCategory.SEO,
-        name: 'Excellent Keyword Density',
-        description: `Keyword density is ${densityRounded}% in the first paragraph (target 2.5%-15%)`,
-        status: AssessmentStatus.GOOD,
-        score: 100,
-        impact: 'medium',
-        recommendation: 'Great! Your first paragraph keyword density is strong and under 15%.',
-        details: baseDetails,
-        standards: CONTENT_STANDARDS.KEYWORD_DENSITY
-      };
-    } else if (density >= 2.5) {
-      return {
-        id: AvailableAssessments.KEYWORD_DENSITY_LOW,
-        type: AssessmentCategory.SEO,
-        name: 'Good Keyword Density',
-        description: `Keyword density is ${densityRounded}% in the first paragraph (target 2.5%-15%)`,
-        status: AssessmentStatus.OK,
-        score: 80,
-        impact: 'medium',
-        recommendation: 'Consider slightly increasing focus keyword usage toward the 15% cap.',
+        recommendation: `Increase focus/related keyword presence in the first 100 characters (aim above ${KEYWORD_DENSITY_MIN_TARGET}%).`,
         details: baseDetails,
         standards: CONTENT_STANDARDS.KEYWORD_DENSITY
       };
@@ -226,12 +274,12 @@ export class ContentAssessor {
       return {
         id: AvailableAssessments.KEYWORD_DENSITY_LOW,
         type: AssessmentCategory.SEO,
-        name: 'Keyword Density Too Low',
-        description: `Keyword density is ${densityRounded}% in the first paragraph (minimum target 2.5%)`,
-        status: AssessmentStatus.BAD,
-        score: 40,
+        name: 'Keyword Density Meets Target',
+        description: `Keyword density is ${densityRounded}% in the first 100 characters (target >${KEYWORD_DENSITY_MIN_TARGET}%, no upper limit set)`,
+        status: AssessmentStatus.GOOD,
+        score: 100,
         impact: 'medium',
-        recommendation: 'Increase focus keyword presence in the first paragraph (aim 2.5%-15%).',
+        recommendation: 'Great! Your keyword density exceeds the minimum target; no upper limit is enforced for now.',
         details: baseDetails,
         standards: CONTENT_STANDARDS.KEYWORD_DENSITY
       };

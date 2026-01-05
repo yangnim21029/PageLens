@@ -4,11 +4,12 @@ const path = require('path');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yaml');
 const { AuditPipelineOrchestrator } = require('../lib/app/audit-pipeline.orchestrator');
-const { 
-  callWordPressArticleApi, 
+const {
+  callWordPressArticleApi,
   callWordPressSEOApi,
   getKeywordByWordPress
 } = require('../lib/services/external/wordpress');
+const { scrapeMetaDescription } = require('../lib/utils/fallback-scraper');
 const { wordPressSiteMap } = require('../lib/config/wordpress');
 
 const app = express();
@@ -73,7 +74,7 @@ app.get('/example', (req, res) => {
         }
       },
       "wordPressAnalysis": {
-        "endpoint": "POST /analyze-wp-url", 
+        "endpoint": "POST /analyze-wp-url",
         "payload": {
           "url": "https://www.elle.com.hk/article/123456",
           "options": {
@@ -99,9 +100,9 @@ app.get('/example', (req, res) => {
             "score": 100,
             "impact": "high",
             "recommendation": "Perfect! Your title width is optimal.",
-            "details": { 
-              "pixelWidth": 263, 
-              "charEquivalent": 19 
+            "details": {
+              "pixelWidth": 263,
+              "charEquivalent": 19
             },
             "standards": {
               "optimal": { "min": 150, "max": 600, "unit": "px" },
@@ -147,10 +148,10 @@ app.post('/debug-wp-api', async (req, res) => {
     }
 
     const wpApiUrl = `https://article-api.presslogic.com/v1/articles/${postId}?site=${siteCode}`;
-    
+
     const response = await fetch(wpApiUrl);
     const data = await response.json();
-    
+
     res.json({
       url: wpApiUrl,
       status: response.status,
@@ -164,7 +165,7 @@ app.post('/debug-wp-api', async (req, res) => {
 // Page analysis endpoint - Returns exactly 15 unified assessment IDs
 app.post('/analyze', async (req, res) => {
   const startTime = Date.now();
-  
+
   try {
     const { htmlContent, pageDetails, focusKeyword, relatedKeywords, synonyms, options } = req.body;
 
@@ -246,13 +247,13 @@ app.post('/analyze', async (req, res) => {
     };
 
     console.log(`Analysis completed in ${processingTime}ms with ${assessmentCount} assessments`);
-    
+
     res.json(enhancedResult);
   } catch (error) {
     const processingTime = Date.now() - startTime;
     console.error('Analysis error:', error);
     console.error('Error stack:', error.stack);
-    
+
     res.status(500).json({
       success: false,
       error: error.message || 'Internal server error',
@@ -267,7 +268,7 @@ app.post('/analyze', async (req, res) => {
 app.post('/api/proxy/content', async (req, res) => {
   try {
     const { resourceId, siteCode } = req.body;
-    
+
     if (!resourceId || !siteCode) {
       return res.status(400).json({
         success: false,
@@ -278,7 +279,7 @@ app.post('/api/proxy/content', async (req, res) => {
 
     // Internally call WordPress Article API
     const wpApiUrl = `https://article-api.presslogic.com/v1/articles/${resourceId}?site=${siteCode}`;
-    
+
     const response = await fetch(wpApiUrl, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' }
@@ -289,7 +290,7 @@ app.post('/api/proxy/content', async (req, res) => {
     }
 
     const data = await response.json();
-    
+
     // Return data without revealing the WordPress structure
     res.json({
       success: true,
@@ -308,7 +309,7 @@ app.post('/api/proxy/content', async (req, res) => {
 app.post('/api/proxy/metadata', async (req, res) => {
   try {
     const { resourceUrl } = req.body;
-    
+
     if (!resourceUrl) {
       return res.status(400).json({
         success: false,
@@ -318,9 +319,9 @@ app.post('/api/proxy/metadata', async (req, res) => {
     }
 
     // Internally call WordPress SEO API
-    const wpApiUrl = process.env.WP_ARTICLE_SEO_URL || 
+    const wpApiUrl = process.env.WP_ARTICLE_SEO_URL ||
       'https://article-api.presslogic.com/v1/articles/getArticleSEO';
-    
+
     const response = await fetch(wpApiUrl, {
       method: 'POST',
       headers: {
@@ -334,7 +335,7 @@ app.post('/api/proxy/metadata', async (req, res) => {
     }
 
     const data = await response.json();
-    
+
     // Return data without revealing the WordPress structure
     res.json({
       success: true,
@@ -353,7 +354,7 @@ app.post('/api/proxy/metadata', async (req, res) => {
 // WordPress URL analysis endpoint - Enhanced for v2.0
 app.post('/analyze-wp-url', async (req, res) => {
   const startTime = Date.now();
-  
+
   try {
     const { url, options } = req.body;
 
@@ -371,7 +372,7 @@ app.post('/analyze-wp-url', async (req, res) => {
     // Check if URL is supported by WordPress API
     const hostname = new URL(url).hostname;
     const supportedSite = wordPressSiteMap[hostname];
-    
+
     if (!supportedSite) {
       return res.status(400).json({
         success: false,
@@ -395,11 +396,27 @@ app.post('/analyze-wp-url', async (req, res) => {
 
     const wpData = articleResult.data;
 
+    // Fallback logic for missing description
+    let finalDescription = seoData?.description || '';
+
+    if (!finalDescription) {
+      console.log(`[Analysis] Description missing from WordPress API for ${url}, attempting fallback scrape...`);
+
+      const fallbackDesc = await scrapeMetaDescription(url);
+
+      if (fallbackDesc) {
+        console.log(`[Analysis] Fallback scrape successful: "${fallbackDesc.substring(0, 50)}..."`);
+
+        finalDescription = fallbackDesc;
+        if (seoData) seoData.description = fallbackDesc;
+      }
+    }
+
     // Prepare page details from WordPress data
     const pageDetails = {
       url: url,
       title: wpData.title,
-      description: seoData?.description || '',
+      description: finalDescription,
       language: 'zh-Hant-HK', // Default for PressLogic sites
       author: wpData.author?.display_name || '',
       publishedDate: wpData.post_date,
@@ -419,14 +436,14 @@ app.post('/analyze-wp-url', async (req, res) => {
 <html>
 <head>
   <title>${seoData?.title || wpData.title}</title>
-  <meta name="description" content="${seoData?.description || ''}">
+  <meta name="description" content="${finalDescription ? finalDescription.replace(/"/g, '&quot;') : ''}">
 </head>
 <body>
   <h1>${wpData.title}</h1>
-  ${wpData.post_content}
+  ${wpData.content?.rendered || wpData.post_content || ''}
 </body>
 </html>`;
-    
+
     const input = {
       htmlContent: htmlWithMetadata,
       pageDetails,
@@ -485,13 +502,13 @@ app.post('/analyze-wp-url', async (req, res) => {
     };
 
     console.log(`WordPress analysis completed in ${processingTime}ms with ${assessmentCount} assessments`);
-    
+
     res.json(enhancedResult);
   } catch (error) {
     const processingTime = Date.now() - startTime;
     console.error('WordPress analysis error:', error);
     console.error('Error stack:', error.stack);
-    
+
     res.status(500).json({
       success: false,
       error: error.message || 'Internal server error',
@@ -511,10 +528,11 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(3000, () => {
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
   console.log('===============================================');
   console.log('🚀 PageLens API v2.0 Server Started');
-  console.log('📡 Port: 3000');
+  console.log(`📡 Port: ${PORT}`);
   console.log('🔗 Endpoints:');
   console.log('   GET  /         - Health check');
   console.log('   GET  /docs     - API documentation');
